@@ -1,20 +1,13 @@
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.WinUI;
-using CommunityToolkit.WinUI.Helpers;
-using CommunityToolkit.WinUI.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Windowing;
 using Microsoft.Windows.AppLifecycle;
-using Serilog;
-using System;
-using System.IO;
-using System.Linq;
+using RegistryValley.App.ViewModels;
 using Windows.ApplicationModel;
 using Windows.Storage;
-using System.Windows.Navigation;
 
 namespace RegistryValley.App
 {
@@ -28,10 +21,10 @@ namespace RegistryValley.App
         //public static SettingsViewModel AppSettings { get; set; }
 
         public static string AppVersion =
-            $"{Windows.ApplicationModel.Package.Current.Id.Version.Major}." +
-            $"{Windows.ApplicationModel.Package.Current.Id.Version.Minor}." +
-            $"{Windows.ApplicationModel.Package.Current.Id.Version.Build}." +
-            $"{Windows.ApplicationModel.Package.Current.Id.Version.Revision}";
+            $"{Package.Current.Id.Version.Major}." +
+            $"{Package.Current.Id.Version.Minor}." +
+            $"{Package.Current.Id.Version.Build}." +
+            $"{Package.Current.Id.Version.Revision}";
 
         public App()
         {
@@ -46,12 +39,11 @@ namespace RegistryValley.App
         private IServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                //.AddSingleton<INavigationService, NavigationService>()
                 //.AddSingleton<Utils.ILogger>(new SerilogWrapperLogger(Serilog.Log.Logger))
                 //.AddSingleton<ToastService>()
                 .AddSingleton<IMessenger>(StrongReferenceMessenger.Default)
                 // ViewModels
-                //.AddSingleton<MainPageViewModel>()
+                .AddSingleton<MainViewModel>()
                 //.AddTransient<ViewModels.AppSettings.AboutViewModel>()
                 .BuildServiceProvider();
         }

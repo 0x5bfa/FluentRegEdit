@@ -9,6 +9,7 @@ global using global::System.Threading.Tasks;
 
 // Custom usings
 global using global::CommunityToolkit.Mvvm.ComponentModel;
+global using global::CommunityToolkit.Mvvm.DependencyInjection;
 global using global::CommunityToolkit.Mvvm.Input;
 global using global::CommunityToolkit.Mvvm.Messaging;
 global using global::Humanizer;
