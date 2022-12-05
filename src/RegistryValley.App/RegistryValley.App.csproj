@@ -50,9 +50,15 @@
     <Content Include="Assets\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ResourceDictionaries\*.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ResourceDictionaries\DefaultGridSplitterStyle.xaml" />
     <None Remove="Views\MainPage.xaml" />
   </ItemGroup>
 
@@ -79,6 +85,12 @@
 
   <ItemGroup>
     <Page Update="Views\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="ResourceDictionaries\DefaultGridSplitterStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

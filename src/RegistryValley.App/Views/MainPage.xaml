@@ -5,7 +5,118 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:RegistryValley.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
-    <Grid />
+    <Page.Resources>
+        <ResourceDictionary>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ms-appx:///ResourceDictionaries/DefaultGridSplitterStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,0,0,-8">
+            <StackPanel
+                Height="40"
+                VerticalAlignment="Top"
+                Background="Transparent"
+                Orientation="Horizontal">
+
+                <Image
+                    x:Name="AppFontIcon"
+                    Width="20"
+                    Height="20"
+                    Margin="12,0,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Source="ms-appx:///Assets/AppTiles/StoreLogo.png" />
+
+                <TextBlock
+                    Margin="12,0,0,0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="Registry" />
+
+                <TextBlock
+                    Margin="2,0,0,0"
+                    VerticalAlignment="Center"
+                    FontWeight="SemiBold"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="Valley" />
+
+                <TextBlock
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="BETA" />
+
+            </StackPanel>
+        </Grid>
+
+        <MenuBar Grid.Row="1">
+            <MenuBarItem Title="File">
+                <MenuFlyoutItem Text="Import..." />
+                <MenuFlyoutItem Text="Export..." />
+                <MenuFlyoutItem Text="Save" />
+                <MenuFlyoutItem Text="Exit" />
+            </MenuBarItem>
+
+            <MenuBarItem Title="Edit">
+                <MenuFlyoutItem Text="Undo" />
+                <MenuFlyoutItem Text="Cut" />
+                <MenuFlyoutItem Text="Copy" />
+                <MenuFlyoutItem Text="Paste" />
+            </MenuBarItem>
+
+            <MenuBarItem Title="View">
+                <MenuFlyoutItem Text="About" />
+            </MenuBarItem>
+
+            <MenuBarItem Title="Help">
+                <MenuFlyoutItem Text="About" />
+            </MenuBarItem>
+        </MenuBar>
+
+        <Grid Grid.Row="2">
+            <TextBox Background="Transparent" />
+        </Grid>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="144" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" MinWidth="144" />
+            </Grid.ColumnDefinitions>
+
+            <Grid>
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="Tree" />
+            </Grid>
+
+            <toolkit:GridSplitter Grid.Column="1" Style="{StaticResource DefaultGridSplitterStyle}" />
+
+            <Grid Grid.Column="2">
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="Viewer" />
+            </Grid>
+
+        </Grid>
+    </Grid>
 </Page>
