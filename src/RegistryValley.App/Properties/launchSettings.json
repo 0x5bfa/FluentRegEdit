@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RegistryValley.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "RegistryValley.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
