@@ -57,6 +57,17 @@ namespace RegistryValley.App
 
         public async Task InitializeApplication(object activatedEventArgs)
         {
+            var rootFrame = EnsureWindowIsInitialized();
+            Type pageType = typeof(Views.MainPage);
+
+            if (rootFrame.Content == null)
+            {
+                rootFrame.Navigate(typeof(Views.MainPage), null, new SuppressNavigationTransitionInfo());
+                pageType = typeof(Views.MainPage);
+            }
+
+            ((Views.MainPage)rootFrame.Content).Loaded += (s, e)
+                => DispatcherQueue.TryEnqueue(() => Activate());
         }
 
         private Frame EnsureWindowIsInitialized()
