@@ -1,54 +1,178 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
-
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI.Helpers;
+using CommunityToolkit.WinUI.Notifications;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
+using Microsoft.UI.Windowing;
+using Microsoft.Windows.AppLifecycle;
+using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Windows.Storage;
+using System.Windows.Navigation;
 
 namespace RegistryValley.App
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
     public partial class App : Application
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
+        public new static App Current
+                    => (App)Application.Current;
+
+        public IServiceProvider Services { get; }
+
+        //public static SettingsViewModel AppSettings { get; set; }
+
+        public static string AppVersion =
+            $"{Windows.ApplicationModel.Package.Current.Id.Version.Major}." +
+            $"{Windows.ApplicationModel.Package.Current.Id.Version.Minor}." +
+            $"{Windows.ApplicationModel.Package.Current.Id.Version.Build}." +
+            $"{Windows.ApplicationModel.Package.Current.Id.Version.Revision}";
+
         public App()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+
+            UnhandledException += OnUnhandledException;
+            TaskScheduler.UnobservedTaskException += OnUnobservedException;
+
+            Services = ConfigureServices();
         }
 
-        /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other entry points
-        /// will be used such as when the application is launched to open a specific file.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        private IServiceProvider ConfigureServices()
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            return new ServiceCollection()
+                //.AddSingleton<INavigationService, NavigationService>()
+                //.AddSingleton<Utils.ILogger>(new SerilogWrapperLogger(Serilog.Log.Logger))
+                //.AddSingleton<ToastService>()
+                .AddSingleton<IMessenger>(StrongReferenceMessenger.Default)
+                // ViewModels
+                //.AddSingleton<MainPageViewModel>()
+                //.AddTransient<ViewModels.AppSettings.AboutViewModel>()
+                .BuildServiceProvider();
         }
 
-        private Window m_window;
+        private static void EnsureSettingsAndConfigurationAreBootstrapped()
+        {
+            //AppSettings ??= new SettingsViewModel();
+        }
+
+        private static async Task StartAppCenter()
+        {
+            //try
+            //{
+            //    if (!AppCenter.Configured)
+            //    {
+            //        var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri(@"ms-appx:///Resources/AppCenterKey.txt"));
+            //        var lines = await FileIO.ReadTextAsync(file);
+            //        using var document = System.Text.Json.JsonDocument.Parse(lines);
+            //        var obj = document.RootElement;
+            //        AppCenter.Start(obj.GetProperty("key").GetString(), typeof(Analytics), typeof(Crashes));
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Logger.Warn(ex, "AppCenter could not be started.");
+            //}
+        }
+
+        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        {
+            var activatedEventArgs = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+
+            // Initialize MainWindow here
+            EnsureWindowIsInitialized();
+
+            EnsureSettingsAndConfigurationAreBootstrapped();
+
+            _ = Window.InitializeApplication(activatedEventArgs.Data);
+        }
+
+        public void OnActivated(AppActivationArguments activatedEventArgs)
+        {
+            Window.DispatcherQueue.EnqueueAsync(async () => await Window.InitializeApplication(activatedEventArgs.Data));
+        }
+
+        private void EnsureWindowIsInitialized()
+        {
+            Window = new MainWindow();
+            Window.Activated += Window_Activated;
+            //Window.Closed += Window_Closed;
+            WindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(Window);
+        }
+
+        private void Window_Activated(object sender, WindowActivatedEventArgs args)
+        {
+            if (args.WindowActivationState == WindowActivationState.CodeActivated ||
+                args.WindowActivationState == WindowActivationState.PointerActivated)
+            {
+                ApplicationData.Current.LocalSettings.Values["INSTANCE_ACTIVE"] = -System.Diagnostics.Process.GetCurrentProcess().Id;
+            }
+        }
+
+        void OnNavigationFailed(object sender, Microsoft.UI.Xaml.Navigation.NavigationFailedEventArgs e)
+            => throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
+
+        private void OnSuspending(object sender, SuspendingEventArgs e)
+        {
+            var deferral = e.SuspendingOperation.GetDeferral();
+            //TODO: Save application state and stop any background activity
+            deferral.Complete();
+        }
+
+        private async void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+            => await AppUnhandledException(e.Exception);
+
+        private async void OnUnobservedException(object sender, UnobservedTaskExceptionEventArgs e)
+            => await AppUnhandledException(e.Exception);
+
+        private async Task AppUnhandledException(Exception ex)
+        {
+            //Services.GetService<Utils.ILogger>()?.Fatal("Unhandled exception", ex);
+
+            try
+            {
+                await new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "Unhandled exception",
+                    Content = ex.Message,
+                    CloseButtonText = "Close"
+                }
+                .ShowAsync();
+            }
+            catch (Exception ex2)
+            {
+                //Services.GetService<Utils.ILogger>()?.Error("Failed to display unhandled exception", ex2);
+            }
+        }
+
+        public static TEnum GetEnum<TEnum>(string text) where TEnum : struct
+        {
+            if (!typeof(TEnum).GetType().IsEnum)
+            {
+                throw new InvalidOperationException("Generic parameter 'TEnum' must be an enum.");
+            }
+            return (TEnum)Enum.Parse(typeof(TEnum), text);
+        }
+
+        public static void CloseApp()
+            => Window.Close();
+
+        public static AppWindow GetAppWindow(Window w)
+        {
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(w);
+
+            Microsoft.UI.WindowId windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
+
+            return AppWindow.GetFromWindowId(windowId);
+        }
+
+        public static MainWindow Window { get; private set; } = null!;
+
+        public static IntPtr WindowHandle { get; private set; }
     }
 }
