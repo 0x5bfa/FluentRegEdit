@@ -5,41 +5,35 @@ using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
-    public class ViewModel
+    public class ViewModel<T> : Collection<T>
     {
         public ViewModel()
         {
             flatVectorRealizedItems.CollectionChanged += UpdateTreeView;
         }
 
-        public int Size
-        {
-            get => flatVectorRealizedItems.Count;
-        }
+        public int Size { get => flatVectorRealizedItems.Count; }
 
         public event NotifyCollectionChangedEventHandler VectorChanged;
-
         private event NotifyCollectionChangedEventHandler ViewModelChanged;
 
-        public ObservableCollection<TreeNode> flatVectorRealizedItems = new();
-
         public ObservableCollection<EventRegistrationToken> collectionChangedEventTokenVector;
-
         public ObservableCollection<EventRegistrationToken> propertyChangedEventTokenVector;
 
         private static ConditionalWeakTable<INotifyCollectionChanged, EventRegistrationTokenTable<NotifyCollectionChangedEventHandler>> weakTableForVectorChanged = new();
-
         private static ConditionalWeakTable<INotifyPropertyChanged, EventRegistrationTokenTable<PropertyChangedEventHandler>> weakTableForPropertyChanged = new();
 
-        public void Append(object value)
+        public ObservableCollection<T> flatVectorRealizedItems = new();
+
+        public void Add(object value)
         {
-            TreeNode targetNode = (TreeNode)value;
-            flatVectorRealizedItems.Append(targetNode);
+            T targetNode = (T)value;
+            flatVectorRealizedItems.Add(targetNode);
 
             collectionChangedEventTokenVector.Add(add_CollectionChanged(this.TreeNodeVectorChanged));
-            targetNode.TreeNodeChanged += this.TreeNodeVectorChanged;
+            ((TreeNode)value).TreeNodeChanged += this.TreeNodeVectorChanged;
             propertyChangedEventTokenVector.Add(add_PropertyChanged(this.TreeNodePropertyChanged));
-            targetNode.PropertyChanged += this.TreeNodePropertyChanged;
+            ((TreeNode)value).PropertyChanged += this.TreeNodePropertyChanged;
         }
 
         internal EventRegistrationToken add_CollectionChanged(NotifyCollectionChangedEventHandler value)
@@ -95,7 +89,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             }
         }
 
-        public TreeNode First()
+        public T First()
         {
             return flatVectorRealizedItems.First();
         }
@@ -112,20 +106,20 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public int IndexOf(object value)
         {
-            return flatVectorRealizedItems.IndexOf((TreeNode)value);
+            return flatVectorRealizedItems.IndexOf((T)value);
         }
 
         public void InsertAt(int index, object value)
         {
             if (index > -1 && index <= flatVectorRealizedItems.Count)
             {
-                TreeNode targetNode = (TreeNode)value;
+                T targetNode = (T)value;
                 flatVectorRealizedItems.Insert(index, targetNode);
 
                 collectionChangedEventTokenVector.Insert(index, add_CollectionChanged(this.TreeNodeVectorChanged));
-                targetNode.TreeNodeChanged += this.TreeNodeVectorChanged;
+                ((TreeNode)value).TreeNodeChanged += this.TreeNodeVectorChanged;
                 propertyChangedEventTokenVector.Insert(index, add_PropertyChanged(this.TreeNodePropertyChanged));
-                targetNode.PropertyChanged += this.TreeNodePropertyChanged;
+                ((TreeNode)value).PropertyChanged += this.TreeNodePropertyChanged;
             }
         }
 
@@ -133,7 +127,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
         {
             if (index > -1 && index < flatVectorRealizedItems.Count)
             {
-                TreeNode targetNode = flatVectorRealizedItems.ElementAt(index);
+                T targetNode = flatVectorRealizedItems.ElementAt(index);
                 flatVectorRealizedItems.RemoveAt(index);
 
                 var eventIndex = index;
@@ -142,7 +136,6 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 collectionChangedEventTokenVector.RemoveAt(eventIndex);
                 remove_CollectionChanged(propertyChangedEventTokenVector[eventIndex]);
                 propertyChangedEventTokenVector.RemoveAt(eventIndex);
-
             }
         }
 
@@ -151,7 +144,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             int index = flatVectorRealizedItems.Count - 1;
             if (index >= 0)
             {
-                TreeNode targetNode = flatVectorRealizedItems.ElementAt(index);
+                T targetNode = flatVectorRealizedItems.ElementAt(index);
                 flatVectorRealizedItems.RemoveAt(index);
 
                 var eventIndex = index;
@@ -167,9 +160,9 @@ namespace RegistryValley.App.UserControls.TreeViewControl
         {
             if (index > -1 && index < flatVectorRealizedItems.Count)
             {
-                TreeNode targetNode = (TreeNode)value;
-                TreeNode removeNode = flatVectorRealizedItems.ElementAt(index);
-                flatVectorRealizedItems[index] = targetNode;
+                T targetNode = (T)value;
+                T removeNode = flatVectorRealizedItems.ElementAt(index);
+                flatVectorRealizedItems[index] = (T)value;
 
                 var eventIndex = index;
 
@@ -309,9 +302,12 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
                             for (int i = stopIndex - 1; i > resetIndex; i--)
                             {
-                                if ((flatVectorRealizedItems.ElementAt(i)).ParentNode == null)
+                                if (flatVectorRealizedItems.ElementAt(i) is TreeNode tn)
                                 {
-                                    RemoveNodeAndDescendantsFromView(flatVectorRealizedItems.ElementAt(i));
+                                    if (tn.ParentNode == null)
+                                    {
+                                        RemoveNodeAndDescendantsFromView(tn);
+                                    }
                                 }
                             }
 
@@ -413,9 +409,12 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
                             for (int i = stopIndex - 1; i > removeIndex; i--)
                             {
-                                if ((flatVectorRealizedItems.ElementAt(i)).ParentNode == null)
+                                if (flatVectorRealizedItems.ElementAt(i) is TreeNode tn)
                                 {
-                                    RemoveNodeAndDescendantsFromView(flatVectorRealizedItems.ElementAt(i));
+                                    if (tn.ParentNode == null)
+                                    {
+                                        RemoveNodeAndDescendantsFromView(tn);
+                                    }
                                 }
                             }
                         }

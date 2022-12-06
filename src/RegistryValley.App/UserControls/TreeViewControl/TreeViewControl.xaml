@@ -10,7 +10,7 @@
 
     <UserControl.Resources>
 
-        <local:IntegerToIndentationConverter x:Key="IntToIndConverter" />
+        <converters:IntegerToIndentationConverter x:Key="IntegerToIndentationConverter" />
 
         <converters:GlyphConverter
             x:Key="ExpandCollapseGlyphConverter"
@@ -35,7 +35,7 @@
         <local:TreeView.ItemTemplate>
             <DataTemplate x:DataType="local:TreeNode">
 
-                <Grid Margin="{Binding Depth, Mode=OneWay, Converter={StaticResource IntToIndConverter}}">
+                <Grid Margin="{Binding Depth, Converter={StaticResource IntegerToIndentationConverter}, Mode=OneWay}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="36" />
                         <ColumnDefinition Width="*" />
@@ -66,4 +66,5 @@
         </local:TreeView.ItemContainerStyle>
 
     </local:TreeView>
+
 </UserControl>

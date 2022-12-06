@@ -32,7 +32,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             set
             {
                 data = value;
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Data)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Data)));
             }
         }
 
@@ -43,8 +43,8 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             set
             {
                 parentNode = value;
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(ParentNode)));
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Depth)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ParentNode)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Depth)));
             }
         }
 
@@ -55,7 +55,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             set
             {
                 isExpanded = value;
-                PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsExpanded)));
             }
         }
 
@@ -92,10 +92,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             //If the count was 0 before we appended, then the HasItems property needs to change.
             if (count == 0)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasItems)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
             }
 
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Size)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
 
         }
 
@@ -109,10 +109,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             //If the count was 0 before we appended, then the HasItems property needs to change.
             if (count == 0)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasItems)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
             }
 
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Size)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
 
             return appenddedCollection;
         }
@@ -133,10 +133,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             //If the count was not 0 before we cleared, then the HasItems property needs to change.
             if (count == 0)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasItems)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
             }
 
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Size)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
         }
 
         public TreeNode First()
@@ -172,10 +172,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 //If the count was 0 before we insert, then the HasItems property needs to change.
                 if (count == 0)
                 {
-                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasItems)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
                 }
 
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Size)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
             }
         }
 
@@ -191,10 +191,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 //If the count was 1 before we remove, then the HasItems property needs to change.
                 if (count == 1)
                 {
-                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasItems)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
                 }
 
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Size)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
             }
         }
 
@@ -208,10 +208,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             //If the count was 1 before we remove, then the HasItems property needs to change.
             if (count == 1)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasItems)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
             }
 
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Size)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
         }
 
         public void SetAt(int index, object value)
@@ -227,7 +227,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            ChildrenCollectionChanged(this, e);
+            ChildrenCollectionChanged?.Invoke(this, e);
         }
     }
 }

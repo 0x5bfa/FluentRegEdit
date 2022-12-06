@@ -120,43 +120,43 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public void ItemExpanded(HiveItem selectedItem)
         {
-            if (lastInvokedItem != null)
-            {
-                if (GetPath(selectedItem).ToLower().Equals(GetPath(lastInvokedItem).ToLower(), StringComparison.CurrentCultureIgnoreCase))
-                {
-                    return;
-                }
-            }
+            //if (lastInvokedItem != null)
+            //{
+            //    if (GetPath(selectedItem).ToLower().Equals(GetPath(lastInvokedItem).ToLower(), StringComparison.CurrentCultureIgnoreCase))
+            //    {
+            //        return;
+            //    }
+            //}
 
-            if (selectedItem.Expanded == true)
-                return;
+            //if (selectedItem.Expanded == true)
+            //    return;
 
-            lastInvokedItem = selectedItem;
-            selectedItem.Expanded = true;
+            //lastInvokedItem = selectedItem;
+            //selectedItem.Expanded = true;
 
-            foreach (HiveItem element in selectedItem.Children)
-            {
-                if (element.Children.Count > 0)
-                    break;
+            //foreach (HiveItem element in selectedItem.Children)
+            //{
+            //    if (element.Children.Count > 0)
+            //        break;
 
-                App.registry.GetSubKeyList(element.Hive, element.Path, out string[] keys);
+            //    App.registry.GetSubKeyList(element.Hive, element.Path, out string[] keys);
 
-                if (keys == null)
-                    continue;
+            //    if (keys == null)
+            //        continue;
 
-                foreach (string key in keys)
-                {
-                    HiveItem item = new()
-                    {
-                        Name = key,
-                        Hive = element.Hive,
-                        Image = folderImageSource,
-                        Path = element.Path + key + "\\"
-                    };
+            //    foreach (string key in keys)
+            //    {
+            //        HiveItem item = new()
+            //        {
+            //            Name = key,
+            //            Hive = element.Hive,
+            //            Image = folderImageSource,
+            //            Path = element.Path + key + "\\"
+            //        };
 
-                    element.Children.Add(item);
-                }
-            }
+            //        element.Children.Add(item);
+            //    }
+            //}
         }
 
         public void ItemCollapsed(HiveItem selectedItem)
@@ -224,92 +224,92 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
             ValueSource.Clear();
 
-            Path = GetPath(item);
+            //Path = GetPath(item);
 
-            if (!(item.Name == "Computer" && string.IsNullOrEmpty(item.Path)))
-            {
-                RegistryType dtype = RegistryType.String;
-                byte[] dbuf = System.Text.Encoding.Unicode.GetBytes("(value not set)");
+            //if (!(item.Name == "Computer" && string.IsNullOrEmpty(item.Path)))
+            //{
+            //    RegistryType dtype = RegistryType.String;
+            //    byte[] dbuf = System.Text.Encoding.Unicode.GetBytes("(value not set)");
 
-                try
-                {
-                    App.registry.QueryValue(item.Hive, item.Path, null, out dtype, out dbuf);
-                }
-                catch { };
+            //    try
+            //    {
+            //        App.registry.QueryValue(item.Hive, item.Path, null, out dtype, out dbuf);
+            //    }
+            //    catch { };
 
-                string ddatastr = "(value not set)";
+            //    string ddatastr = "(value not set)";
 
-                if (dtype == RegistryType.String)
-                {
-                    ddatastr = System.Text.Encoding.Unicode.GetString(dbuf);
-                }
-                else if (dtype == RegistryType.Integer)
-                {
-                    ddatastr = BitConverter.ToInt32(dbuf, 0).ToString();
-                }
-                else if (dtype == RegistryType.Long)
-                {
-                    ddatastr = BitConverter.ToInt64(dbuf, 0).ToString();
-                }
-                else
-                {
-                    ddatastr = BitConverter.ToString(dbuf);
-                }
+            //    if (dtype == RegistryType.String)
+            //    {
+            //        ddatastr = System.Text.Encoding.Unicode.GetString(dbuf);
+            //    }
+            //    else if (dtype == RegistryType.Integer)
+            //    {
+            //        ddatastr = BitConverter.ToInt32(dbuf, 0).ToString();
+            //    }
+            //    else if (dtype == RegistryType.Long)
+            //    {
+            //        ddatastr = BitConverter.ToInt64(dbuf, 0).ToString();
+            //    }
+            //    else
+            //    {
+            //        ddatastr = BitConverter.ToString(dbuf);
+            //    }
 
-                ValueSource.Add(new ValueItem()
-                {
-                    Name = "(Default)",
-                    Type = dtype.ToString(),
-                    Data = ddatastr,
-                    Image = textImageSource,
-                    ParentItem = item
-                });
+            //    ValueSource.Add(new ValueItem()
+            //    {
+            //        Name = "(Default)",
+            //        Type = dtype.ToString(),
+            //        Data = ddatastr,
+            //        Image = textImageSource,
+            //        ParentItem = item
+            //    });
 
-                App.registry.GetValueList(item.Hive, item.Path, out string[] list);
+            //    App.registry.GetValueList(item.Hive, item.Path, out string[] list);
 
-                if (list != null && list.Length != 0)
-                {
-                    var valuerange = (list.ToList().OrderBy(x => x).Select(x =>
-                    {
-                        RegistryType vtype = App.registry.GetValueInfo(item.Hive, item.Path, x, 0);
+            //    if (list != null && list.Length != 0)
+            //    {
+            //        var valuerange = (list.ToList().OrderBy(x => x).Select(x =>
+            //        {
+            //            RegistryType vtype = App.registry.GetValueInfo(item.Hive, item.Path, x, 0);
 
-                        ValueItem vitem = new()
-                        {
-                            Name = x,
-                            Type = vtype.ToString(),
-                            ParentItem = item
-                        };
+            //            ValueItem vitem = new()
+            //            {
+            //                Name = x,
+            //                Type = vtype.ToString(),
+            //                ParentItem = item
+            //            };
 
-                        App.registry.QueryValue(item.Hive, item.Path, x, out vtype, out byte[] buf);
+            //            App.registry.QueryValue(item.Hive, item.Path, x, out vtype, out byte[] buf);
 
-                        if (vtype == RegistryType.String)
-                        {
-                            vitem.Data = System.Text.Encoding.Unicode.GetString(buf);
-                            vitem.Image = textImageSource;
-                        }
-                        else if (vtype == RegistryType.Integer)
-                        {
-                            vitem.Data = BitConverter.ToInt32(buf, 0).ToString();
-                            vitem.Image = numbersImageSource;
-                        }
-                        else if (vtype == RegistryType.Long)
-                        {
-                            vitem.Data = BitConverter.ToInt64(buf, 0).ToString();
-                            vitem.Image = numbersImageSource;
-                        }
-                        else
-                        {
-                            vitem.Data = BitConverter.ToString(buf);
-                            vitem.Image = numbersImageSource;
-                        }
+            //            if (vtype == RegistryType.String)
+            //            {
+            //                vitem.Data = System.Text.Encoding.Unicode.GetString(buf);
+            //                vitem.Image = textImageSource;
+            //            }
+            //            else if (vtype == RegistryType.Integer)
+            //            {
+            //                vitem.Data = BitConverter.ToInt32(buf, 0).ToString();
+            //                vitem.Image = numbersImageSource;
+            //            }
+            //            else if (vtype == RegistryType.Long)
+            //            {
+            //                vitem.Data = BitConverter.ToInt64(buf, 0).ToString();
+            //                vitem.Image = numbersImageSource;
+            //            }
+            //            else
+            //            {
+            //                vitem.Data = BitConverter.ToString(buf);
+            //                vitem.Image = numbersImageSource;
+            //            }
 
-                        return vitem;
-                    }));
+            //            return vitem;
+            //        }));
 
-                    foreach (var value in valuerange)
-                        ValueSource.Add(value);
-                }
-            }
+            //        foreach (var value in valuerange)
+            //            ValueSource.Add(value);
+            //    }
+            //}
         }
     }
 }

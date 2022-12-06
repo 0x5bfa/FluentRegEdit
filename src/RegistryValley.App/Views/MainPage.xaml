@@ -6,6 +6,7 @@
     xmlns:local="using:RegistryValley.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:tree="using:RegistryValley.App.UserControls.TreeViewControl"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -91,7 +92,7 @@
         </MenuBar>
 
         <Grid Grid.Row="2">
-            <TextBox Background="Transparent" />
+            <tree:TreeViewControl Data="{x:Bind ViewModel.DataContainer, Mode=OneWay}" />
         </Grid>
 
         <Grid Grid.Row="3">

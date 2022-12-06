@@ -1,7 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 
-namespace RegistryValley.App.UserControls.TreeViewControl
+namespace RegistryValley.App.Converters
 {
     public class IntegerToIndentationConverter : IValueConverter
     {

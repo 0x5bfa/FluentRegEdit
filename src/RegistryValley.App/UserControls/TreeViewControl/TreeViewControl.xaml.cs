@@ -9,14 +9,15 @@ using RegistryValley.App.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using System.Collections.Specialized;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
     public sealed partial class TreeViewControl : UserControl
     {
+        #region propdp
         public static DependencyProperty DataProperty
             = DependencyProperty.RegisterAttached(
                 nameof(Data),
@@ -38,12 +39,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             get => (DataContainer)GetValue(DataProperty);
             set => SetValue(DataProperty, value);
         }
+        #endregion
 
         public TreeViewControl()
-        {
-            InitializeComponent();
-        }
-
+            => InitializeComponent();
 
         private void OnDataChanged(DependencyPropertyChangedEventArgs e)
         {
@@ -51,6 +50,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             {
                 if (Data.HiveSource.Count > 0)
                 {
+                    // Create node from hive items
                     foreach (HiveItem item in Data.HiveSource)
                     {
                         TreeView.RootNode.Add(CreateTreeNode(item));
@@ -58,14 +58,6 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 }
 
                 Data.HiveSource.CollectionChanged += DataSource_CollectionChanged;
-            }
-        }
-
-        private void DataSource_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            foreach (HiveItem item in e.NewItems)
-            {
-                TreeView.RootNode.Add(CreateTreeNode(item));
             }
         }
 
@@ -77,20 +69,21 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 IsExpanded = item.Expanded
             };
 
-            /*item.PropertyChanged += (object sender, System.ComponentModel.PropertyChangedEventArgs e) =>
-            {
-                if (e.PropertyName == nameof(item.Expanded))
-                {
-                    if (node.IsExpanded)
-                    {
-                        node.IsExpanded = item.Expanded;
-                        TreeView.SelectedItem = node;
-                    }
-                }
-            };*/
-
             node.PropertyChanged += Node_PropertyChanged;
 
+            //item.PropertyChanged += (object sender, System.ComponentModel.PropertyChangedEventArgs e) =>
+            //{
+            //    if (e.PropertyName == nameof(item.Expanded))
+            //    {
+            //        if (node.IsExpanded)
+            //        {
+            //            node.IsExpanded = item.Expanded;
+            //            TreeView.SelectedItem = node;
+            //        }
+            //    }
+            //};
+
+            // The hive has child objects (== sub keys)
             if (item.Children.Count > 0)
             {
                 foreach (HiveItem newItem in item.Children)
@@ -99,7 +92,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 }
             }
 
-            item.Children.CollectionChanged += (object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) =>
+            item.Children.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) =>
             {
                 foreach (HiveItem newItem in e.NewItems)
                 {
@@ -110,11 +103,20 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             return node;
         }
 
+        private void DataSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            foreach (HiveItem item in e.NewItems)
+            {
+                TreeView.RootNode.Add(CreateTreeNode(item));
+            }
+        }
+
         private void Node_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             TreeNode node = (TreeNode)sender;
             HiveItem item = (HiveItem)node.Data;
 
+            // Sync expand/collapse state
             if (e.PropertyName == nameof(node.IsExpanded) && node.IsExpanded != item.Expanded)
             {
                 if (node.IsExpanded)

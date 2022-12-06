@@ -1,20 +1,23 @@
 ﻿using Microsoft.Win32;
-using System.ComponentModel;
 
 namespace RegistryValley.App.Models
 {
-    public class HiveItem
+    public class HiveItem : ObservableObject
     {
-        public string Name { get; set; }
+        private string _name;
+        public string Name { get => _name; set => SetProperty(ref _name, value); }
 
-        public string Path { get; set; }
+        private string _path;
+        public string Path { get => _path; set => SetProperty(ref _path, value); }
 
         private bool _expanded = false;
-        public bool Expanded { get; set; }
+        public bool Expanded { get => _expanded; set => SetProperty(ref _expanded, value); }
 
-        public RegistryHive Hive { get; set; }
+        private RegistryHive _hive;
+        public RegistryHive Hive { get => _hive; set => SetProperty(ref _hive, value); }
 
-        public string Image { get; set; }
+        private string _image;
+        public string Image { get => _image; set => SetProperty(ref _image, value); }
 
         public ObservableCollection<HiveItem> Children { get; set; } = new();
 
