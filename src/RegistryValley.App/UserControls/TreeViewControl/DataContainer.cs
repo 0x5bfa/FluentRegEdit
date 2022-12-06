@@ -164,7 +164,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             selectedItem.Expanded = false;
         }
 
-        private HiveItem? lastInvokedItem;
+        private HiveItem lastInvokedItem;
 
         private void OnPathChanged(string value)
         {

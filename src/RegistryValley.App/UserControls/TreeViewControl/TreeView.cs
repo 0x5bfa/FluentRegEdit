@@ -1,12 +1,10 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System;
-using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
-    public sealed class TreeViewItemClickEventArgs
+    public class TreeViewItemClickEventArgs
     {
         public TreeViewItemClickEventArgs()
         {
@@ -29,7 +27,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
     public delegate void TreeViewItemClickHandler(TreeView sender, TreeViewItemClickEventArgs args);
 
-    public sealed class TreeView : ListView
+    public class TreeView : ListView
     {
         public TreeView()
         {
@@ -42,7 +40,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             AllowDrop = true;
             CanDragItems = true;
 
-            rootNode.VectorChanged += flatViewModel.TreeNodeVectorChanged;
+            rootNode.ChildrenCollectionChanged += flatViewModel.TreeNodeVectorChanged;
             ItemClick += TreeView_OnItemClick;
             DragItemsStarting += TreeView_DragItemsStarting;
             DragItemsCompleted += TreeView_DragItemsCompleted;

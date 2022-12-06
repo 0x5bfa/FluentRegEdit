@@ -4,8 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
-    [Microsoft.UI.Xaml.Data.Bindable]
-    [Windows.Foundation.Metadata.WebHostHidden]
     public sealed class TreeViewItem : ListViewItem
     {
         public TreeViewItem()

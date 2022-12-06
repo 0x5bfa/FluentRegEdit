@@ -1,14 +1,11 @@
-﻿using Microsoft.UI.Xaml.Interop;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
-    public sealed class ViewModel
+    public class ViewModel
     {
         public ViewModel()
         {
@@ -30,11 +27,9 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public ObservableCollection<EventRegistrationToken> propertyChangedEventTokenVector;
 
-        private static ConditionalWeakTable<INotifyCollectionChanged, EventRegistrationTokenTable<NotifyCollectionChangedEventHandler>> weakTableForVectorChanged =
-            new ConditionalWeakTable<INotifyCollectionChanged, EventRegistrationTokenTable<NotifyCollectionChangedEventHandler>>();
+        private static ConditionalWeakTable<INotifyCollectionChanged, EventRegistrationTokenTable<NotifyCollectionChangedEventHandler>> weakTableForVectorChanged = new();
 
-        private static ConditionalWeakTable<INotifyPropertyChanged, EventRegistrationTokenTable<PropertyChangedEventHandler>> weakTableForPropertyChanged =
-            new ConditionalWeakTable<INotifyPropertyChanged, EventRegistrationTokenTable<PropertyChangedEventHandler>>();
+        private static ConditionalWeakTable<INotifyPropertyChanged, EventRegistrationTokenTable<PropertyChangedEventHandler>> weakTableForPropertyChanged = new();
 
         public void Append(object value)
         {
@@ -114,11 +109,6 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
             return null;
         }
-
-        //public IBindableVectorView GetView()
-        //{
-        //    return (IBindableVectorView)flatVectorRealizedItems.GetView();
-        //}
 
         public int IndexOf(object value)
         {
@@ -266,21 +256,6 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             return descendantCount;
         }
 
-        //public int IndexOf(TreeNode targetNode)
-        //{
-        //    int index;
-        //    int isIndexed = IndexOf(targetNode);
-
-        //    if (isIndexed != -1)
-        //    {
-        //        return index;
-        //    }
-        //    else
-        //    {
-        //        return -1;
-        //    }
-        //}
-
         public void UpdateTreeView(object sender, NotifyCollectionChangedEventArgs e)
         {
             VectorChanged(this, e);
@@ -295,7 +270,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 //Reset case, commonly seen when a TreeNode is cleared.
                 //removes all nodes that need removing then 
                 //toggles a collapse / expand to ensure order.
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Reset:
                     {
                         TreeNode resetNode = (TreeNode)sender;
                         int resetIndex = IndexOf(resetNode);
@@ -350,7 +325,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                         break;
                     }
                 //Inserts the TreeNode into the correct index of the ViewModel
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Add:
                     {
                         //We will find the correct index of insertion by first checking if the
                         //node we are inserting into is expanded. If it is we will start walking
@@ -397,7 +372,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                     }
                 //Removes a node from the ViewModel when a TreeNode
                 //removes a child.
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                case NotifyCollectionChangedAction.Remove:
                     {
                         TreeNode removeNode = (TreeNode)sender;
                         int removeIndex = IndexOf(removeNode);
@@ -449,7 +424,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                     }
                 //Triggered by a replace such as SetAt.
                 //Updates the TreeNode that changed in the 
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                case NotifyCollectionChangedAction.Replace:
                     {
                         int index = e.NewStartingIndex;
                         TreeNode targetNode = (TreeNode)((TreeNode)sender).GetAt(index);

@@ -9,17 +9,15 @@ using System.Collections.Specialized;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
-    [Windows.UI.Xaml.Data.Bindable]
-    [WebHostHidden]
-    public sealed class TreeNode : INotifyPropertyChanged
+    public class TreeNode : INotifyPropertyChanged
     {
         public TreeNode()
         {
-            childrenCollection.CollectionChanged += ChildrenVectorChanged;
+            childrenCollection.CollectionChanged += CollectionChanged;
         }
 
         #region Properties
-        public event NotifyCollectionChangedEventHandler VectorChanged;
+        public event NotifyCollectionChangedEventHandler ChildrenCollectionChanged;
         public event NotifyCollectionChangedEventHandler TreeNodeChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -227,9 +225,9 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             }
         }
 
-        public void ChildrenVectorChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            VectorChanged(this, e);
+            ChildrenCollectionChanged(this, e);
         }
     }
 }

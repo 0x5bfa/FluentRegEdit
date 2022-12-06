@@ -1,7 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using System;
-using Windows.Foundation.Metadata;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {

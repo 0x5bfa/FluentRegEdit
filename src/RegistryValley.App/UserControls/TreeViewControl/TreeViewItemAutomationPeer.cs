@@ -65,7 +65,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public void Expand()
         {
-            ListView ancestorListView = GetParentListView((DependencyObject)Owner);
+            ListView ancestorListView = GetParentListView(Owner);
 
             if (ancestorListView != null)
             {
