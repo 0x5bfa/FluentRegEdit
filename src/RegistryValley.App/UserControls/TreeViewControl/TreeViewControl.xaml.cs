@@ -51,7 +51,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 if (Data.HiveSource.Count > 0)
                 {
                     // Create node from hive items
-                    foreach (HiveItem item in Data.HiveSource)
+                    foreach (KeyItem item in Data.HiveSource)
                     {
                         TreeView.RootNode.Add(CreateTreeNode(item));
                     }
@@ -61,7 +61,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             }
         }
 
-        private TreeNode CreateTreeNode(HiveItem item)
+        private TreeNode CreateTreeNode(KeyItem item)
         {
             TreeNode node = new TreeNode()
             {
@@ -86,7 +86,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             // The hive has child objects (== sub keys)
             if (item.Children.Count > 0)
             {
-                foreach (HiveItem newItem in item.Children)
+                foreach (KeyItem newItem in item.Children)
                 {
                     node.Add(CreateTreeNode(newItem));
                 }
@@ -94,7 +94,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
             item.Children.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) =>
             {
-                foreach (HiveItem newItem in e.NewItems)
+                foreach (KeyItem newItem in e.NewItems)
                 {
                     node.Add(CreateTreeNode(newItem));
                 }
@@ -105,7 +105,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         private void DataSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            foreach (HiveItem item in e.NewItems)
+            foreach (KeyItem item in e.NewItems)
             {
                 TreeView.RootNode.Add(CreateTreeNode(item));
             }
@@ -114,7 +114,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
         private void Node_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             TreeNode node = (TreeNode)sender;
-            HiveItem item = (HiveItem)node.Data;
+            KeyItem item = (KeyItem)node.Data;
 
             // Sync expand/collapse state
             if (e.PropertyName == nameof(node.IsExpanded) && node.IsExpanded != item.Expanded)
@@ -133,7 +133,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
         private void TreeView_ItemClick(object sender, ItemClickEventArgs e)
         {
             TreeNode node = (TreeNode)e.ClickedItem;
-            HiveItem item = (HiveItem)node.Data;
+            KeyItem item = (KeyItem)node.Data;
 
             Data.ItemInvoked(item);
         }

@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -74,6 +75,8 @@
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.0" />
     <PackageReference Include="System.Runtime.InteropServices.WindowsRuntime" Version="4.3.0" />
+    <PackageReference Include="Vanara.PInvoke.Security" Version="3.4.11" />
+    <PackageReference Include="Vanara.Windows.Shell" Version="3.4.11" />
     <PackageReference Include="WinUIEx" Version="1.8.0" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
   </ItemGroup>

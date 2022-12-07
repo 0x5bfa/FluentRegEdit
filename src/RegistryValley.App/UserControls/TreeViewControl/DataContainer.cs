@@ -1,6 +1,10 @@
 ﻿using Microsoft.Win32;
 using RegistryValley.App.Models;
 using System.Windows;
+using static Vanara.PInvoke.AdvApi32;
+using Vanara.PInvoke;
+using System.Windows.Input;
+using System.Runtime.CompilerServices;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
@@ -9,17 +13,16 @@ namespace RegistryValley.App.UserControls.TreeViewControl
         public DataContainer()
         {
             _hiveSource = new();
-
             _valueSource = new();
 
             InitializeRegistryRoot();
         }
 
-        private ObservableCollection<HiveItem> _hiveSource;
-        public ObservableCollection<HiveItem> HiveSource { get => _hiveSource; set => SetProperty(ref _hiveSource, value); }
+        private ObservableCollection<KeyItem> _hiveSource;
+        public ObservableCollection<KeyItem> HiveSource { get => _hiveSource; set => SetProperty(ref _hiveSource, value); }
 
-        private ObservableCollection<HiveItem> _valueSource;
-        public ObservableCollection<HiveItem> ValueSource { get => _valueSource; set => SetProperty(ref _valueSource, value); }
+        private ObservableCollection<KeyItem> _valueSource;
+        public ObservableCollection<KeyItem> ValueSource { get => _valueSource; set => SetProperty(ref _valueSource, value); }
 
         private readonly string folderImageSource = "ms-appx:///Assets/Images/Folder.png";
         private readonly string computerImageSource = "ms-appx:///Assets/Images/Computer.png";
@@ -28,68 +31,57 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         private void InitializeRegistryRoot()
         {
-            List<HiveItem> list = new()
+            List<KeyItem> list = new()
             {
-                new()
-                {
-                    Name = "HKEY_CLASSES_ROOT",
-                    Image = folderImageSource,
-                    Hive = RegistryHive.ClassesRoot,
-                    Path = ""
-                },
-                new()
-                {
-                    Name = "HKEY_CURRENT_USER",
-                    Image = folderImageSource,
-                    Hive = RegistryHive.CurrentUser,
-                    Path = ""
-                },
-                new()
-                {
-                    Name = "HKEY_LOCAL_MACHINE",
-                    Image = folderImageSource,
-                    Hive = RegistryHive.LocalMachine,
-                    Path = ""
-                },
-                new()
-                {
-                    Name = "HKEY_USERS",
-                    Image = folderImageSource,
-                    Hive = RegistryHive.Users,
-                    Path = ""
-                },
-                new()
-                {
-                    Name = "HKEY_CURRENT_CONFIG",
-                    Image = folderImageSource,
-                    Hive = RegistryHive.CurrentConfig,
-                    Path = ""
-                }
+                new() { Name = "HKEY_CLASSES_ROOT", Image = folderImageSource, RootHive = HKEY.HKEY_CLASSES_ROOT, Path = "" },
+                new() { Name = "HKEY_CURRENT_USER", Image = folderImageSource, RootHive = HKEY.HKEY_CURRENT_USER, Path = "" },
+                new() { Name = "HKEY_LOCAL_MACHINE", Image = folderImageSource, RootHive = HKEY.HKEY_LOCAL_MACHINE, Path = "" },
+                new() { Name = "HKEY_USERS", Image = folderImageSource, RootHive = HKEY.HKEY_USERS, Path = "" },
+                new() { Name = "HKEY_CURRENT_CONFIG", Image = folderImageSource, RootHive = HKEY.HKEY_CURRENT_CONFIG, Path = "" }
             };
 
-            foreach (HiveItem element in list)
+            foreach (KeyItem element in list)
             {
                 try
                 {
-                    string[] keys = Array.Empty<string>();
+                    List<string> keys = new();
 
-                    switch (element.Hive)
+                    Win32Error result;
+
+                    var handle = RegValleyOpenKey(element.RootHive, "", REGSAM.KEY_READ);
+
+                    result = RegQueryInfoKey(
+                        handle,
+                        null,
+                        ref NullRef<uint>(),
+                        IntPtr.Zero,
+                        out uint nKeys,
+                        out uint dwMaxKeyNameSize,
+                        out NullRef<uint>(),
+                        out uint nValues,
+                        out uint dwMaxValueNameSize,
+                        out NullRef<uint>(),
+                        out NullRef<uint>(),
+                        out NullRef<System.Runtime.InteropServices.ComTypes.FILETIME>()
+                        );
+
+                    for (uint index = 0; index < nKeys; index++)
                     {
-                        case RegistryHive.ClassesRoot:
-                            keys = Registry.ClassesRoot.GetSubKeyNames();
-                            break;
-                        case RegistryHive.CurrentConfig:
-                            keys = Registry.CurrentConfig.GetSubKeyNames();
-                            break;
-                        case RegistryHive.CurrentUser:
-                            keys = Registry.CurrentUser.GetSubKeyNames();
-                            break;
-                        case RegistryHive.LocalMachine:
-                            keys = Registry.LocalMachine.GetSubKeyNames();
-                            break;
-                        case RegistryHive.Users:
-                            keys = Registry.Users.GetSubKeyNames();
-                            break;
+                        StringBuilder sb = new((int)dwMaxKeyNameSize);
+
+                        uint cchName = dwMaxKeyNameSize;
+
+                        result = RegEnumKeyEx(
+                            handle,
+                            index,
+                            sb,
+                            ref cchName,
+                            IntPtr.Zero,
+                            null,
+                            ref NullRef<uint>(),
+                            out NullRef<System.Runtime.InteropServices.ComTypes.FILETIME>());
+
+                        keys.Add(sb.ToString());
                     }
 
                     foreach (string key in keys)
@@ -97,7 +89,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                         element.Children.Add(new()
                         {
                             Name = key,
-                            Hive = element.Hive,
+                            RootHive = element.RootHive,
                             Image = folderImageSource,
                             Path = element.Path + key + "\\"
                         });
@@ -105,7 +97,6 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 }
                 catch
                 {
-
                 }
             }
 
@@ -118,7 +109,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             });
         }
 
-        public void ItemExpanded(HiveItem selectedItem)
+        public void ItemExpanded(KeyItem selectedItem)
         {
             //if (lastInvokedItem != null)
             //{
@@ -159,12 +150,12 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             //}
         }
 
-        public void ItemCollapsed(HiveItem selectedItem)
+        public void ItemCollapsed(KeyItem selectedItem)
         {
             selectedItem.Expanded = false;
         }
 
-        private HiveItem lastInvokedItem;
+        private KeyItem lastInvokedItem;
 
         private void OnPathChanged(string value)
         {
@@ -202,7 +193,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             }
         }
 
-        private string GetPath(HiveItem item)
+        private string GetPath(KeyItem item)
         {
             if (item.Name == "Computer" && string.IsNullOrEmpty(item.Path))
             {
@@ -210,15 +201,15 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             }
             else if (string.IsNullOrEmpty(item.Path))
             {
-                return "Computer\\" + item.Hive.ToString();
+                return "Computer\\" + item.RootHive.ToString();
             }
             else
             {
-                return "Computer\\" + item.Hive.ToString() + "\\" + item.Path.TrimEnd('\\');
+                return "Computer\\" + item.RootHive.ToString() + "\\" + item.Path.TrimEnd('\\');
             }
         }
 
-        public void ItemInvoked(HiveItem item)
+        public void ItemInvoked(KeyItem item)
         {
             lastInvokedItem = item;
 
@@ -310,6 +301,22 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             //            ValueSource.Add(value);
             //    }
             //}
+        }
+
+        HKEY RegValleyOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)
+        {
+            // If specified machine, should use RegConnectRegistry
+            var result = RegOpenKeyEx(hkey, subRoot, 0, samDesired, out var phkResult);
+
+            if (result.Succeeded)
+                return phkResult;
+            else
+                return null;
+        }
+
+        unsafe static ref T NullRef<T>()
+        {
+            return ref Unsafe.AsRef<T>(null);
         }
     }
 }

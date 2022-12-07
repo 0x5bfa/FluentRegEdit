@@ -1,10 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Linq;
-using System.Collections.ObjectModel;
-using Windows.Foundation.Metadata;
-using System;
-using Windows.Foundation.Collections;
-//using Windows.UI.Xaml.Interop;
 using System.Collections.Specialized;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
@@ -23,7 +17,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         private ObservableCollection<TreeNode> childrenCollection = new();
 
-        public int Size { get => childrenCollection.Count; }
+        public int Size
+        {
+            get => childrenCollection.Count;
+        }
 
         private object data = null;
         public object Data
@@ -82,6 +79,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
         }
         #endregion
 
+        #region Collection Methods
         public void Add(object value)
         {
             int count = childrenCollection.Count;
@@ -96,25 +94,6 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
-
-        }
-
-        public IEnumerable<TreeNode> Append(object value)
-        {
-            int count = childrenCollection.Count;
-            TreeNode targetNode = (TreeNode)value;
-            targetNode.ParentNode = this;
-            var appenddedCollection = childrenCollection.Append(targetNode);
-
-            //If the count was 0 before we appended, then the HasItems property needs to change.
-            if (count == 0)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
-            }
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
-
-            return appenddedCollection;
         }
 
         public void Clear()
@@ -146,12 +125,10 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public object GetAt(int index)
         {
-            if (index > -1 && index < childrenCollection.Count)
-            {
-                return childrenCollection.ElementAt(index);
-            }
+            if (!(index > -1 && index <= childrenCollection.Count))
+                return null;
 
-            return null;
+            return childrenCollection.ElementAt(index);
         }
 
         public int IndexOf(object value)
@@ -161,41 +138,41 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public void InsertAt(int index, object value)
         {
-            if (index > -1 && index <= childrenCollection.Count)
+            if (!(index > -1 && index <= childrenCollection.Count))
+                return;
+
+            int count = childrenCollection.Count;
+            TreeNode targetNode = (TreeNode)value;
+            targetNode.ParentNode = this;
+
+            childrenCollection.Insert(index, (TreeNode)value);
+
+            //If the count was 0 before we insert, then the HasItems property needs to change.
+            if (count == 0)
             {
-                int count = childrenCollection.Count;
-                TreeNode targetNode = (TreeNode)value;
-                targetNode.ParentNode = this;
-
-                childrenCollection.Insert(index, (TreeNode)value);
-
-                //If the count was 0 before we insert, then the HasItems property needs to change.
-                if (count == 0)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
-                }
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
             }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
         }
 
         public void RemoveAt(int index)
         {
-            if (index > -1 && index < childrenCollection.Count)
+            if (!(index > -1 && index <= childrenCollection.Count))
+                return;
+
+            int count = childrenCollection.Count;
+            TreeNode targetNode = childrenCollection.ElementAt(index);
+            targetNode.ParentNode = null;
+            childrenCollection.RemoveAt(index);
+
+            //If the count was 1 before we remove, then the HasItems property needs to change.
+            if (count == 1)
             {
-                int count = childrenCollection.Count;
-                TreeNode targetNode = childrenCollection.ElementAt(index);
-                targetNode.ParentNode = null;
-                childrenCollection.RemoveAt(index);
-
-                //If the count was 1 before we remove, then the HasItems property needs to change.
-                if (count == 1)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
-                }
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasItems)));
             }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
         }
 
         public void RemoveAtEnd()
@@ -216,14 +193,15 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public void SetAt(int index, object value)
         {
-            if (index > -1 && index <= childrenCollection.Count)
-            {
-                childrenCollection.ElementAt(index).ParentNode = null;
-                TreeNode targetNode = (TreeNode)value;
-                targetNode.ParentNode = this;
-                childrenCollection[index] = targetNode;
-            }
+            if (!(index > -1 && index <= childrenCollection.Count))
+                return;
+
+            childrenCollection.ElementAt(index).ParentNode = null;
+            TreeNode targetNode = (TreeNode)value;
+            targetNode.ParentNode = this;
+            childrenCollection[index] = targetNode;
         }
+        #endregion
 
         public void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {

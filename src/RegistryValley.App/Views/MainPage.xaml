@@ -92,7 +92,7 @@
         </MenuBar>
 
         <Grid Grid.Row="2">
-            <tree:TreeViewControl Data="{x:Bind ViewModel.DataContainer, Mode=OneWay}" />
+            <TextBox />
         </Grid>
 
         <Grid Grid.Row="3">
@@ -103,10 +103,56 @@
             </Grid.ColumnDefinitions>
 
             <Grid>
-                <TextBlock
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Text="Tree" />
+                <TreeView
+                    MinWidth="256"
+                    CanDrag="False"
+                    CanDragItems="False"
+                    CanReorderItems="False"
+                    Expanding="OnDirTreeViewExpanding"
+                    ItemInvoked="OnDirTreeViewItemInvoked"
+                    ItemsSource="{x:Bind ViewModel.SubKeyItems, Mode=OneWay}"
+                    SelectionMode="Single">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="CollapsedGlyph" Value="&#xE70D;" />
+                            <Setter Property="ExpandedGlyph" Value="&#xE70E;" />
+                            <Setter Property="Height" Value="38" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <DataTemplate x:DataType="models:RegistryKeyNode">
+                            <TreeViewItem
+                                HasUnrealizedChildren="True"
+                                IsExpanded="False"
+                                ItemsSource="{x:Bind Children}">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="8"
+                                    ToolTipService.ToolTip="{x:Bind Path, Mode=OneWay}">
+
+                                    <Grid>
+                                        <FontIcon
+                                            FontSize="16"
+                                            Foreground="#fdde81"
+                                            Glyph="&#xe8d5;" />
+                                        <FontIcon
+                                            FontSize="16"
+                                            Foreground="#d59e0d"
+                                            Glyph="&#xe8b7;" />
+                                    </Grid>
+
+                                    <TextBlock
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Style="{ThemeResource BodyTextBlockStyle}"
+                                        Text="{x:Bind Name, Mode=OneWay}" />
+                                </StackPanel>
+
+                            </TreeViewItem>
+                        </DataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
             </Grid>
 
             <toolkit:GridSplitter Grid.Column="1" Style="{StaticResource DefaultGridSplitterStyle}" />

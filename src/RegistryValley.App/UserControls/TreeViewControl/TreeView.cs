@@ -1,6 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
@@ -15,31 +14,38 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
             flatViewModel.ExpandNode(rootNode);
 
-            rootNode.ChildrenCollectionChanged += flatViewModel.TreeNodeVectorChanged;
+            rootNode.ChildrenCollectionChanged += flatViewModel.TreeNodeChildrenCollectionChanged;
             ItemClick += TreeView_OnItemClick;
 
             ItemsSource = flatViewModel;
+
+            flatViewModel.FlatCollectionChanged += (_, e) =>
+            {
+                ItemsSource = flatViewModel;
+            };
         }
 
         #region properties
-        //This event is used to expose an alternative to itemclick to developers.
+        private ViewModel<TreeNode> flatViewModel;
+
+        // This event is used to expose an alternative to itemclick to developers.
         public event TreeViewItemClickHandler TreeViewItemClick;
 
-        //This RootNode property is used by the TreeView to handle additions into the TreeView and
-        //accurate VectorChange with multiple 'root level nodes'. This node will not be placed
-        //in the flatViewModel, but has it's vectorchanged event hooked up to flatViewModel's
-        //handler.
+        // This RootNode property is used by the TreeView to handle additions into the TreeView and
+        // accurate CollectionChanged with multiple 'root level nodes'. This node will not be placed
+        // in the flatViewModel, but has it's ChildrenCollectionChanged event hooked up to flatViewModel's handler.
         private TreeNode rootNode;
         public TreeNode RootNode { get => rootNode; }
-
-        private ViewModel<TreeNode> flatViewModel;
         #endregion
 
         public void TreeView_OnItemClick(object sender, ItemClickEventArgs args)
         {
-            TreeViewItemClickEventArgs treeViewArgs = new();
-            treeViewArgs.ClickedItem = args.ClickedItem;
+            TreeViewItemClickEventArgs treeViewArgs = new()
+            {
+                ClickedItem = args.ClickedItem
+            };
 
+            // Trigger listviewitem click event
             TreeViewItemClick(this, treeViewArgs);
 
             if (!treeViewArgs.IsHandled)

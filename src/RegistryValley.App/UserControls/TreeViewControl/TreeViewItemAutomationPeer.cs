@@ -3,17 +3,16 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Automation.Provider;
 using Microsoft.UI.Xaml.Controls;
-using System;
 
 namespace RegistryValley.App.UserControls.TreeViewControl
 {
-    public sealed class TreeViewItemAutomationPeer : ListViewItemAutomationPeer, IExpandCollapseProvider
+    public class TreeViewItemAutomationPeer : ListViewItemAutomationPeer, IExpandCollapseProvider
     {
         internal TreeViewItemAutomationPeer(ListViewItem owner) : base(owner)
         {
         }
 
-        //IExpandCollapseProvider
+        #region IExpandCollapseProvider
         public ExpandCollapseState ExpandCollapseState
         {
             get
@@ -59,6 +58,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 TreeView ancestorTreeView = (TreeView)ancestorListView;
                 TreeNode targetNode = (TreeNode)ancestorTreeView.ItemFromContainer((TreeViewItem)Owner);
                 ancestorTreeView.CollapseNode(targetNode);
+
                 RaiseExpandCollapseAutomationEvent(ExpandCollapseState.Collapsed);
             }
         }
@@ -72,6 +72,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 TreeView ancestorTreeView = (TreeView)ancestorListView;
                 TreeNode targetNode = (TreeNode)ancestorTreeView.ItemFromContainer((TreeViewItem)Owner);
                 ancestorTreeView.ExpandNode(targetNode);
+
                 RaiseExpandCollapseAutomationEvent(ExpandCollapseState.Expanded);
             }
         }
@@ -91,13 +92,14 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
             RaisePropertyChangedEvent(ExpandCollapsePatternIdentifiers.ExpandCollapseStateProperty, oldState, newState);
         }
+        #endregion
 
-        //Position override
+        // Position override
 
-        //These methods are being overridden so that the TreeView under narrator reads out
-        //the position of an item as compared to it's children, not it's overall position
-        //in the listview. I've included an override for level as well, to give context on
-        //how deep in the tree an item is.
+        // These methods are being overridden so that the TreeView under narrator reads out
+        // the position of an item as compared to it's children, not it's overall position
+        // in the listview. I've included an override for level as well, to give context on
+        // how deep in the tree an item is.
         protected override int GetSizeOfSetCore()
         {
             ListView ancestorListView = GetParentListView(Owner);
@@ -145,7 +147,6 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             ListView ancestorListView = GetParentListView(Owner);
 
             TreeNode targetNode;
-            TreeNode targetParentNode;
 
             int levelValue = 0;
 

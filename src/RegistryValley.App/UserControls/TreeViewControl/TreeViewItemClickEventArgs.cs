@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RegistryValley.App.UserControls.TreeViewControl
+﻿namespace RegistryValley.App.UserControls.TreeViewControl
 {
     public class TreeViewItemClickEventArgs
     {
