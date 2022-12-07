@@ -59,6 +59,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Images\BinaryValue.png" />
+    <None Remove="Assets\Images\StringValue.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Humanizer" Version="2.14.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.1" />
@@ -79,10 +84,6 @@
     <PackageReference Include="Vanara.Windows.Shell" Version="3.4.11" />
     <PackageReference Include="WinUIEx" Version="1.8.0" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Assets\Images\" />
   </ItemGroup>
 
   <ItemGroup>
