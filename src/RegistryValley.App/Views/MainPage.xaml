@@ -125,6 +125,26 @@
                                 IsExpanded="False"
                                 ItemsSource="{x:Bind Children}">
 
+                                <TreeViewItem.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Expand" />
+                                        <MenuFlyoutItem Text="Collapse" />
+                                        <MenuFlyoutItem Text="New" />
+                                        <MenuFlyoutItem Text="Find" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Delete" />
+                                        <MenuFlyoutItem Text="Rename" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Export" />
+                                        <MenuFlyoutItem
+                                            Click="OnKeyPermissionsMenuFlyoutItemClick"
+                                            Tag="{x:Bind}"
+                                            Text="Permissions" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Copy key name" />
+                                    </MenuFlyout>
+                                </TreeViewItem.ContextFlyout>
+
                                 <StackPanel
                                     Orientation="Horizontal"
                                     Spacing="12"
@@ -386,14 +406,14 @@
                                             <toolkit:SwitchPresenter TargetType="x:Boolean" Value="{x:Bind ValueIsString}">
                                                 <toolkit:Case Value="True">
                                                     <Image
-                                                        Width="20"
-                                                        Height="20"
+                                                        Width="22"
+                                                        Height="22"
                                                         Source="/Assets/Images/StringValue.png" />
                                                 </toolkit:Case>
                                                 <toolkit:Case Value="False">
                                                     <Image
-                                                        Width="20"
-                                                        Height="20"
+                                                        Width="22"
+                                                        Height="22"
                                                         Source="/Assets/Images/BinaryValue.png" />
                                                 </toolkit:Case>
                                             </toolkit:SwitchPresenter>

@@ -2,8 +2,10 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using RegistryValley.App.Dialogs;
 using RegistryValley.App.Models;
 using RegistryValley.App.ViewModels;
+using Windows.UI.Popups;
 
 namespace RegistryValley.App.Views
 {
@@ -62,15 +64,40 @@ namespace RegistryValley.App.Views
             ViewModel.Loading = false;
         }
 
-        private void OnValueListViewDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        private async void OnValueListViewDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            //var item = ValueListView.SelectedItem as Models.RegistryValueModel;
-            //var dialog = new Dialogs.ValueViewerDialog();
-            //dialog.ViewModel = new()
-            //{
-            //    ValueModel = item,
-            //};
-            //await dialog.ShowAsync();
+            var item = (ValueItem)ValueListView.SelectedItem;
+
+            var dialog = new ValueViewerDialog
+            {
+                ViewModel = new()
+                {
+                    ValueItem = item,
+                },
+
+                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
+                XamlRoot = this.Content.XamlRoot,
+            };
+ 
+            var result = await dialog.ShowAsync();
+        }
+
+        private async void OnKeyPermissionsMenuFlyoutItemClick(object sender, RoutedEventArgs e)
+        {
+            var item = (KeyItem)((MenuFlyoutItem)sender).Tag;
+
+            var dialog = new KeyPermissionsViewerDialog
+            {
+                ViewModel = new()
+                {
+                    KeyItem = item,
+                },
+
+                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
+                XamlRoot = this.Content.XamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
         }
     }
 }

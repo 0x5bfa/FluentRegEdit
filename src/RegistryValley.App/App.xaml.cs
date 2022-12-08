@@ -44,7 +44,7 @@ namespace RegistryValley.App
                 .AddSingleton<IMessenger>(StrongReferenceMessenger.Default)
                 // ViewModels
                 .AddSingleton<MainViewModel>()
-                //.AddTransient<ViewModels.AppSettings.AboutViewModel>()
+                .AddTransient<ViewModels.Dialogs.ValueViewerDialogViewModel>()
                 .BuildServiceProvider();
         }
 

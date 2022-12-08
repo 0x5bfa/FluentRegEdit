@@ -78,9 +78,8 @@ namespace RegistryValley.App.ViewModels
 
             for (uint index = 0; index < cKeys; index++)
             {
-                uint cchName = cbMaxSubKeyLen;
+                uint cchName = cbMaxSubKeyLen + 1;
                 StringBuilder sb = new((int)cchName);
-
 
                 result = RegEnumKeyEx(
                     handle,
@@ -131,7 +130,7 @@ namespace RegistryValley.App.ViewModels
             for (uint index = 0; index < cValues; index++)
             {
                 uint cchName = cbMaxValueNameLen + 1;
-                uint cbLen = cbMaxValueLen + (cbMaxValueLen % 2u);
+                uint cbLen = cbMaxValueLen * 2;
                 StringBuilder sb = new((int)cchName);
                 IntPtr data = new();
 

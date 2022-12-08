@@ -59,8 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Assets\Images\BinaryValue.png" />
-    <None Remove="Assets\Images\StringValue.png" />
+    <None Remove="Dialogs\KeyPermissionsViewerDialog.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -88,6 +87,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RegistryValley.Core\RegistryValley.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Dialogs\KeyPermissionsViewerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
 </Project>
