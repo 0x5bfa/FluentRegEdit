@@ -1,7 +1,9 @@
 ﻿using RegistryValley.App.Models;
 using System;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Windows.Input;
 using Vanara.PInvoke;
 using static Vanara.PInvoke.AdvApi32;
 
@@ -21,37 +23,21 @@ namespace RegistryValley.App.ViewModels.Dialogs
 
         private void LoadKeySecurityDescriptor()
         {
-            uint cbSecurityDescriptor = 0;
             Win32Error result;
             bool bResult;
 
-            StringBuilder lpName = new(256);
-            int cchAccountNameSize = 0;
-            StringBuilder lpReferencedDomain = new(256);
-            int cchDomainNameSize = 0;
-
-            result = RegGetKeySecurity(
+            var hkey = RegValleyOpenKey(
                 KeyItem.RootHive,
-                SECURITY_INFORMATION.SACL_SECURITY_INFORMATION,
-                IntPtr.Zero,
-                ref cbSecurityDescriptor
+                KeyItem.Path,
+                REGSAM.READ_CONTROL
                 );
 
-            IntPtr pSecurityDescriptor = Marshal.AllocHGlobal((int)cbSecurityDescriptor);
+            var pSD = new SafePSECURITY_DESCRIPTOR(256);
+            var sdsz = (uint)pSD.Size;
 
-            result = RegGetKeySecurity(
-                KeyItem.RootHive,
-                SECURITY_INFORMATION.SACL_SECURITY_INFORMATION,
-                pSecurityDescriptor,
-            ref cbSecurityDescriptor
-            );
+            RegGetKeySecurity(hkey, SECURITY_INFORMATION.OWNER_SECURITY_INFORMATION, pSD, ref sdsz);
 
-            bResult = GetSecurityDescriptorDacl(
-                pSecurityDescriptor,
-                out var lpbDaclPresent,
-                out var pDacl,
-                out var lpbDaclDefaulted
-                );
+            GetSecurityDescriptorDacl(pSD, out var lpbDaclPresent, out var pDacl, out bool lpbDaclDefaulted);
 
             if (!lpbDaclPresent)
             {
@@ -59,35 +45,37 @@ namespace RegistryValley.App.ViewModels.Dialogs
             }
             else
             {
-                uint cAclInformation = 0;
+                bResult = GetAclInformation(pDacl, out ACL_SIZE_INFORMATION asi, (uint)Marshal.SizeOf(typeof(ACL_REVISION_INFORMATION)), ACL_INFORMATION_CLASS.AclSizeInformation);
 
-                unsafe
+                for (var i = 0U; i < asi.AceCount; i++)
                 {
-                    cAclInformation = (uint)sizeof(ACL_SIZE_INFORMATION);
+                    GetAce(pDacl, i, out var pAce);
 
-                    IntPtr pAclInformation = (IntPtr)GCHandle.Alloc((int)cAclInformation);
+                    var accountSize = 1024;
+                    var domainSize = 1024;
+                    var outuser = new StringBuilder(accountSize, accountSize);
+                    var outdomain = new StringBuilder(domainSize, domainSize);
 
-                    bResult = GetAclInformation(pDacl, pAclInformation, cAclInformation, ACL_INFORMATION_CLASS.AclSizeInformation);
-
-                    for (uint index = 0; index < ((ACL_SIZE_INFORMATION)GCHandle.FromIntPtr(pAclInformation).Target).AceCount; index++)
-                    {
-                        bResult = GetAce(pDacl, index, out var pAce);
-
-                        cchAccountNameSize = lpName.Length;
-                        cchDomainNameSize = lpReferencedDomain.Length;
-
-                        LookupAccountSid(
-                            null,
-                            pAce.GetSid().GetBytes(),
-                            lpName,
-                            ref cchAccountNameSize,
-                            lpReferencedDomain,
-                            ref cchDomainNameSize,
-                            out var peUse
-                            );
-                    }
+                    LookupAccountSid(null, pAce.GetSid(), outuser, ref accountSize, outdomain, ref domainSize, out _);
+                    System.WriteLine($"Ace{i}: {pAce.GetHeader().AceType}={outdomain}\\{outuser}; {pAce.GetMask()}");
                 }
             }
+        }
+
+        HKEY RegValleyOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)
+        {
+            // If specified machine, should use RegConnectRegistry
+            var result = RegOpenKeyEx(hkey, subRoot, 0, samDesired, out var phkResult);
+
+            if (result.Succeeded)
+                return phkResult;
+            else
+                return HKEY.NULL;
+        }
+
+        unsafe static ref T NullRef<T>()
+        {
+            return ref Unsafe.AsRef<T>(null);
         }
     }
 }

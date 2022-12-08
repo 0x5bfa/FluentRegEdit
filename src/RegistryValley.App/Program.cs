@@ -2,7 +2,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using RegistryValley.App.Extensions;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Security.Principal;
 using Windows.ApplicationModel.Activation;
+using Windows.Foundation.Collections;
 using Windows.Storage;
 using static RegistryValley.App.Helpers.UWPToWinAppSDKUpgradeHelpers.InteropHelpers;
 
@@ -31,7 +35,22 @@ namespace RegistryValley.App
                 currentInstance.Activated += OnActivated;
             }
 
-            ApplicationData.Current.LocalSettings.Values["INSTANCE_ACTIVE"] = -proc.Id;
+            //if (!IsAdministrator())
+            //{
+            //    try
+            //    {
+            //        using (Process elevatedProcess = new())
+            //        {
+            //            elevatedProcess.StartInfo.Verb = "RunAs";
+            //            elevatedProcess.StartInfo.UseShellExecute = true;
+            //            elevatedProcess.StartInfo.FileName = Environment.ProcessPath;
+            //            elevatedProcess.Start();
+            //        }
+            //    }
+            //    catch (Win32Exception)
+            //    {
+            //    }
+            //}
 
             Application.Start((p) =>
             {
@@ -40,6 +59,13 @@ namespace RegistryValley.App
 
                 new App();
             });
+        }
+
+        private static bool IsAdministrator()
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         private static void OnActivated(object? sender, AppActivationArguments args)
