@@ -17,7 +17,14 @@ namespace RegistryValley.App.Dialogs
         public KeyPermissionsViewerDialogViewModel ViewModel
         {
             get => (KeyPermissionsViewerDialogViewModel)GetValue(ViewModelProperty);
-            set => SetValue(ViewModelProperty, value);
+            set
+            {
+                SetValue(ViewModelProperty, value);
+
+                var command = value.LoadKeySecurityDescriptorCommand;
+                if (command.CanExecute(null))
+                    command.Execute(null);
+            }
         }
 
         public KeyPermissionsViewerDialog()
