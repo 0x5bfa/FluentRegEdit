@@ -25,7 +25,7 @@ namespace RegistryValley.App.Views
 
             var item = (KeyItem)args.Item;
 
-            if (args.Node.HasUnrealizedChildren && item.RootHive != HKEY.NULL)
+            if (item.RootHive != HKEY.NULL)
             {
                 item.Children.Clear();
 
@@ -36,11 +36,17 @@ namespace RegistryValley.App.Views
                     foreach (var child in children)
                         item.Children.Add(child);
 
-                    args.Node.HasUnrealizedChildren = false;
+                    //args.Node.HasUnrealizedChildren = false;
                 }
             }
 
             ViewModel.Loading = false;
+        }
+
+        private void OnDirTreeViewCollapsed(TreeView sender, TreeViewCollapsedEventArgs args)
+        {
+            var item = (KeyItem)args.Item;
+            item.Children.Clear();
         }
 
         private void OnDirTreeViewItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)

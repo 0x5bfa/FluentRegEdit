@@ -3,6 +3,8 @@ using RegistryValley.App.Models;
 using System.Drawing.Drawing2D;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using static Vanara.PInvoke.ComCtl32;
+using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -25,10 +27,10 @@ namespace RegistryValley.App.ViewModels
         private readonly ObservableCollection<ValueItem> _valueItems;
         public ReadOnlyObservableCollection<ValueItem> ValueItems { get; }
 
-        private GridLength _columnName;
+        private GridLength _columnName = new(256d);
         public GridLength ColumnName { get => _columnName; set => SetProperty(ref _columnName, value); }
 
-        private GridLength _columnType;
+        private GridLength _columnType = new(144d);
         public GridLength ColumnType { get => _columnType; set => SetProperty(ref _columnType, value); }
 
         private bool _loading;
@@ -54,6 +56,7 @@ namespace RegistryValley.App.ViewModels
         {
             List<KeyItem> keys = new();
 
+            #region Win32API Calling
             Win32Error result;
 
             var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ);
@@ -63,21 +66,21 @@ namespace RegistryValley.App.ViewModels
                 null,
                 ref NullRef<uint>(),
                 IntPtr.Zero,
-                out uint nKeys,
-                out uint dwMaxKeyNameSize,
-                out NullRef<uint>(),
-                out uint nValues,
-                out uint dwMaxValueNameSize,
+                out uint cKeys,
+                out uint cbMaxSubKeyLen,
                 out NullRef<uint>(),
                 out NullRef<uint>(),
-                out NullRef<System.Runtime.InteropServices.ComTypes.FILETIME>()
+                out NullRef<uint>(),
+                out NullRef<uint>(),
+                out NullRef<uint>(),
+                out NullRef<FILETIME>()
                 );
 
-            for (uint index = 0; index < nKeys; index++)
+            for (uint index = 0; index < cKeys; index++)
             {
-                StringBuilder sb = new((int)dwMaxKeyNameSize);
+                uint cchName = cbMaxSubKeyLen;
+                StringBuilder sb = new((int)cchName);
 
-                uint cchName = dwMaxKeyNameSize;
 
                 result = RegEnumKeyEx(
                     handle,
@@ -87,14 +90,16 @@ namespace RegistryValley.App.ViewModels
                     IntPtr.Zero,
                     null,
                     ref NullRef<uint>(),
-                    out NullRef<System.Runtime.InteropServices.ComTypes.FILETIME>());
+                    out NullRef<FILETIME>());
 
                 keys.Add(new()
                 {
                     Name = sb.ToString(),
-                    Path = subRoot + sb.ToString() + "\\"
+                    Path = subRoot + sb.ToString() + "\\",
+                    RootHive = hkey,
                 });
             }
+            #endregion
 
             return keys;
         }
@@ -103,31 +108,32 @@ namespace RegistryValley.App.ViewModels
         {
             _valueItems.Clear();
 
+            #region Win32API Calling
             Win32Error result;
 
-            var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ);
+            var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ | REGSAM.KEY_ENUMERATE_SUB_KEYS);
 
             result = RegQueryInfoKey(
                 handle,
                 null,
                 ref NullRef<uint>(),
                 IntPtr.Zero,
-                out uint nKeys,
-                out uint dwMaxKeyNameSize,
                 out NullRef<uint>(),
-                out uint nValues,
-                out uint dwMaxValueNameSize,
-                out uint dwMaxValueDataSize,
                 out NullRef<uint>(),
-                out NullRef<System.Runtime.InteropServices.ComTypes.FILETIME>()
+                out NullRef<uint>(),
+                out uint cValues,
+                out uint cbMaxValueNameLen,
+                out uint cbMaxValueLen,
+                out NullRef<uint>(),
+                out NullRef<FILETIME>()
                 );
 
-            for (uint index = 0; index < nKeys; index++)
+            for (uint index = 0; index < cValues; index++)
             {
-                StringBuilder sb = new((int)dwMaxKeyNameSize);
-                IntPtr data = IntPtr.Zero;
-
-                uint cchName = dwMaxValueNameSize;
+                uint cchName = cbMaxValueNameLen + 1;
+                uint cbLen = cbMaxValueLen + (cbMaxValueLen % 2u);
+                StringBuilder sb = new((int)cchName);
+                IntPtr data = new();
 
                 result = RegEnumValue(
                     handle,
@@ -137,13 +143,128 @@ namespace RegistryValley.App.ViewModels
                     IntPtr.Zero,
                     out var type,
                     data,
-                    ref dwMaxValueDataSize);
+                    ref cbLen);
 
-                _valueItems.Add(new()
+                ValueItem item = new()
                 {
                     Name = sb.ToString(),
                     FriendlyName = sb.ToString(),
                     Type = type.ToString(),
+                    OriginalValue = data,
+                };
+
+                item.Type = item.Type == "REG_DWORD_LITTLE_ENDIAN" ? "REG_DWORD" : item.Type;
+                item.Type = item.Type == "REG_DWORD_BIG_ENDIAN" ? "REG_DWORD" : item.Type;
+                item.Type = item.Type == "REG_QWORD_LITTLE_ENDIAN" ? "REG_QWORD" : item.Type;
+
+                if (item.Type == "REG_SZ" ||
+                    item.Type == "REG_EXPAND_SZ" ||
+                    item.Type == "REG_MULTI_SZ")
+                {
+                    item.ValueIsString = true;
+                }
+                else item.ValueIsString = false;
+
+                _valueItems.Add(item);
+            }
+            #endregion
+
+            NormalizeValues();
+        }
+
+        private void NormalizeValues()
+        {
+            bool hasSetDefaultKey = false;
+            int index = 0;
+
+            foreach (var item in ValueItems)
+            {
+                if (string.IsNullOrEmpty(item.Name))
+                {
+                    hasSetDefaultKey = true;
+                    item.FriendlyName = "(Default)";
+                    item.FriendlyValue = item.OriginalValue.ToString();
+                }
+                else
+                {
+                    switch (item.Type)
+                    {
+                        case "REG_BINARY":
+                            {
+                                if ((IntPtr)item.OriginalValue == IntPtr.Zero)
+                                {
+                                    break;
+                                }
+
+                                var value = item.OriginalValue as byte[];
+                                if (value.Count() == 0)
+                                {
+                                    item.FriendlyValue += $"(zero-length binary value)";
+                                    break;
+                                }
+
+                                foreach (var atom in value)
+                                {
+                                    item.FriendlyValue += $"{atom} ";
+                                }
+
+                                break;
+                            }
+                        case "REG_MULTI_SZ":
+                            {
+                                if ((IntPtr)item.OriginalValue  == IntPtr.Zero)
+                                {
+                                    break;
+                                }
+
+                                var value = item.OriginalValue as string[];
+                                foreach (var atom in value)
+                                {
+                                    item.FriendlyValue += $"{atom} ";
+                                }
+
+                                break;
+                            }
+                        case "REZ_EXPAND_SZ":
+                        case "REG_SZ":
+                            {
+                                item.FriendlyValue = item.OriginalValue.ToString();
+
+                                break;
+                            }
+                        case "REG_QWORD":
+                        case "REG_DWORD":
+                            {
+                                item.FriendlyValue = string.Format(
+                                    "0x{0,8:x8} ({1})",
+                                    Convert.ToUInt64(item.OriginalValue.ToString()),
+                                    item.OriginalValue.ToString()
+                                    );
+
+                                break;
+                            }
+                    }
+
+                    if (!hasSetDefaultKey)
+                    {
+                        // Indedx of empty name
+                        index++;
+                    }
+                }
+            }
+
+            if (hasSetDefaultKey)
+            {
+                _valueItems.Move(index, 0);
+            }
+            else
+            {
+                _valueItems.Insert(0, new()
+                {
+                    FriendlyName = "(Default)",
+                    FriendlyValue = "(Value not set)",
+                    Type = "REG_SZ",
+                    ValueIsString = true,
                 });
             }
         }
@@ -156,7 +277,7 @@ namespace RegistryValley.App.ViewModels
             if (result.Succeeded)
                 return phkResult;
             else
-                return null;
+                return HKEY.NULL;
         }
 
         unsafe static ref T NullRef<T>()

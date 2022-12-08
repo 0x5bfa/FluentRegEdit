@@ -95,15 +95,21 @@
                 <ColumnDefinition Width="*" MinWidth="144" />
             </Grid.ColumnDefinitions>
 
-            <Grid>
+            <ScrollViewer>
                 <TreeView
                     MinWidth="256"
+                    Margin="0,0,0,24"
                     CanDrag="False"
                     CanDragItems="False"
                     CanReorderItems="False"
+                    Collapsed="OnDirTreeViewCollapsed"
                     Expanding="OnDirTreeViewExpanding"
                     ItemInvoked="OnDirTreeViewItemInvoked"
                     ItemsSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.HorizontalScrollMode="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollMode="Disabled"
                     SelectionMode="Single">
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="TreeViewItem">
@@ -121,7 +127,7 @@
 
                                 <StackPanel
                                     Orientation="Horizontal"
-                                    Spacing="8"
+                                    Spacing="12"
                                     ToolTipService.ToolTip="{x:Bind Path, Mode=OneWay}">
 
                                     <Grid>
@@ -146,7 +152,7 @@
                         </DataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
-            </Grid>
+            </ScrollViewer>
 
             <toolkit:GridSplitter
                 Grid.Column="1"
@@ -209,6 +215,11 @@
                 </Grid>
 
                 <Grid Grid.Row="1" Margin="16,4,24,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
                     <StackPanel Orientation="Horizontal" Spacing="16">
                         <DropDownButton
                             Height="36"
@@ -246,7 +257,7 @@
                                     FontSize="16"
                                     Foreground="{ThemeResource SystemAccentColor}"
                                     Glyph="&#xede1;" />
-                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Import" />
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Export" />
                             </StackPanel>
                         </Button>
                         <Button
@@ -259,10 +270,15 @@
                                     FontSize="16"
                                     Foreground="{ThemeResource SystemAccentColor}"
                                     Glyph="&#xe8d7;" />
-                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Import" />
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Permissions" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
+
+                    <Grid Grid.Column="1" VerticalAlignment="Center">
+                        <AutoSuggestBox MinWidth="256" PlaceholderText="Search" />
+                    </Grid>
+
                 </Grid>
 
                 <Grid Grid.Row="2">
@@ -288,18 +304,27 @@
                         <ListView.Header>
                             <Grid
                                 x:Name="HeaderGrid"
-                                Height="40"
+                                Height="28"
                                 Margin="0,0,0,4"
-                                Padding="32,0,0,0"
+                                Padding="32,0,0,4"
                                 BorderBrush="{ThemeResource ControlStrokeColorDefault}"
                                 BorderThickness="0,0,0,1">
 
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition x:Name="ColumnName" Width="{x:Bind ViewModel.ColumnName, Mode=TwoWay}" />
+                                    <ColumnDefinition
+                                        x:Name="ColumnName"
+                                        Width="{x:Bind ViewModel.ColumnName, Mode=TwoWay}"
+                                        MinWidth="64" />
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition x:Name="ColumnType" Width="{x:Bind ViewModel.ColumnType, Mode=TwoWay}" />
+                                    <ColumnDefinition
+                                        x:Name="ColumnType"
+                                        Width="{x:Bind ViewModel.ColumnType, Mode=TwoWay}"
+                                        MinWidth="64" />
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition x:Name="ColumnData" Width="*" />
+                                    <ColumnDefinition
+                                        x:Name="ColumnData"
+                                        Width="*"
+                                        MinWidth="64" />
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock
@@ -311,7 +336,10 @@
                                     Text="Name"
                                     TextTrimming="CharacterEllipsis" />
 
-                                <toolkit:GridSplitter Grid.Column="1" Style="{StaticResource HeaderGridSplitterStyle}" />
+                                <toolkit:GridSplitter
+                                    Grid.Column="1"
+                                    Margin="0,0,0,-4"
+                                    Style="{StaticResource HeaderGridSplitterStyle}" />
 
                                 <TextBlock
                                     Grid.Column="2"
@@ -322,7 +350,10 @@
                                     Text="Type"
                                     TextTrimming="CharacterEllipsis" />
 
-                                <toolkit:GridSplitter Grid.Column="3" Style="{StaticResource HeaderGridSplitterStyle}" />
+                                <toolkit:GridSplitter
+                                    Grid.Column="3"
+                                    Margin="0,0,0,-4"
+                                    Style="{StaticResource HeaderGridSplitterStyle}" />
 
                                 <TextBlock
                                     Grid.Column="4"
@@ -344,32 +375,41 @@
                                     IsRightTapEnabled="True">
 
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition x:Name="ColumnName" Width="{Binding ElementName=ValueListView, Path=DataContext.ColumnName, Mode=OneWay}" />
-                                        <ColumnDefinition x:Name="ColumnType" Width="{Binding ElementName=ValueListView, Path=DataContext.ColumnType, Mode=OneWay}" />
+                                        <ColumnDefinition x:Name="ColumnName" Width="{Binding ElementName=ValueListView, Path=DataContext.ColumnName}" />
+                                        <ColumnDefinition x:Name="ColumnType" Width="{Binding ElementName=ValueListView, Path=DataContext.ColumnType}" />
                                         <ColumnDefinition x:Name="ColumnData" Width="*" />
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Orientation="Horizontal" Spacing="8">
+
                                         <Grid>
-                                            <toolkit:SwitchPresenter TargetType="x:Boolean" Value="{x:Bind ValueIsString, Mode=OneWay}">
+                                            <toolkit:SwitchPresenter TargetType="x:Boolean" Value="{x:Bind ValueIsString}">
                                                 <toolkit:Case Value="True">
                                                     <Image
-                                                        Width="18"
-                                                        Height="18"
+                                                        Width="20"
+                                                        Height="20"
                                                         Source="/Assets/Images/StringValue.png" />
                                                 </toolkit:Case>
                                                 <toolkit:Case Value="False">
                                                     <Image
-                                                        Width="18"
-                                                        Height="18"
+                                                        Width="20"
+                                                        Height="20"
                                                         Source="/Assets/Images/BinaryValue.png" />
                                                 </toolkit:Case>
                                             </toolkit:SwitchPresenter>
                                         </Grid>
+
                                         <TextBlock Text="{x:Bind FriendlyName, Mode=OneWay}" />
+
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{x:Bind Type, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind FriendlyValue, Mode=OneWay}" />
+
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Type}" />
+
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Foreground="{ThemeResource TextFillColorSecondary}"
+                                        Text="{x:Bind FriendlyValue}" />
+
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
