@@ -59,6 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Dialogs\AboutDialog.xaml" />
     <None Remove="Dialogs\KeyPermissionsViewerDialog.xaml" />
   </ItemGroup>
 
@@ -87,6 +88,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RegistryValley.Core\RegistryValley.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Dialogs\AboutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

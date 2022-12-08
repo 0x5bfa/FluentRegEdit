@@ -97,6 +97,7 @@
 
             <ScrollViewer>
                 <TreeView
+                    x:Name="KeyTreeView"
                     MinWidth="256"
                     Margin="0,0,0,24"
                     CanDrag="False"
@@ -234,7 +235,7 @@
 
                 </Grid>
 
-                <Grid Grid.Row="1" Margin="16,4,24,6">
+                <Grid Grid.Row="1" Margin="16,4,24,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -289,8 +290,36 @@
                                 <FontIcon
                                     FontSize="16"
                                     Foreground="{ThemeResource SystemAccentColor}"
+                                    Glyph="&#xe774;" />
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Connect" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Height="36"
+                            Padding="8,0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Click="OnKeyPermissionsButtonClick">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemAccentColor}"
                                     Glyph="&#xe8d7;" />
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Permissions" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Height="36"
+                            Padding="8,0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Click="OnAboutButtonClick">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemAccentColor}"
+                                    Glyph="&#xe946;" />
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="About" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -313,6 +342,8 @@
                         ItemsSource="{x:Bind ViewModel.ValueItems, Mode=OneWay}"
                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                         ScrollViewer.HorizontalScrollMode="Auto"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        ScrollViewer.VerticalScrollMode="Auto"
                         SelectionMode="Single">
 
                         <ListView.ItemContainerTransitions>
@@ -442,6 +473,7 @@
 
                     </ListView>
                 </Grid>
+
             </Grid>
 
         </Grid>

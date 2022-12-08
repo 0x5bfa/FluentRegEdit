@@ -18,7 +18,11 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Edit REG_SZ value" />
+        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">
+            <Run Text="Edit" />
+            <Run Text="{x:Bind ViewModel.ValueItem.Type, Mode=OneWay}" />
+            <Run Text="value" />
+        </TextBlock>
 
         <Grid
             x:Name="ValueNameGrid"
@@ -32,7 +36,10 @@
 
             <TextBlock Text="Value name" />
 
-            <TextBox Grid.Row="1" Text="(Defalut)" />
+            <TextBox
+                Grid.Row="1"
+                PlaceholderText="Value name"
+                Text="{x:Bind ViewModel.ValueItem.FriendlyName, Mode=OneWay}" />
         </Grid>
 
         <Grid
@@ -47,7 +54,10 @@
 
             <TextBlock Text="Value data" />
 
-            <TextBox Grid.Row="1" Text="" />
+            <TextBox
+                Grid.Row="1"
+                PlaceholderText="Value data"
+                Text="{x:Bind ViewModel.ValueItem.FriendlyValue, Mode=OneWay}" />
         </Grid>
     </Grid>
 </ContentDialog>

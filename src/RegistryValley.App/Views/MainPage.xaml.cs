@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Input;
 using RegistryValley.App.Dialogs;
 using RegistryValley.App.Models;
 using RegistryValley.App.ViewModels;
-using Windows.UI.Popups;
 
 namespace RegistryValley.App.Views
 {
@@ -85,6 +84,35 @@ namespace RegistryValley.App.Views
         private async void OnKeyPermissionsMenuFlyoutItemClick(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)((MenuFlyoutItem)sender).Tag;
+
+            var dialog = new KeyPermissionsViewerDialog
+            {
+                ViewModel = new()
+                {
+                    KeyItem = item,
+                },
+
+                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
+                XamlRoot = this.Content.XamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+        }
+
+        private async void OnAboutButtonClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new AboutDialog
+            {
+                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
+                XamlRoot = this.Content.XamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+        }
+
+        private async void OnKeyPermissionsButtonClick(object sender, RoutedEventArgs e)
+        {
+            var item = (KeyItem)KeyTreeView.SelectedItem;
 
             var dialog = new KeyPermissionsViewerDialog
             {

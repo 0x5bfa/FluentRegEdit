@@ -21,10 +21,10 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock
-            Margin="0,0,0,8"
-            Style="{StaticResource SubtitleTextBlockStyle}"
-            Text="Permissions for CurrentVersion" />
+        <TextBlock Margin="0,0,0,8" Style="{StaticResource SubtitleTextBlockStyle}">
+            <Run Text="Permissions for" />
+            <Run Text="{x:Bind ViewModel.KeyItem.Name, Mode=OneWay}" />
+        </TextBlock>
 
         <Grid
             x:Name="Usernames"
@@ -36,10 +36,6 @@
             BorderThickness="1"
             CornerRadius="4"
             RowSpacing="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -47,8 +43,6 @@
             </Grid.RowDefinitions>
 
             <TextBlock
-                Grid.Row="0"
-                Grid.Column="0"
                 Padding="8"
                 VerticalAlignment="Center"
                 Text="Group or user names" />
@@ -56,15 +50,12 @@
             <MenuFlyoutSeparator
                 Grid.Row="1"
                 Grid.Column="0"
-                Grid.ColumnSpan="2"
                 Margin="-12,0"
                 Background="{ThemeResource CardStrokeColorDefaultBrush}" />
 
-            <ListView
+            <!--<ListView
                 x:Name="ListView"
                 Grid.Row="2"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
                 MaxHeight="160"
                 Margin="-4,0,-4,0"
                 HorizontalAlignment="Stretch"
@@ -103,7 +94,7 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+            </ListView>-->
         </Grid>
 
         <Grid
@@ -127,11 +118,10 @@
                 VerticalAlignment="Center"
                 TextTrimming="CharacterEllipsis">
                 <Run Text="Permissions for" />
-                <Run Text="A" />
+                <Run Text="someone" />
             </TextBlock>
 
             <Button
-                Grid.Row="0"
                 Padding="8,6"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"

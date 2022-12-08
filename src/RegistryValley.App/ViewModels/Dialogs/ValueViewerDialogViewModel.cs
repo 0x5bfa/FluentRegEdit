@@ -6,7 +6,6 @@ namespace RegistryValley.App.ViewModels.Dialogs
     {
         public ValueViewerDialogViewModel()
         {
-
         }
 
         private ValueItem _valueItem;
