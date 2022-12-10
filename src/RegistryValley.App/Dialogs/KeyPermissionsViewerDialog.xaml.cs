@@ -11,8 +11,7 @@ namespace RegistryValley.App.Dialogs
                 nameof(ViewModel),
                 typeof(KeyPermissionsViewerDialogViewModel),
                 typeof(ValueViewerDialog),
-                new PropertyMetadata(null)
-                );
+                new PropertyMetadata(null));
 
         public KeyPermissionsViewerDialogViewModel ViewModel
         {

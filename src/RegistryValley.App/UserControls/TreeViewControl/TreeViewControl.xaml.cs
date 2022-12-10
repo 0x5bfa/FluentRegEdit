@@ -66,7 +66,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             TreeNode node = new TreeNode()
             {
                 Data = item,
-                IsExpanded = item.Expanded
+                IsExpanded = item.IsExpanded
             };
 
             node.PropertyChanged += Node_PropertyChanged;
@@ -117,7 +117,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
             KeyItem item = (KeyItem)node.Data;
 
             // Sync expand/collapse state
-            if (e.PropertyName == nameof(node.IsExpanded) && node.IsExpanded != item.Expanded)
+            if (e.PropertyName == nameof(node.IsExpanded) && node.IsExpanded != item.IsExpanded)
             {
                 if (node.IsExpanded)
                 {

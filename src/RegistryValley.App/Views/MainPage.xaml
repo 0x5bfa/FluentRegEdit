@@ -37,23 +37,18 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="44" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid>
+        <ProgressBar
+            x:Name="LoadingProgressBar"
+            VerticalAlignment="Top"
+            x:Load="{x:Bind ViewModel.Loading, Mode=OneWay}"
+            IsIndeterminate="True" />
 
-            <ProgressBar
-                x:Name="LoadingProgressBar"
-                VerticalAlignment="Top"
-                x:Load="{x:Bind ViewModel.Loading, Mode=OneWay}"
-                IsIndeterminate="True" />
-
-            <StackPanel
-                Height="44"
-                VerticalAlignment="Top"
-                Background="Transparent"
-                Orientation="Horizontal">
+        <Grid Height="44">
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
 
                 <Image
                     x:Name="AppFontIcon"
@@ -123,8 +118,9 @@
                         <DataTemplate x:DataType="models:KeyItem">
                             <TreeViewItem
                                 HasUnrealizedChildren="True"
-                                IsExpanded="False"
-                                ItemsSource="{x:Bind Children}">
+                                IsExpanded="{x:Bind IsExpanded}"
+                                ItemsSource="{x:Bind Children}"
+                                ToolTipService.ToolTip="{x:Bind DisplayPath, Mode=OneWay}">
 
                                 <TreeViewItem.ContextFlyout>
                                     <MenuFlyout>
@@ -146,20 +142,13 @@
                                     </MenuFlyout>
                                 </TreeViewItem.ContextFlyout>
 
-                                <StackPanel
-                                    Orientation="Horizontal"
-                                    Spacing="12"
-                                    ToolTipService.ToolTip="{x:Bind Path, Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
 
                                     <Grid>
-                                        <FontIcon
-                                            FontSize="16"
-                                            Foreground="#fdde81"
-                                            Glyph="&#xe8d5;" />
-                                        <FontIcon
-                                            FontSize="16"
-                                            Foreground="#d59e0d"
-                                            Glyph="&#xe8b7;" />
+                                        <Image
+                                            Width="18"
+                                            Height="18"
+                                            Source="{x:Bind Image}" />
                                     </Grid>
 
                                     <TextBlock

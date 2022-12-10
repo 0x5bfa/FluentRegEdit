@@ -1,6 +1,7 @@
 ﻿using RegistryValley.App.Models;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Vanara.PInvoke;
 
 namespace RegistryValley.App.ViewModels.Dialogs
 {
@@ -23,6 +24,9 @@ namespace RegistryValley.App.ViewModels.Dialogs
         private PermissionPrincipalItem _selectedPrincipal;
         public PermissionPrincipalItem SelectedPrincipal { get => _selectedPrincipal; set => SetProperty(ref _selectedPrincipal, value); }
 
+        private bool _hasDacl;
+        public bool HasDacl { get => _hasDacl; set => SetProperty(ref _hasDacl, value); }
+
         public IRelayCommand LoadKeySecurityDescriptorCommand { get; }
 
         private void LoadKeySecurityDescriptor()
@@ -32,11 +36,7 @@ namespace RegistryValley.App.ViewModels.Dialogs
             Win32Error result;
             bool bResult;
 
-            var hkey = RegValleyOpenKey(
-                KeyItem.RootHive,
-                KeyItem.Path,
-                REGSAM.READ_CONTROL
-                );
+            var hkey = RegValleyOpenKey(KeyItem.RootHive, KeyItem.Path, REGSAM.READ_CONTROL);
 
             var pSD = new SafePSECURITY_DESCRIPTOR(256);
             var sdsz = (uint)pSD.Size;
@@ -47,15 +47,19 @@ namespace RegistryValley.App.ViewModels.Dialogs
 
             if (!lpbDaclPresent)
             {
-                // No DACL
+                HasDacl =  false;
             }
             else
             {
                 bResult = GetAclInformation(pDacl, out ACL_SIZE_INFORMATION asi, (uint)Marshal.SizeOf(typeof(ACL_REVISION_INFORMATION)), ACL_INFORMATION_CLASS.AclSizeInformation);
 
+                HasDacl = true;
+
                 for (var index = 0U; index < pDacl.GetAclInformation<ACL_SIZE_INFORMATION>().AceCount; index++)
                 {
                     var pAce = pDacl.GetAce(index);
+
+                    // Should cast pAce to more specifical object, such as ACCESS_ALLOWED_ACE or ACCESS_DENIED_ACE ?
 
                     var accountSize = 1024;
                     var domainSize = 1024;
@@ -74,40 +78,32 @@ namespace RegistryValley.App.ViewModels.Dialogs
                     else if (snu == SID_NAME_USE.SidTypeUser)
                         isUser = true;
 
-                    _principals.Add(new()
+                    //var regsam = (REGSAM)pAce.GetMask();
+                    var accessMask = new ACCESS_MASK(pAce.GetMask());
+
+                    var principal = new PermissionPrincipalItem()
                     {
                         Glyph = isGroup ? "\xE2AF" : (isUser ? "\xE902" : "\xE716"),
                         Name = outuser.ToString(),
                         Domain = outdomain.ToString(),
                         Sid = pAce.GetSid().ToString(),
-                    });
+                        AccessRule = new(),
+                    };
 
-                    //System.Console.WriteLine($"Ace: {index}: Type: {pAce.GetHeader().AceType} Account: {outdomain}\\{outuser} Mask: {pAce.GetMask()}");
+                    if (pAce.GetAceType() == System.Security.AccessControl.AceType.AccessAllowed)
+                    {
+                        principal.AccessRule.GrantsAccessMask = accessMask;
+                    }
+                    else if (pAce.GetAceType() == System.Security.AccessControl.AceType.AccessDenied)
+                    {
+                        principal.AccessRule.DeniesAccessMask = accessMask;
+                    }
 
-                    //if ((pAce.GetMask() & ACCESS_MASK.DELETE) == ACCESS_MASK.DELETE)
-                    //    System.Console.WriteLine("DELETE");
-                    //if ((pAce.GetMask() & ACCESS_MASK.READ_CONTROL) == ACCESS_MASK.READ_CONTROL)
-                    //    System.Console.WriteLine("READ_CONTROL");
-                    //if ((pAce.GetMask() & ACCESS_MASK.WRITE_DAC) == ACCESS_MASK.WRITE_DAC)
-                    //    System.Console.WriteLine("WRITE_DAC");
-                    //if ((pAce.GetMask() & ACCESS_MASK.WRITE_OWNER) == ACCESS_MASK.WRITE_OWNER)
-                    //    System.Console.WriteLine("WRITE_OWNER");
-                    //if ((pAce.GetMask() & ACCESS_MASK.SYNCHRONIZE) == ACCESS_MASK.SYNCHRONIZE)
-                    //    System.Console.WriteLine("SYNCHRONIZE");
-                    //if ((pAce.GetMask() & ACCESS_MASK.STANDARD_RIGHTS_REQUIRED) == ACCESS_MASK.STANDARD_RIGHTS_REQUIRED)
-                    //    System.Console.WriteLine("STANDARD_RIGHTS_REQUIRED");
-                    //if ((pAce.GetMask() & ACCESS_MASK.STANDARD_RIGHTS_READ) == ACCESS_MASK.STANDARD_RIGHTS_READ)
-                    //    System.Console.WriteLine("STANDARD_RIGHTS_READ");
-                    //if ((pAce.GetMask() & ACCESS_MASK.STANDARD_RIGHTS_WRITE) == ACCESS_MASK.STANDARD_RIGHTS_WRITE)
-                    //    System.Console.WriteLine("STANDARD_RIGHTS_WRITE");
-                    //if ((pAce.GetMask() & ACCESS_MASK.STANDARD_RIGHTS_EXECUTE) == ACCESS_MASK.STANDARD_RIGHTS_EXECUTE)
-                    //    System.Console.WriteLine("STANDARD_RIGHTS_EXECUTE");
-                    //if ((pAce.GetMask() & ACCESS_MASK.STANDARD_RIGHTS_ALL) == ACCESS_MASK.STANDARD_RIGHTS_ALL)
-                    //    System.Console.WriteLine("STANDARD_RIGHTS_ALL");
-                    //if ((pAce.GetMask() & ACCESS_MASK.SPECIFIC_RIGHTS_ALL) == ACCESS_MASK.SPECIFIC_RIGHTS_ALL)
-                    //    System.Console.WriteLine("SPECIFIC_RIGHTS_ALL");
+                    _principals.Add(principal);
                 }
             }
+
+            pSD.Close();
         }
 
         HKEY RegValleyOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)

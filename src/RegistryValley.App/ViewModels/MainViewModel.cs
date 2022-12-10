@@ -41,14 +41,16 @@ namespace RegistryValley.App.ViewModels
             _keyItems.Add(new()
             {
                 Name = "Computer",
+                IsExpanded = true,
+                Image = "ms-appx:///Assets/Images/Computer.png",
                 Children = new()
                 {
-                    new() { Name = "HKEY_CLASSES_ROOT", RootHive = HKEY.HKEY_CLASSES_ROOT, Path = "" },
-                    new() { Name = "HKEY_CURRENT_USER", RootHive = HKEY.HKEY_CURRENT_USER, Path = "" },
-                    new() { Name = "HKEY_LOCAL_MACHINE", RootHive = HKEY.HKEY_LOCAL_MACHINE, Path = "" },
-                    new() { Name = "HKEY_USERS", RootHive = HKEY.HKEY_USERS, Path = "" },
-                    new() { Name = "HKEY_CURRENT_CONFIG", RootHive = HKEY.HKEY_CURRENT_CONFIG, Path = "" }
-                }
+                    new() { Name = "HKEY_CLASSES_ROOT", RootHive = HKEY.HKEY_CLASSES_ROOT, Path = "", Image = "ms-appx:///Assets/Images/Folder.png" },
+                    new() { Name = "HKEY_CURRENT_USER", RootHive = HKEY.HKEY_CURRENT_USER, Path = "", Image = "ms-appx:///Assets/Images/Folder.png" },
+                    new() { Name = "HKEY_LOCAL_MACHINE", RootHive = HKEY.HKEY_LOCAL_MACHINE, Path = "", Image = "ms-appx:///Assets/Images/Folder.png" },
+                    new() { Name = "HKEY_USERS", RootHive = HKEY.HKEY_USERS, Path = "", Image = "ms-appx:///Assets/Images/Folder.png" },
+                    new() { Name = "HKEY_CURRENT_CONFIG", RootHive = HKEY.HKEY_CURRENT_CONFIG, Path = "", Image = "ms-appx:///Assets/Images/Folder.png" }
+                },
             });
         }
 
@@ -96,6 +98,7 @@ namespace RegistryValley.App.ViewModels
                     Name = sb.ToString(),
                     Path = subRoot + sb.ToString() + "\\",
                     RootHive = hkey,
+                    Image = "ms-appx:///Assets/Images/Folder.png",
                 });
             }
             #endregion

@@ -105,7 +105,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
                 Name = "Computer",
                 Children = new(list),
                 Image = computerImageSource,
-                Expanded = true
+                IsExpanded = true
             });
         }
 
@@ -152,7 +152,7 @@ namespace RegistryValley.App.UserControls.TreeViewControl
 
         public void ItemCollapsed(KeyItem selectedItem)
         {
-            selectedItem.Expanded = false;
+            selectedItem.IsExpanded = false;
         }
 
         private KeyItem lastInvokedItem;
