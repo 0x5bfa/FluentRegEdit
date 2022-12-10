@@ -774,9 +774,9 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <Grid>
+                            <Grid Padding="8,0">
                                 <TextBlock
-                                    Margin="8"
+                                    Margin="0,8"
                                     VerticalAlignment="Center"
                                     Text="Basic permissions" />
 
@@ -836,11 +836,13 @@
                                 Margin="-12,0"
                                 Background="{ThemeResource ControlStrokeColorDefault}" />
 
-                            <CheckBox
-                                Grid.Row="4"
-                                Margin="8"
-                                Content="Only apply these permissions to object and/or containers, within this container"
-                                IsEnabled="False" />
+                            <Grid Grid.Row="4" Padding="8">
+                                <CheckBox Content="Only apply these permissions to object and/or containers, within this container" IsEnabled="False" />
+                                <Button
+                                    HorizontalAlignment="Right"
+                                    Content="Clear all"
+                                    IsEnabled="False" />
+                            </Grid>
 
                         </Grid>
 

@@ -2,8 +2,12 @@
 using RegistryValley.App.Models;
 using System.Drawing.Drawing2D;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows.Input;
+using Vanara.Extensions;
+using Vanara.InteropServices;
 using static Vanara.PInvoke.ComCtl32;
+using static Vanara.PInvoke.User32.RAWINPUT;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 namespace RegistryValley.App.ViewModels
@@ -133,9 +137,9 @@ namespace RegistryValley.App.ViewModels
             for (uint index = 0; index < cValues; index++)
             {
                 uint cchName = cbMaxValueNameLen + 1;
-                uint cbLen = cbMaxValueLen * 2;
                 StringBuilder sb = new((int)cchName);
-                IntPtr data = new();
+                uint cbLen = cbMaxValueLen + (cbMaxValueLen % 2);
+                var data = new SafeHGlobalHandle(cbLen);
 
                 result = RegEnumValue(
                     handle,
@@ -165,7 +169,8 @@ namespace RegistryValley.App.ViewModels
                 {
                     item.ValueIsString = true;
                 }
-                else item.ValueIsString = false;
+                else
+                    item.ValueIsString = false;
 
                 _valueItems.Add(item);
             }
@@ -189,23 +194,22 @@ namespace RegistryValley.App.ViewModels
                 }
                 else
                 {
+                    var val = (SafeHGlobalHandle)item.OriginalValue;
+
                     switch (item.Type)
                     {
                         case "REG_BINARY":
                             {
-                                if ((IntPtr)item.OriginalValue == IntPtr.Zero)
-                                {
-                                    break;
-                                }
+                                var value = val.ToStructure<uint>();
+                                var byteVal = BitConverter.GetBytes(value);
 
-                                var value = item.OriginalValue as byte[];
-                                if (value.Count() == 0)
+                                if (byteVal.Length == 0)
                                 {
                                     item.FriendlyValue += $"(zero-length binary value)";
                                     break;
                                 }
 
-                                foreach (var atom in value)
+                                foreach (var atom in byteVal)
                                 {
                                     item.FriendlyValue += $"{atom} ";
                                 }
@@ -214,13 +218,9 @@ namespace RegistryValley.App.ViewModels
                             }
                         case "REG_MULTI_SZ":
                             {
-                                if ((IntPtr)item.OriginalValue  == IntPtr.Zero)
-                                {
-                                    break;
-                                }
+                                var value = val.ToString();
 
-                                var value = item.OriginalValue as string[];
-                                foreach (var atom in value)
+                                foreach (var atom in value.Split('\n'))
                                 {
                                     item.FriendlyValue += $"{atom} ";
                                 }
@@ -230,18 +230,18 @@ namespace RegistryValley.App.ViewModels
                         case "REZ_EXPAND_SZ":
                         case "REG_SZ":
                             {
-                                item.FriendlyValue = item.OriginalValue.ToString();
+                                var value = val.ToString();
+
+                                item.FriendlyValue = value;
 
                                 break;
                             }
                         case "REG_QWORD":
                         case "REG_DWORD":
                             {
-                                item.FriendlyValue = string.Format(
-                                    "0x{0,8:x8} ({1})",
-                                    Convert.ToUInt64(item.OriginalValue.ToString()),
-                                    item.OriginalValue.ToString()
-                                    );
+                                var value = val.ToStructure<uint>();
+
+                                item.FriendlyValue = string.Format("0x{0,8:x8} ({1})", Convert.ToUInt32(value), Convert.ToUInt32(value));
 
                                 break;
                             }
