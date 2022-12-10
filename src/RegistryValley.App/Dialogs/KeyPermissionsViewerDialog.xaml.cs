@@ -1,5 +1,8 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using RegistryValley.App.Models;
+using RegistryValley.App.UserControls.TreeViewControl;
 using RegistryValley.App.ViewModels.Dialogs;
 
 namespace RegistryValley.App.Dialogs
@@ -20,7 +23,9 @@ namespace RegistryValley.App.Dialogs
             {
                 SetValue(ViewModelProperty, value);
 
-                var command = value.LoadKeySecurityDescriptorCommand;
+                ViewModel.ShowAdvancedPermissions = false;
+
+                var command = ViewModel.LoadKeySecurityCommand;
                 if (command.CanExecute(null))
                     command.Execute(null);
             }
@@ -29,6 +34,33 @@ namespace RegistryValley.App.Dialogs
         public KeyPermissionsViewerDialog()
         {
             InitializeComponent();
+        }
+
+        private void OnViewAdvancedSecurityButtonClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.LoadKeySecurityOwner();
+            ViewModel.ShowAdvancedPermissions = true;
+        }
+
+        private void OnBackToSummaryPermissionsGridButtonClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.LoadKeySecurityDescriptor();
+            ViewModel.ShowAdvancedPermissions = false;
+        }
+
+        private void OnAdvancedPermissionListViewItemDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            var item = (PermissionPrincipalItem)AdvancedPermissionListView.SelectedItem;
+
+            ViewModel.SelectedPrincipalAdvancedPermission = item;
+
+            ViewModel.SelectedAdvancedPermissionItem = true;
+        }
+
+        private void OnBackToAdvancedPermissionsGridButtonClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ShowAdvancedPermissions = true;
+            ViewModel.SelectedAdvancedPermissionItem = false;
         }
     }
 }

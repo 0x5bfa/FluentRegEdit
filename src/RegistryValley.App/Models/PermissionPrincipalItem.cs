@@ -10,6 +10,8 @@
 
         public string Domain { get; set; }
 
+        public string AccessControlTypeGlyph { get; set; }
+
         public string DisplayName
             => string.IsNullOrEmpty(Name) ? "Unknown Account" : Name;
 

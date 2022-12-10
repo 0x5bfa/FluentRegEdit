@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="e62d394a-d977-4049-8e13-6c06782241d5"
-    Publisher="CN=onein"
+    Name="RegistryValley"
+    Publisher="CN=onein528"
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>RegistryValley.App</DisplayName>
-    <PublisherDisplayName>onein</PublisherDisplayName>
+    <DisplayName>RegistryValley</DisplayName>
+    <PublisherDisplayName>Tomoyuki Terashita</PublisherDisplayName>
     <Logo>Assets\AppTiles\StoreLogo.png</Logo>
   </Properties>
 
@@ -31,8 +31,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Registry Valley"
-        Description="An fluent editor of Windows 32 Registry"
+        DisplayName="Registry Editor Valley"
+        Description="A powerful yet fluent registry editor fow Windows 10/11 with WinUI3"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\AppTiles\Square150x150Logo.png"
         Square44x44Logo="Assets\AppTiles\Square44x44Logo.png">

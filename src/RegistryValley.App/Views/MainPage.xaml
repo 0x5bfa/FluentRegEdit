@@ -329,10 +329,6 @@
                         DoubleTapped="OnValueListViewDoubleTapped"
                         IsDoubleTapEnabled="True"
                         ItemsSource="{x:Bind ViewModel.ValueItems, Mode=OneWay}"
-                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                        ScrollViewer.HorizontalScrollMode="Auto"
-                        ScrollViewer.VerticalScrollBarVisibility="Auto"
-                        ScrollViewer.VerticalScrollMode="Auto"
                         SelectionMode="Single">
 
                         <ListView.ItemContainerTransitions>
