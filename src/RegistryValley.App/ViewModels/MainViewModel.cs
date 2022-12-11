@@ -9,6 +9,7 @@ using Vanara.InteropServices;
 using static Vanara.PInvoke.ComCtl32;
 using static Vanara.PInvoke.User32.RAWINPUT;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
+using System.Linq;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -157,6 +158,7 @@ namespace RegistryValley.App.ViewModels
                     FriendlyName = sb.ToString(),
                     Type = type.ToString(),
                     OriginalValue = data,
+                    DataSize = cbLen,
                 };
 
                 item.Type = item.Type == "REG_DWORD_LITTLE_ENDIAN" ? "REG_DWORD" : item.Type;
@@ -177,6 +179,12 @@ namespace RegistryValley.App.ViewModels
             #endregion
 
             NormalizeValues();
+
+            // Order
+            var alphabetic = new ObservableCollection<ValueItem>(_valueItems.OrderBy(x => x.FriendlyName));
+            _valueItems.Clear();
+            foreach (var item in alphabetic)
+                _valueItems.Add(item);
         }
 
         private void NormalizeValues()
@@ -200,25 +208,27 @@ namespace RegistryValley.App.ViewModels
                     {
                         case "REG_BINARY":
                             {
-                                var value = val.ToStructure<uint>();
-                                var byteVal = BitConverter.GetBytes(value);
+                                var value = val.ToStructure<byte[]>();
+                                var size = item.DataSize;
 
-                                if (byteVal.Length == 0)
+                                value = value.Take((int)size).ToArray();
+
+                                if (value.Length == 0)
                                 {
-                                    item.FriendlyValue += $"(zero-length binary value)";
+                                    item.FriendlyValue = $"(zero-length binary value)";
                                     break;
                                 }
 
-                                foreach (var atom in byteVal)
+                                foreach (var atom in value)
                                 {
-                                    item.FriendlyValue += $"{atom} ";
+                                    item.FriendlyValue += string.Format("{0,2:x2} ", Convert.ToUInt32(atom));
                                 }
 
                                 break;
                             }
                         case "REG_MULTI_SZ":
                             {
-                                var value = val.ToString();
+                                var value = val.ToString(-1, CharSet.Auto);
 
                                 foreach (var atom in value.Split('\n'))
                                 {
@@ -230,7 +240,7 @@ namespace RegistryValley.App.ViewModels
                         case "REZ_EXPAND_SZ":
                         case "REG_SZ":
                             {
-                                var value = val.ToString();
+                                var value = val.ToString(-1, CharSet.Auto);
 
                                 item.FriendlyValue = value;
 
@@ -249,7 +259,7 @@ namespace RegistryValley.App.ViewModels
 
                     if (!hasSetDefaultKey)
                     {
-                        // Indedx of empty name
+                        // Index of empty name
                         index++;
                     }
                 }

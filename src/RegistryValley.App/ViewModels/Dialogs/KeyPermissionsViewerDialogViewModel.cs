@@ -49,7 +49,8 @@ namespace RegistryValley.App.ViewModels.Dialogs
 
         public void LoadKeySecurityDescriptor()
         {
-            _principals?.Clear();
+            if (_principals != null && _principals.Any())
+                _principals?.Clear();
 
             Win32Error result;
             bool bResult;
@@ -144,6 +145,9 @@ namespace RegistryValley.App.ViewModels.Dialogs
 
         public void LoadKeySecurityOwner()
         {
+            if (KeyItem == null)
+                return;
+
             Win32Error result;
             bool bResult;
 
