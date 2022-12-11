@@ -13,8 +13,7 @@ namespace RegistryValley.App.Dialogs
                 nameof(ViewModel),
                 typeof(ValueViewerDialogViewModel),
                 typeof(ValueViewerDialog),
-                new PropertyMetadata(null)
-                );
+                new PropertyMetadata(null));
 
         public ValueViewerDialogViewModel ViewModel
         {
@@ -23,8 +22,10 @@ namespace RegistryValley.App.Dialogs
         }
 
         public ValueViewerDialog()
+            => InitializeComponent();
+
+        private void OnValueEditorTextBoxTextChanged(object sender, TextChangedEventArgs e)
         {
-            InitializeComponent();
         }
     }
 }

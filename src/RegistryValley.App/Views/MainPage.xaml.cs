@@ -16,6 +16,8 @@ namespace RegistryValley.App.Views
 
             var provider = App.Current.Services;
             ViewModel = provider.GetRequiredService<MainViewModel>();
+
+            ViewModel.AddItemToSelectedKeyPathItems(new() { PathItem = "Computer", IsLast = true });
         }
 
         public MainViewModel ViewModel { get; }
@@ -54,10 +56,17 @@ namespace RegistryValley.App.Views
         {
             ViewModel.Loading = true;
             var item = (KeyItem)args.InvokedItem;
+            ViewModel.ClearValueItems();
+            ViewModel.ClearSelectedKeyPathItems();
 
             if (item.RootHive != HKEY.NULL)
             {
                 ViewModel.RegValleyEnumValues(item.RootHive, item.Path, item.Name);
+            }
+
+            if (!ViewModel.SelectedKeyPathItems.Any())
+            {
+                ViewModel.AddItemToSelectedKeyPathItems(new() { PathItem = "Computer", IsLast = true });
             }
 
             ViewModel.Loading = false;

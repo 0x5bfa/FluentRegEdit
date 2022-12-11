@@ -50,6 +50,8 @@
             }
         }
 
+        public bool IsSelected { get; set; }
+
         public bool IsExpanded { get; set; } = false;
 
         public HKEY RootHive { get; set; }

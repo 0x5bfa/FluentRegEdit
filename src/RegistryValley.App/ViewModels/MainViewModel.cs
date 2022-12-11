@@ -1,15 +1,13 @@
 ﻿using Microsoft.UI.Xaml;
 using RegistryValley.App.Models;
-using System.Drawing.Drawing2D;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
 using Vanara.Extensions;
 using Vanara.InteropServices;
-using static Vanara.PInvoke.ComCtl32;
-using static Vanara.PInvoke.User32.RAWINPUT;
+using Vanara.PInvoke;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
-using System.Linq;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -22,6 +20,9 @@ namespace RegistryValley.App.ViewModels
 
             _valueItems = new();
             ValueItems = new(_valueItems);
+
+            _selectedKeyPathItems = new();
+            SelectedKeyPathItems = new(_selectedKeyPathItems);
 
             InitializeHiveTree();
         }
@@ -41,13 +42,17 @@ namespace RegistryValley.App.ViewModels
         private bool _loading;
         public bool Loading { get => _loading; set => SetProperty(ref _loading, value); }
 
+        private readonly ObservableCollection<BreadcrumbBarPathItem> _selectedKeyPathItems;
+        public ReadOnlyObservableCollection<BreadcrumbBarPathItem> SelectedKeyPathItems { get; }
+
         public void InitializeHiveTree()
         {
             _keyItems.Add(new()
             {
                 Name = "Computer",
-                IsExpanded = true,
                 Image = "ms-appx:///Assets/Images/Computer.png",
+                IsExpanded = true,
+                IsSelected = true,
                 Children = new()
                 {
                     new() { Name = "HKEY_CLASSES_ROOT", RootHive = HKEY.HKEY_CLASSES_ROOT, Path = "", Image = "ms-appx:///Assets/Images/Folder.png" },
@@ -62,6 +67,8 @@ namespace RegistryValley.App.ViewModels
         public IEnumerable<KeyItem> RegValleyEnumKeys(HKEY hkey, string subRoot)
         {
             List<KeyItem> keys = new();
+
+            SetPathItems(hkey, subRoot);
 
             #region Win32API Calling
             Win32Error result;
@@ -115,10 +122,12 @@ namespace RegistryValley.App.ViewModels
         {
             _valueItems.Clear();
 
+            SetPathItems(hkey, subRoot);
+
             #region Win32API Calling
             Win32Error result;
 
-            var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ | REGSAM.KEY_ENUMERATE_SUB_KEYS);
+            var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_QUERY_VALUE | REGSAM.READ_CONTROL);
 
             result = RegQueryInfoKey(
                 handle,
@@ -134,6 +143,8 @@ namespace RegistryValley.App.ViewModels
                 out NullRef<uint>(),
                 out NullRef<FILETIME>()
                 );
+
+            bool hasDefaultKey = false;
 
             for (uint index = 0; index < cValues; index++)
             {
@@ -155,133 +166,170 @@ namespace RegistryValley.App.ViewModels
                 ValueItem item = new()
                 {
                     Name = sb.ToString(),
-                    FriendlyName = sb.ToString(),
-                    Type = type.ToString(),
-                    OriginalValue = data,
+                    DisplayName = sb.ToString(),
+                    TypeString = type.ToString(),
                     DataSize = cbLen,
+                    Type = type,
                 };
 
-                item.Type = item.Type == "REG_DWORD_LITTLE_ENDIAN" ? "REG_DWORD" : item.Type;
-                item.Type = item.Type == "REG_DWORD_BIG_ENDIAN" ? "REG_DWORD" : item.Type;
-                item.Type = item.Type == "REG_QWORD_LITTLE_ENDIAN" ? "REG_QWORD" : item.Type;
+                if (item.TypeString == "REG_DWORD_LITTLE_ENDIAN" || item.TypeString == "REG_DWORD_BIG_ENDIAN")
+                    item.TypeString = "REG_DWORD";
+                else if (item.TypeString == "REG_QWORD_LITTLE_ENDIAN")
+                    item.TypeString = "REG_QWORD";
 
-                if (item.Type == "REG_SZ" ||
-                    item.Type == "REG_EXPAND_SZ" ||
-                    item.Type == "REG_MULTI_SZ")
-                {
-                    item.ValueIsString = true;
-                }
+                if (item.TypeString == "REG_SZ" || item.TypeString == "REG_EXPAND_SZ" || item.TypeString == "REG_MULTI_SZ")
+                    item.IsStringBased = true;
                 else
-                    item.ValueIsString = false;
+                    item.IsNumericalBased = true;
+
+                if (string.IsNullOrEmpty(item.Name))
+                {
+                    item.DisplayName = "(Default)";
+                    item.IsRenamable = false;
+                    item.DisplayValue = data.ToString(-1, CharSet.Auto);
+                    item.EditableValue = "";
+                    item.IsString = true;
+                    hasDefaultKey = true;
+
+                    data.Close();
+                    _valueItems.Add(item);
+                    continue;
+                }
+
+                switch (type)
+                {
+                    case REG_VALUE_TYPE.REG_BINARY:
+                        {
+                            item.IsBinary = true;
+
+                            var value = data.ToStructure<byte[]>();
+                            value = value.Take((int)item.DataSize).ToArray();
+
+                            if (value.Length == 0)
+                            {
+                                item.DisplayValue = $"(zero-length binary value)";
+                                item.EditableValue = "";
+                                break;
+                            }
+
+                            foreach (var atom in value)
+                            {
+                                item.DisplayValue += string.Format("{0,2:x2} ", Convert.ToUInt32(atom));
+                            }
+
+                            item.DisplayValue = item.DisplayValue.TrimEnd();
+                            item.EditableValue = item.DisplayValue;
+                        }
+                        break;
+
+                    case REG_VALUE_TYPE.REG_MULTI_SZ:
+                        {
+                            item.IsMultiString = true;
+
+                            var value = data.ToString(-1, CharSet.Auto);
+
+                            foreach (var atom in value.Split('\n'))
+                            {
+                                item.DisplayValue += $"{atom} ";
+                            }
+
+                            item.DisplayValue = item.DisplayValue.TrimEnd();
+                            item.EditableValue = value;
+                        }
+                        break;
+
+                    case REG_VALUE_TYPE.REG_EXPAND_SZ:
+                    case REG_VALUE_TYPE.REG_SZ:
+                        {
+                            item.IsString = true;
+
+                            var value = data.ToString(-1, CharSet.Auto);
+
+                            item.DisplayValue = value;
+                            item.EditableValue = item.DisplayValue;
+                        }
+                        break;
+
+                    case REG_VALUE_TYPE.REG_QWORD:
+                    case REG_VALUE_TYPE.REG_DWORD:
+                        {
+                            item.IsDwordOrQword = true;
+
+                            var value = data.ToStructure<uint>();
+
+                            item.DisplayValue = string.Format("0x{0,8:x8} ({1})", Convert.ToUInt32(value), Convert.ToUInt32(value));
+                            item.EditableValue = Convert.ToUInt32(value).ToString();
+                        }
+                        break;
+                }
 
                 _valueItems.Add(item);
+
+                data.Close();
+            }
+
+            if (!hasDefaultKey)
+            {
+                _valueItems.Insert(0, new()
+                {
+                    Name = "",
+                    DataSize = 0,
+                    Type = REG_VALUE_TYPE.REG_SZ,
+
+                    DisplayName = "(Default)",
+                    TypeString = "REG_SZ",
+                    DisplayValue = "(Value not set)",
+                    EditableValue = "",
+
+                    IsRenamable = false,
+                    IsString = true,
+                    IsStringBased = true,
+                });
             }
             #endregion
 
-            NormalizeValues();
-
             // Order
-            var alphabetic = new ObservableCollection<ValueItem>(_valueItems.OrderBy(x => x.FriendlyName));
+            var alphabetic = new ObservableCollection<ValueItem>(_valueItems.OrderBy(x => x.DisplayName));
             _valueItems.Clear();
             foreach (var item in alphabetic)
                 _valueItems.Add(item);
         }
 
-        private void NormalizeValues()
+        public void SetPathItems(HKEY hkey, string subRoot)
         {
-            bool hasSetDefaultKey = false;
-            int index = 0;
+            _selectedKeyPathItems.Clear();
 
-            foreach (var item in ValueItems)
+            _selectedKeyPathItems.Add(new() { PathItem = "Computer" });
+
+            if (hkey == HKEY.HKEY_CLASSES_ROOT)
+                _selectedKeyPathItems.Add(new() { PathItem = "HKEY_CLASSES_ROOT" });
+            else if (hkey == HKEY.HKEY_CURRENT_CONFIG)
+                _selectedKeyPathItems.Add(new() { PathItem = "HKEY_CURRENT_CONFIG" });
+            else if (hkey == HKEY.HKEY_CURRENT_USER)
+                _selectedKeyPathItems.Add(new() { PathItem = "HKEY_CURRENT_USER" });
+            else if (hkey == HKEY.HKEY_LOCAL_MACHINE)
+                _selectedKeyPathItems.Add(new() { PathItem = "HKEY_LOCAL_MACHINE" });
+            else if (hkey == HKEY.HKEY_USERS)
+                _selectedKeyPathItems.Add(new() { PathItem = "HKEY_USERS" });
+
+            if (string.IsNullOrEmpty(subRoot) || subRoot.Split('\\').Length == 0)
             {
-                if (string.IsNullOrEmpty(item.Name))
-                {
-                    hasSetDefaultKey = true;
-                    item.FriendlyName = "(Default)";
-                    item.FriendlyValue = item.OriginalValue.ToString();
-                }
-                else
-                {
-                    var val = (SafeHGlobalHandle)item.OriginalValue;
-
-                    switch (item.Type)
-                    {
-                        case "REG_BINARY":
-                            {
-                                var value = val.ToStructure<byte[]>();
-                                var size = item.DataSize;
-
-                                value = value.Take((int)size).ToArray();
-
-                                if (value.Length == 0)
-                                {
-                                    item.FriendlyValue = $"(zero-length binary value)";
-                                    break;
-                                }
-
-                                foreach (var atom in value)
-                                {
-                                    item.FriendlyValue += string.Format("{0,2:x2} ", Convert.ToUInt32(atom));
-                                }
-
-                                break;
-                            }
-                        case "REG_MULTI_SZ":
-                            {
-                                var value = val.ToString(-1, CharSet.Auto);
-
-                                foreach (var atom in value.Split('\n'))
-                                {
-                                    item.FriendlyValue += $"{atom} ";
-                                }
-
-                                break;
-                            }
-                        case "REZ_EXPAND_SZ":
-                        case "REG_SZ":
-                            {
-                                var value = val.ToString(-1, CharSet.Auto);
-
-                                item.FriendlyValue = value;
-
-                                break;
-                            }
-                        case "REG_QWORD":
-                        case "REG_DWORD":
-                            {
-                                var value = val.ToStructure<uint>();
-
-                                item.FriendlyValue = string.Format("0x{0,8:x8} ({1})", Convert.ToUInt32(value), Convert.ToUInt32(value));
-
-                                break;
-                            }
-                    }
-
-                    if (!hasSetDefaultKey)
-                    {
-                        // Index of empty name
-                        index++;
-                    }
-                }
+                _selectedKeyPathItems[^1].IsLast = true;
+                return;
             }
 
-            if (hasSetDefaultKey)
+            subRoot = subRoot.TrimEnd('\\');
+            var items = subRoot.Split('\\');
+
+            foreach (var item in items)
             {
-                _valueItems.Move(index, 0);
+                _selectedKeyPathItems.Add(new() { PathItem = item });
             }
-            else
-            {
-                _valueItems.Insert(0, new()
-                {
-                    FriendlyName = "(Default)",
-                    FriendlyValue = "(Value not set)",
-                    Type = "REG_SZ",
-                    ValueIsString = true,
-                });
-            }
+
+            _selectedKeyPathItems[^1].IsLast = true;
         }
 
-        HKEY RegValleyOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)
+        private HKEY RegValleyOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)
         {
             // If specified machine, should use RegConnectRegistry
             var result = RegOpenKeyEx(hkey, subRoot, 0, samDesired, out var phkResult);
@@ -296,5 +344,14 @@ namespace RegistryValley.App.ViewModels
         {
             return ref Unsafe.AsRef<T>(null);
         }
+
+        public void ClearValueItems()
+            => _valueItems.Clear();
+
+        public void ClearSelectedKeyPathItems()
+            => _selectedKeyPathItems.Clear();
+
+        public void AddItemToSelectedKeyPathItems(BreadcrumbBarPathItem item)
+            => _selectedKeyPathItems.Add(item);
     }
 }

@@ -11,16 +11,27 @@
     Style="{StaticResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
+    <ContentDialog.Resources>
+        <ResourceDictionary>
+            <Style
+                x:Key="CustomRadioButtonStyle"
+                BasedOn="{StaticResource DefaultRadioButtonStyle}"
+                TargetType="RadioButton">
+                <Setter Property="MinWidth" Value="56" />
+            </Style>
+        </ResourceDictionary>
+    </ContentDialog.Resources>
+
     <Grid Width="360">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">
             <Run Text="Edit" />
-            <Run Text="{x:Bind ViewModel.ValueItem.Type, Mode=OneWay}" />
+            <Run Text="{x:Bind ViewModel.ValueItem.TypeString, Mode=OneWay}" />
             <Run Text="value" />
         </TextBlock>
 
@@ -38,12 +49,12 @@
 
             <TextBox
                 Grid.Row="1"
+                IsEnabled="{x:Bind ViewModel.ValueItem.IsRenamable, Mode=OneWay}"
                 PlaceholderText="Value name"
-                Text="{x:Bind ViewModel.ValueItem.FriendlyName, Mode=OneWay}" />
+                Text="{x:Bind ViewModel.ValueItem.DisplayName, Mode=OneWay}" />
         </Grid>
 
         <Grid
-            x:Name="StringValueDataGrid"
             Grid.Row="2"
             Margin="0,12,0,0"
             RowSpacing="4">
@@ -54,10 +65,63 @@
 
             <TextBlock Text="Value data" />
 
-            <TextBox
-                Grid.Row="1"
-                PlaceholderText="Value data"
-                Text="{x:Bind ViewModel.ValueItem.FriendlyValue, Mode=OneWay}" />
+            <Grid Grid.Row="1">
+                <Grid x:Name="StringValueDataGrid" x:Load="{x:Bind ViewModel.ValueItem.IsString, Mode=OneWay}">
+                    <TextBox
+                        IsEnabled="{x:Bind ViewModel.ValueItem.DataIsEditable, Mode=OneWay}"
+                        PlaceholderText="Value data"
+                        Text="{x:Bind ViewModel.ValueItem.EditableValue, Mode=OneWay}"
+                        TextChanged="OnValueEditorTextBoxTextChanged" />
+                </Grid>
+
+                <Grid
+                    x:Name="DwordOrQwordValueDataGrid"
+                    x:Load="{x:Bind ViewModel.ValueItem.IsDwordOrQword, Mode=OneWay}"
+                    ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox
+                        IsEnabled="{x:Bind ViewModel.ValueItem.DataIsEditable, Mode=OneWay}"
+                        PlaceholderText="Value data"
+                        Text="{x:Bind ViewModel.ValueItem.EditableValue, Mode=OneWay}"
+                        TextChanged="OnValueEditorTextBoxTextChanged" />
+
+                    <StackPanel
+                        Grid.Column="1"
+                        Height="32"
+                        Orientation="Horizontal">
+                        <RadioButton Content="16" Style="{StaticResource CustomRadioButtonStyle}" />
+                        <RadioButton
+                            Content="10"
+                            IsChecked="True"
+                            Style="{StaticResource CustomRadioButtonStyle}" />
+                    </StackPanel>
+
+                </Grid>
+
+                <Grid x:Name="BinaryValueDataGrid" x:Load="{x:Bind ViewModel.ValueItem.IsBinary, Mode=OneWay}">
+                    <TextBox
+                        IsEnabled="{x:Bind ViewModel.ValueItem.DataIsEditable, Mode=OneWay}"
+                        PlaceholderText="Value data"
+                        Text="{x:Bind ViewModel.ValueItem.EditableValue, Mode=OneWay}"
+                        TextChanged="OnValueEditorTextBoxTextChanged" />
+                </Grid>
+
+                <Grid x:Name="MultiStringValueDataGrid" x:Load="{x:Bind ViewModel.ValueItem.IsMultiString, Mode=OneWay}">
+                    <TextBox
+                        Height="128"
+                        AcceptsReturn="True"
+                        IsEnabled="{x:Bind ViewModel.ValueItem.DataIsEditable, Mode=OneWay}"
+                        PlaceholderText="Value data"
+                        Text="{x:Bind ViewModel.ValueItem.EditableValue, Mode=OneWay}"
+                        TextChanged="OnValueEditorTextBoxTextChanged" />
+                </Grid>
+            </Grid>
+
         </Grid>
+
     </Grid>
 </ContentDialog>

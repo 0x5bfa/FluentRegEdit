@@ -2,6 +2,7 @@
     x:Class="RegistryValley.App.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:converters="using:RegistryValley.App.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:RegistryValley.App.Views"
@@ -91,79 +92,112 @@
                 <ColumnDefinition Width="*" MinWidth="144" />
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto">
-                <TreeView
-                    x:Name="KeyTreeView"
-                    MinWidth="256"
-                    Margin="0,0,0,24"
-                    CanDrag="False"
-                    CanDragItems="False"
-                    CanReorderItems="False"
-                    Collapsed="OnDirTreeViewCollapsed"
-                    Expanding="OnDirTreeViewExpanding"
-                    ItemInvoked="OnDirTreeViewItemInvoked"
-                    ItemsSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                    ScrollViewer.HorizontalScrollMode="Disabled"
-                    ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                    ScrollViewer.VerticalScrollMode="Disabled"
-                    SelectionMode="Single">
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="TreeViewItem">
-                            <Setter Property="CollapsedGlyph" Value="&#xE70D;" />
-                            <Setter Property="ExpandedGlyph" Value="&#xE70E;" />
-                            <Setter Property="Height" Value="38" />
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                    <TreeView.ItemTemplate>
-                        <DataTemplate x:DataType="models:KeyItem">
-                            <TreeViewItem
-                                HasUnrealizedChildren="True"
-                                IsExpanded="{x:Bind IsExpanded}"
-                                ItemsSource="{x:Bind Children}"
-                                ToolTipService.ToolTip="{x:Bind DisplayPath, Mode=OneWay}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                                <TreeViewItem.ContextFlyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="Expand" />
-                                        <MenuFlyoutItem Text="Collapse" />
-                                        <MenuFlyoutItem Text="New" />
-                                        <MenuFlyoutItem Text="Find" />
-                                        <MenuFlyoutSeparator />
-                                        <MenuFlyoutItem Text="Delete" />
-                                        <MenuFlyoutItem Text="Rename" />
-                                        <MenuFlyoutSeparator />
-                                        <MenuFlyoutItem Text="Export" />
-                                        <MenuFlyoutItem
-                                            Click="OnKeyPermissionsMenuFlyoutItemClick"
-                                            Tag="{x:Bind}"
-                                            Text="Permissions" />
-                                        <MenuFlyoutSeparator />
-                                        <MenuFlyoutItem Text="Copy key name" />
-                                    </MenuFlyout>
-                                </TreeViewItem.ContextFlyout>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto">
+                    <TreeView
+                        x:Name="KeyTreeView"
+                        MinWidth="256"
+                        Margin="0,0,0,24"
+                        CanDrag="False"
+                        CanDragItems="False"
+                        CanReorderItems="False"
+                        Collapsed="OnDirTreeViewCollapsed"
+                        Expanding="OnDirTreeViewExpanding"
+                        ItemInvoked="OnDirTreeViewItemInvoked"
+                        ItemsSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        ScrollViewer.HorizontalScrollMode="Disabled"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                        ScrollViewer.VerticalScrollMode="Disabled"
+                        SelectionMode="Single">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="CollapsedGlyph" Value="&#xE70D;" />
+                                <Setter Property="ExpandedGlyph" Value="&#xE70E;" />
+                                <Setter Property="Height" Value="38" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.ItemTemplate>
+                            <DataTemplate x:DataType="models:KeyItem">
+                                <TreeViewItem
+                                    HasUnrealizedChildren="True"
+                                    IsExpanded="{x:Bind IsExpanded}"
+                                    IsSelected="{x:Bind IsSelected}"
+                                    ItemsSource="{x:Bind Children}"
+                                    ToolTipService.ToolTip="{x:Bind DisplayPath, Mode=OneWay}">
 
-                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TreeViewItem.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="Expand" />
+                                            <MenuFlyoutItem Text="Collapse" />
+                                            <MenuFlyoutItem Text="New" />
+                                            <MenuFlyoutItem Text="Find" />
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem Text="Delete" />
+                                            <MenuFlyoutItem Text="Rename" />
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem Text="Export" />
+                                            <MenuFlyoutItem
+                                                Click="OnKeyPermissionsMenuFlyoutItemClick"
+                                                Tag="{x:Bind}"
+                                                Text="Permissions" />
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem Text="Copy key name" />
+                                        </MenuFlyout>
+                                    </TreeViewItem.ContextFlyout>
 
-                                    <Grid>
-                                        <Image
-                                            Width="18"
-                                            Height="18"
-                                            Source="{x:Bind Image}" />
-                                    </Grid>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
 
-                                    <TextBlock
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Style="{ThemeResource BodyTextBlockStyle}"
-                                        Text="{x:Bind Name, Mode=OneWay}" />
-                                </StackPanel>
+                                        <Grid>
+                                            <Image
+                                                Width="18"
+                                                Height="18"
+                                                Source="{x:Bind Image}" />
+                                        </Grid>
 
-                            </TreeViewItem>
-                        </DataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </ScrollViewer>
+                                        <TextBlock
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Style="{ThemeResource BodyTextBlockStyle}"
+                                            Text="{x:Bind Name, Mode=OneWay}" />
+                                    </StackPanel>
+
+                                </TreeViewItem>
+                            </DataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </ScrollViewer>
+
+                <MenuFlyoutSeparator Grid.Row="1" />
+
+                <Button
+                    Grid.Row="2"
+                    Height="36"
+                    Margin="4,4,4,6"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Background="Transparent"
+                    BorderThickness="0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <AnimatedIcon x:Name="GameSettingsIcon" Height="16">
+                            <AnimatedIcon.Source>
+                                <animatedvisuals:AnimatedSettingsVisualSource />
+                            </AnimatedIcon.Source>
+                            <AnimatedIcon.FallbackIconSource>
+                                <FontIconSource FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;" />
+                            </AnimatedIcon.FallbackIconSource>
+                        </AnimatedIcon>
+                        <TextBlock Text="Settings" />
+                    </StackPanel>
+                </Button>
+
+            </Grid>
 
             <toolkit:GridSplitter
                 Grid.Column="1"
@@ -188,30 +222,33 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock
-                            FontWeight="Normal"
-                            Foreground="{ThemeResource TextFillColorSecondary}"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="HKEY_LOCAL_MACHINE" />
-                        <FontIcon FontSize="12" Glyph="&#xe76c;" />
-                        <TextBlock
-                            FontWeight="Normal"
-                            Foreground="{ThemeResource TextFillColorSecondary}"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="SYSTEM" />
-                        <FontIcon FontSize="12" Glyph="&#xe76c;" />
-                        <TextBlock
-                            FontWeight="Normal"
-                            Foreground="{ThemeResource TextFillColorSecondary}"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="CurrentControlSet" />
-                        <FontIcon FontSize="12" Glyph="&#xe76c;" />
-                        <TextBlock
-                            FontWeight="Normal"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Control" />
-                    </StackPanel>
+                    <BreadcrumbBar ItemsSource="{x:Bind ViewModel.SelectedKeyPathItems, Mode=OneWay}">
+                        <BreadcrumbBar.ItemTemplate>
+                            <DataTemplate x:DataType="models:BreadcrumbBarPathItem">
+                                <Grid Margin="4,-4,4,0">
+                                    <TextBlock
+                                        x:Name="PathItemNotLastOne"
+                                        VerticalAlignment="Center"
+                                        x:Load="{x:Bind IsLast, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
+                                        FontWeight="Normal"
+                                        Opacity="0.6"
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="{x:Bind PathItem}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap" />
+                                    <TextBlock
+                                        x:Name="PathItemLastOne"
+                                        VerticalAlignment="Center"
+                                        x:Load="{x:Bind IsLast}"
+                                        FontWeight="Normal"
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="{x:Bind PathItem}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap" />
+                                </Grid>
+                            </DataTemplate>
+                        </BreadcrumbBar.ItemTemplate>
+                    </BreadcrumbBar>
 
                     <Button
                         Grid.Column="1"
@@ -321,6 +358,7 @@
                 </Grid>
 
                 <Grid Grid.Row="2">
+
                     <ListView
                         x:Name="ValueListView"
                         Padding="0,0,0,16"
@@ -420,7 +458,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Grid HorizontalAlignment="Left">
-                                        <toolkit:SwitchPresenter TargetType="x:Boolean" Value="{x:Bind ValueIsString}">
+                                        <toolkit:SwitchPresenter TargetType="x:Boolean" Value="{x:Bind IsStringBased}">
                                             <toolkit:Case Value="True">
                                                 <Image
                                                     Width="24"
@@ -439,14 +477,14 @@
                                     <TextBlock
                                         Margin="32,0,0,0"
                                         VerticalAlignment="Center"
-                                        Text="{x:Bind FriendlyName, Mode=OneWay}"
+                                        Text="{x:Bind DisplayName, Mode=OneWay}"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="NoWrap" />
 
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{x:Bind Type}"
+                                        Text="{x:Bind TypeString}"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="NoWrap" />
 
@@ -454,7 +492,7 @@
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
                                         Foreground="{ThemeResource TextFillColorSecondary}"
-                                        Text="{x:Bind FriendlyValue}"
+                                        Text="{x:Bind DisplayValue}"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="NoWrap" />
 
@@ -469,6 +507,14 @@
                         </ListView.ItemContainerStyle>
 
                     </ListView>
+
+                    <TextBlock
+                        x:Name="NoKeySelectedTextBlock"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        x:Load="{x:Bind ViewModel.ValueItems.Count, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
+                        Text="Select a key to view its values" />
+
                 </Grid>
 
             </Grid>
