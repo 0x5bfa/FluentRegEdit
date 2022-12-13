@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using RegistryValley.App.Dialogs;
 using RegistryValley.App.Models;
 using RegistryValley.App.ViewModels;
@@ -16,81 +15,52 @@ namespace RegistryValley.App.Views
 
             var provider = App.Current.Services;
             ViewModel = provider.GetRequiredService<MainViewModel>();
-
-            ViewModel.AddItemToSelectedKeyPathItems(new() { PathItem = "Computer", IsLast = true });
+            ValuesViewerViewModel = provider.GetRequiredService<ValuesViewerViewModel>();
         }
 
+        #region Fields and Properties
         public MainViewModel ViewModel { get; }
 
-        private void OnDirTreeViewExpanding(TreeView sender, TreeViewExpandingEventArgs args)
+        public ValuesViewerViewModel ValuesViewerViewModel { get; }
+        #endregion
+
+        #region Event methods
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.Loading = true;
+            ContentFrame.Navigate(typeof(ValuesViewerPage));
+        }
 
+        private void KeyTreeView_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
+        {
             var item = (KeyItem)args.Item;
-
             if (item.RootHive != HKEY.NULL)
             {
                 item.Children.Clear();
 
-                var children = ViewModel.RegValleyEnumKeys(item.RootHive, item.Path);
-
+                var children = ViewModel.EnumerateRegistryKeys(item.RootHive, item.Path);
                 if (children != null)
                 {
                     foreach (var child in children)
                         item.Children.Add(child);
-
-                    //args.Node.HasUnrealizedChildren = false;
                 }
             }
-
-            ViewModel.Loading = false;
         }
 
-        private void OnDirTreeViewCollapsed(TreeView sender, TreeViewCollapsedEventArgs args)
+        private void KeyTreeView_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
         {
             var item = (KeyItem)args.Item;
             item.Children.Clear();
         }
 
-        private void OnDirTreeViewItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
+        private void KeyTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            ViewModel.Loading = true;
+            EnsureCurrentPageIsValuesViewer();
+
             var item = (KeyItem)args.InvokedItem;
-            ViewModel.ClearValueItems();
-            ViewModel.ClearSelectedKeyPathItems();
-
-            if (item.RootHive != HKEY.NULL)
-            {
-                ViewModel.RegValleyEnumValues(item.RootHive, item.Path, item.Name);
-            }
-
-            if (!ViewModel.SelectedKeyPathItems.Any())
-            {
-                ViewModel.AddItemToSelectedKeyPathItems(new() { PathItem = "Computer", IsLast = true });
-            }
-
-            ViewModel.Loading = false;
+            ValuesViewerViewModel.SelectedKeyItem = item;
         }
 
-        private async void OnValueListViewDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            var item = (ValueItem)ValueListView.SelectedItem;
-
-            var dialog = new ValueViewerDialog
-            {
-                ViewModel = new()
-                {
-                    ValueItem = item,
-                },
-
-                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
-                XamlRoot = this.Content.XamlRoot,
-            };
- 
-            var result = await dialog.ShowAsync();
-        }
-
-        private async void OnKeyPermissionsMenuFlyoutItemClick(object sender, RoutedEventArgs e)
+        private async void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)((MenuFlyoutItem)sender).Tag;
 
@@ -108,33 +78,27 @@ namespace RegistryValley.App.Views
             var result = await dialog.ShowAsync();
         }
 
-        private async void OnAboutButtonClick(object sender, RoutedEventArgs e)
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new AboutDialog
-            {
-                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
-                XamlRoot = this.Content.XamlRoot,
-            };
+            if (ValuesViewerViewModel.SelectedKeyItem != null)
+                ValuesViewerViewModel.SelectedKeyItem.IsSelected = false;
+            SettingsButtonClickedIndicator.Visibility = Visibility.Visible;
+            SettingsButtonClickedBackground.Visibility = Visibility.Visible;
 
-            var result = await dialog.ShowAsync();
+            ContentFrame.Navigate(typeof(SettingsPage));
         }
+        #endregion
 
-        private async void OnKeyPermissionsButtonClick(object sender, RoutedEventArgs e)
+        private void EnsureCurrentPageIsValuesViewer()
         {
-            var item = (KeyItem)KeyTreeView.SelectedItem;
+            var currentSourcePageType = ContentFrame.CurrentSourcePageType;
 
-            var dialog = new KeyPermissionsViewerDialog
+            if (currentSourcePageType == typeof(SettingsPage))
             {
-                ViewModel = new()
-                {
-                    KeyItem = item,
-                },
-
-                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
-                XamlRoot = this.Content.XamlRoot,
-            };
-
-            var result = await dialog.ShowAsync();
+                SettingsButtonClickedIndicator.Visibility = Visibility.Collapsed;
+                SettingsButtonClickedBackground.Visibility = Visibility.Collapsed;
+                ContentFrame.Navigate(typeof(ValuesViewerPage));
+            }
         }
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using RegistryValley.App.Models;
-using RegistryValley.App.UserControls.TreeViewControl;
 using RegistryValley.App.ViewModels.Dialogs;
 
 namespace RegistryValley.App.Dialogs

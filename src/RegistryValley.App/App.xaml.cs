@@ -14,11 +14,9 @@ namespace RegistryValley.App
     public partial class App : Application
     {
         public new static App Current
-                    => (App)Application.Current;
+            => (App)Application.Current;
 
         public IServiceProvider Services { get; }
-
-        //public static SettingsViewModel AppSettings { get; set; }
 
         public static string AppVersion =
             $"{Package.Current.Id.Version.Major}." +
@@ -44,6 +42,8 @@ namespace RegistryValley.App
                 .AddSingleton<IMessenger>(StrongReferenceMessenger.Default)
                 // ViewModels
                 .AddSingleton<MainViewModel>()
+                .AddSingleton<ValuesViewerViewModel>()
+                .AddTransient<SettingsViewModel>()
                 .AddTransient<ViewModels.Dialogs.ValueViewerDialogViewModel>()
                 .BuildServiceProvider();
         }
