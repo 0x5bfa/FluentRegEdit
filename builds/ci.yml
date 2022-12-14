@@ -47,10 +47,10 @@ jobs:
       secureFile: '$(signingCert.secureFilePath)'
 
   - task: UseDotNet@2
-    displayName: 'Install .NET6'
+    displayName: 'Install .NET'
     inputs:
       packageType: sdk
-      version: 6.0.x
+      version: 7.0.x
       includePreviewVersions: true
 
   - task: MSBuild@1
@@ -125,10 +125,10 @@ jobs:
       secureFile: '$(signingCert.secureFilePath)'
 
   - task: UseDotNet@2
-    displayName: 'Install .NET6'
+    displayName: 'Install .NET'
     inputs:
       packageType: sdk
-      version: 6.0.x
+      version: 7.0.x
       includePreviewVersions: true
 
   - task: MSBuild@1
@@ -203,10 +203,10 @@ jobs:
       secureFile: '$(signingCert.secureFilePath)'
 
   - task: UseDotNet@2
-    displayName: 'Install .NET6'
+    displayName: 'Install .NET'
     inputs:
       packageType: sdk
-      version: 6.0.x
+      version: 7.0.x
       includePreviewVersions: true
 
   - task: MSBuild@1
