@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:RegistryValley.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:settingsui="using:SettingsUI.Controls"
     mc:Ignorable="d">
 
     <Grid>
@@ -22,15 +21,17 @@
         <ScrollViewer Grid.Row="1">
             <StackPanel Margin="32,0,32,32" Spacing="20">
 
-                <settingsui:SettingsGroup Margin="0,-32,0,0" Header="Appearance">
-                    <settingsui:Setting Header="Theme" Icon="&#xE790;">
+                <!--<settingsui:SettingsGroup Margin="0,-32,0,0" Header="Appearance">
+                    <settingsui:Setting
+                        Description="Changes the colors that appear in the app"
+                        Header="Mode"
+                        Icon="&#xE793;">
                         <settingsui:Setting.ActionContent>
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                <ComboBox IsEnabled="False">
-                                    <ComboBoxItem Content="Sync system setting" IsSelected="True" />
-                                    <ComboBoxItem Content="Light" />
-                                    <ComboBoxItem Content="Dark" />
-                                </ComboBox>
+                                <ComboBox
+                                    Width="96"
+                                    ItemsSource="{x:Bind ViewModel.ColorModes}"
+                                    SelectedIndex="{x:Bind ViewModel.SelectedColorModeIndex, Mode=TwoWay}" />
                             </StackPanel>
                         </settingsui:Setting.ActionContent>
                     </settingsui:Setting>
@@ -61,7 +62,7 @@
                     <settingsui:Setting Description="Except on metered conections" Header="Download updates automatically">
                         <ToggleSwitch FlowDirection="RightToLeft" IsEnabled="False" />
                     </settingsui:Setting>
-                </settingsui:SettingsGroup>
+                </settingsui:SettingsGroup>-->
 
             </StackPanel>
         </ScrollViewer>
