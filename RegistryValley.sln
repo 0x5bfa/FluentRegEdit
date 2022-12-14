@@ -16,6 +16,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegistryValley.App", "src\R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegistryValley.Core", "src\RegistryValley.Core\RegistryValley.Core.csproj", "{460ACA79-B46C-40AA-916E-6D83B0C65988}"
 EndProject
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "RegistryValley.Package", "src\RegistryValley.Package\RegistryValley.Package.wapproj", "{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|arm64 = Debug|arm64
@@ -74,6 +76,33 @@ Global
 		{460ACA79-B46C-40AA-916E-6D83B0C65988}.Sideload|x64.Build.0 = Sideload|x64
 		{460ACA79-B46C-40AA-916E-6D83B0C65988}.Sideload|x86.ActiveCfg = Sideload|x86
 		{460ACA79-B46C-40AA-916E-6D83B0C65988}.Sideload|x86.Build.0 = Sideload|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|arm64.ActiveCfg = Debug|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|arm64.Build.0 = Debug|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|arm64.Deploy.0 = Debug|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|x64.ActiveCfg = Debug|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|x64.Build.0 = Debug|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|x64.Deploy.0 = Debug|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|x86.ActiveCfg = Debug|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|x86.Build.0 = Debug|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Debug|x86.Deploy.0 = Debug|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|arm64.ActiveCfg = Release|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|arm64.Build.0 = Release|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|arm64.Deploy.0 = Release|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|x64.ActiveCfg = Release|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|x64.Build.0 = Release|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|x64.Deploy.0 = Release|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|x86.ActiveCfg = Release|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|x86.Build.0 = Release|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Release|x86.Deploy.0 = Release|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|arm64.ActiveCfg = Sideload|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|arm64.Build.0 = Sideload|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|arm64.Deploy.0 = Sideload|ARM64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|x64.ActiveCfg = Sideload|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|x64.Build.0 = Sideload|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|x64.Deploy.0 = Sideload|x64
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|x86.ActiveCfg = Sideload|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|x86.Build.0 = Sideload|x86
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}.Sideload|x86.Deploy.0 = Sideload|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +110,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3D34861E-CDCC-443B-BFE5-41200E7E783C} = {61AB77B5-31EA-4191-89BA-299171ED5D4B}
 		{460ACA79-B46C-40AA-916E-6D83B0C65988} = {61AB77B5-31EA-4191-89BA-299171ED5D4B}
+		{8F60FD8E-1921-47D6-97B0-D26D7B3A4999} = {61AB77B5-31EA-4191-89BA-299171ED5D4B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ADBD2EA9-3D21-47D3-8CDA-CB798E5BF588}
