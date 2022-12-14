@@ -18,6 +18,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegistryValley.Core", "src\
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "RegistryValley.Package", "src\RegistryValley.Package\RegistryValley.Package.wapproj", "{8F60FD8E-1921-47D6-97B0-D26D7B3A4999}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "builds", "builds", "{B291AC5D-2E99-47E2-AB83-5000E08B8A4E}"
+	ProjectSection(SolutionItems) = preProject
+		builds\ci.yml = builds\ci.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|arm64 = Debug|arm64

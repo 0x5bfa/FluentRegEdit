@@ -28,16 +28,16 @@ jobs:
 
   steps:
   - task: PowerShell@2
-    displayName: 'Canonicalize package manifest'
+    displayName: 'Edit Package.appxmanifest'
     inputs:
       targetType: 'inline'
       script: |
-        [xml]$xmlDoc = Get-Content $(Build.SourcesDirectory)\src\RegistryValley.App\Package.appxmanifest
-        $xmlDoc.Package.Identity.Name="RegistryValleyDebug"
+        [xml]$xmlDoc = Get-Content $(Build.SourcesDirectory)\src\RegistryValley.Package\Package.appxmanifest
+        $xmlDoc.Package.Identity.Name="RegistryValley"
         $xmlDoc.Package.Identity.Publisher="CN=RegistryValley"
         $xmlDoc.Package.Properties.DisplayName="RegistryValley"
-        $xmlDoc.Package.Applications.Application.VisualElements.DisplayName="RegistryValley"
-        $xmlDoc.Save('$(Build.SourcesDirectory)\src\RegistryValley.App\Package.appxmanifest')
+        $xmlDoc.Package.Applications.Application.VisualElements.DisplayName="Registry Editor Valley Debug"
+        $xmlDoc.Save('$(Build.SourcesDirectory)\src\RegistryValley.Package\Package.appxmanifest')
       failOnStderr: true
 
   - task: DownloadSecureFile@1
@@ -54,7 +54,7 @@ jobs:
       includePreviewVersions: true
 
   - task: MSBuild@1
-    displayName: 'Restore projects'
+    displayName: 'Restore RegistryValley'
     inputs:
       platform: 'x64'
       solution: '$(solution)'
@@ -70,7 +70,7 @@ jobs:
     displayName: 'Build RegistryValley'
     inputs:
       platform: 'x64'
-      solution: '$(solution)'
+      solution: '**/*.wapproj'
       configuration: '$(buildConfigurationDebug)'
       msbuildArgs: '
       /t:build;_GenerateAppxPackage
@@ -110,12 +110,12 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        [xml]$xmlDoc = Get-Content $(Build.SourcesDirectory)\src\RegistryValley.App\Package.appxmanifest
-        $xmlDoc.Package.Identity.Name="RegistryValleySideload"
+        [xml]$xmlDoc = Get-Content $(Build.SourcesDirectory)\src\RegistryValley.Package\Package.appxmanifest
+        $xmlDoc.Package.Identity.Name="RegistryValley"
         $xmlDoc.Package.Identity.Publisher="CN=RegistryValley"
         $xmlDoc.Package.Properties.DisplayName="RegistryValley"
-        $xmlDoc.Package.Applications.Application.VisualElements.DisplayName="RegistryValley"
-        $xmlDoc.Save('$(Build.SourcesDirectory)\src\RegistryValley.App\Package.appxmanifest')
+        $xmlDoc.Package.Applications.Application.VisualElements.DisplayName="Registry Editor Valley"
+        $xmlDoc.Save('$(Build.SourcesDirectory)\src\RegistryValley.Package\Package.appxmanifest')
       failOnStderr: true
 
   - task: DownloadSecureFile@1
@@ -132,7 +132,7 @@ jobs:
       includePreviewVersions: true
 
   - task: MSBuild@1
-    displayName: 'Restore projects'
+    displayName: 'Restore RegistryValley'
     inputs:
       platform: 'x64'
       solution: '$(solution)'
@@ -149,7 +149,7 @@ jobs:
     inputs:
       configuration: '$(buildConfigurationSideload)'
       platform: 'x64'
-      solution: '$(solution)'
+      solution: '**/*.wapproj'
       msbuildArgs: '
       /t:build;_GenerateAppxPackage
       /p:AppxLogTelemetryFromSideloadingScript=False
@@ -188,12 +188,12 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        [xml]$xmlDoc = Get-Content $(Build.SourcesDirectory)\src\RegistryValley.App\Package.appxmanifest
+        [xml]$xmlDoc = Get-Content $(Build.SourcesDirectory)\src\RegistryValley.Package\Package.appxmanifest
         $xmlDoc.Package.Identity.Name="49462fluenthub-uwp.RegistryValley"
         $xmlDoc.Package.Identity.Publisher="CN=4E3C0825-4D00-4ECC-89F8-528E9200B125"
         $xmlDoc.Package.Properties.DisplayName="RegistryValley"
-        $xmlDoc.Package.Applications.Application.VisualElements.DisplayName="RegistryValley"
-        $xmlDoc.Save('$(Build.SourcesDirectory)\src\RegistryValley.App\Package.appxmanifest')
+        $xmlDoc.Package.Applications.Application.VisualElements.DisplayName="Registry Editor Valley"
+        $xmlDoc.Save('$(Build.SourcesDirectory)\src\RegistryValley.Package\Package.appxmanifest')
       failOnStderr: true
 
   - task: DownloadSecureFile@1
@@ -210,7 +210,7 @@ jobs:
       includePreviewVersions: true
 
   - task: MSBuild@1
-    displayName: 'Restore projects'
+    displayName: 'Restore RegistryValley'
     inputs:
       platform: 'x64'
       solution: '$(solution)'
@@ -227,7 +227,7 @@ jobs:
     inputs:
       configuration: '$(buildConfigurationRelease)'
       platform: 'x64'
-      solution: '$(solution)'
+      solution: '**/*.wapproj'
       msbuildArguments: '
       /t:build;_GenerateAppxPackage
       /p:AppxBundlePlatforms="$(buildPlatform)"
