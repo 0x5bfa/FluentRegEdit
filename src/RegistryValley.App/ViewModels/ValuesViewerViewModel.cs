@@ -85,44 +85,30 @@ namespace RegistryValley.App.ViewModels
                 );
 
             bool hasDefaultKey = false;
+            StringBuilder valueName;
+            uint cchValueName;
+            uint cbData;
+            SafeHGlobalHandle data;
 
             for (uint index = 0; index < cValues; index++)
             {
-                uint cchName = cbMaxValueNameLen + 1;
-                StringBuilder sb = new((int)cchName);
-                uint cbLen = cbMaxValueLen + (cbMaxValueLen % 2);
-                var data = new SafeHGlobalHandle(cbLen);
+                cchValueName = cbMaxValueNameLen + 1;
+                valueName = new((int)cchValueName);
+                cbData = cbMaxValueLen + (cbMaxValueLen % 2);
+                data = new SafeHGlobalHandle(cbData);
 
-                result = RegEnumValue(
-                    handle,
-                    index,
-                    sb,
-                    ref cchName,
-                    IntPtr.Zero,
-                    out var type,
-                    data,
-                    ref cbLen);
+                result = RegEnumValue(handle, index, valueName, ref cchValueName, default, out var type, data, ref cbData);
 
                 ValueItem item = new()
                 {
-                    Name = sb.ToString(),
-                    DisplayName = sb.ToString(),
+                    Name = valueName.ToString(),
+                    DisplayName = valueName.ToString(),
                     TypeString = type.ToString(),
-                    DataSize = cbLen,
+                    DataSize = cbData,
                     Type = type,
                 };
 
-                if (item.TypeString == "REG_DWORD_LITTLE_ENDIAN" || item.TypeString == "REG_DWORD_BIG_ENDIAN")
-                    item.TypeString = "REG_DWORD";
-                else if (item.TypeString == "REG_QWORD_LITTLE_ENDIAN")
-                    item.TypeString = "REG_QWORD";
-
-                if (item.TypeString == "REG_SZ" || item.TypeString == "REG_EXPAND_SZ" || item.TypeString == "REG_MULTI_SZ")
-                    item.IsStringBased = true;
-                else
-                    item.IsNumericalBased = true;
-
-                if (string.IsNullOrEmpty(item.Name))
+                if (string.IsNullOrEmpty(item.Name) && !hasDefaultKey)
                 {
                     item.DisplayName = "(Default)";
                     item.IsRenamable = false;
@@ -130,18 +116,45 @@ namespace RegistryValley.App.ViewModels
                     item.EditableValue = "";
                     item.IsString = true;
                     item.IsStringBased = true;
+                    item.Type = REG_VALUE_TYPE.REG_SZ;
+                    item.TypeString = "REG_SZ";
                     hasDefaultKey = true;
 
-                    data.Close();
                     _valueItems.Add(item);
+                    data.Close();
                     continue;
                 }
 
                 switch (type)
                 {
+                    case REG_VALUE_TYPE.REG_SZ:
+                        {
+                            item.IsString = true;
+                            item.IsStringBased = true;
+
+                            var value = data.ToString(-1, CharSet.Auto);
+
+                            item.DisplayValue = value;
+                            item.EditableValue = item.DisplayValue;
+                        }
+                        break;
+
+                    case REG_VALUE_TYPE.REG_EXPAND_SZ:
+                        {
+                            item.IsString = true;
+                            item.IsStringBased = true;
+
+                            var value = data.ToString(-1, CharSet.Auto);
+
+                            item.DisplayValue = value;
+                            item.EditableValue = item.DisplayValue;
+                        }
+                        break;
+
                     case REG_VALUE_TYPE.REG_BINARY:
                         {
                             item.IsBinary = true;
+                            item.IsNumericalBased = true;
 
                             var value = data.ToStructure<byte[]>();
                             value = value.Take((int)item.DataSize).ToArray();
@@ -163,9 +176,23 @@ namespace RegistryValley.App.ViewModels
                         }
                         break;
 
+                    case REG_VALUE_TYPE.REG_DWORD:
+                        {
+                            item.IsDwordOrQword = true;
+                            item.TypeString = "REG_DWORD";
+                            item.IsNumericalBased = true;
+
+                            var value = data.ToStructure<uint>();
+
+                            item.DisplayValue = string.Format("0x{0,8:x8} ({1})", value, value);
+                            item.EditableValue = value.ToString();
+                        }
+                        break;
+
                     case REG_VALUE_TYPE.REG_MULTI_SZ:
                         {
                             item.IsMultiString = true;
+                            item.IsStringBased = true;
 
                             var value = data.ToString(-1, CharSet.Auto);
 
@@ -179,33 +206,21 @@ namespace RegistryValley.App.ViewModels
                         }
                         break;
 
-                    case REG_VALUE_TYPE.REG_EXPAND_SZ:
-                    case REG_VALUE_TYPE.REG_SZ:
-                        {
-                            item.IsString = true;
-
-                            var value = data.ToString(-1, CharSet.Auto);
-
-                            item.DisplayValue = value;
-                            item.EditableValue = item.DisplayValue;
-                        }
-                        break;
-
                     case REG_VALUE_TYPE.REG_QWORD:
-                    case REG_VALUE_TYPE.REG_DWORD:
                         {
                             item.IsDwordOrQword = true;
+                            item.TypeString = "REG_QWORD";
+                            item.IsNumericalBased = true;
 
-                            var value = data.ToStructure<uint>();
+                            var value = data.ToStructure<ulong>();
 
-                            item.DisplayValue = string.Format("0x{0,8:x8} ({1})", Convert.ToUInt32(value), Convert.ToUInt32(value));
-                            item.EditableValue = Convert.ToUInt32(value).ToString();
+                            item.DisplayValue = string.Format("0x{0,16:x16} ({1})", value, value);
+                            item.EditableValue = value.ToString();
                         }
                         break;
                 }
 
                 _valueItems.Add(item);
-
                 data.Close();
             }
 

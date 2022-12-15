@@ -10,6 +10,7 @@
     xmlns:models="using:RegistryValley.App.Models"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
+    xmlns:ui="using:CommunityToolkit.WinUI.UI"
     DataContext="{x:Bind ViewModel, Mode=OneWay}"
     mc:Ignorable="d">
 
@@ -191,6 +192,7 @@
                 Padding="0,0,0,16"
                 HorizontalAlignment="Stretch"
                 VerticalContentAlignment="Stretch"
+                ui:ListViewExtensions.AlternateColor="{ThemeResource SubtleFillColorTertiary}"
                 DoubleTapped="OnValueListViewDoubleTapped"
                 ItemsSource="{x:Bind ViewModel.ValueItems, Mode=OneWay}"
                 SelectionMode="Single">

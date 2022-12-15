@@ -98,8 +98,8 @@
                                     x:Name="KeyTreeViewItem"
                                     GlyphSize="11"
                                     HasUnrealizedChildren="True"
-                                    IsExpanded="{x:Bind IsExpanded}"
-                                    IsSelected="{x:Bind IsSelected}"
+                                    IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
+                                    IsSelected="{x:Bind IsSelected, Mode=TwoWay}"
                                     ItemsSource="{x:Bind Children}"
                                     ToolTipService.ToolTip="{x:Bind DisplayPath, Mode=OneWay}">
 
@@ -107,18 +107,22 @@
                                         <MenuFlyout>
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutExpand"
+                                                x:Load="{x:Bind IsExpanded, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
                                                 Tag="{x:Bind}"
                                                 Text="Expand" />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutCollapse"
+                                                x:Load="{x:Bind IsExpanded}"
                                                 Tag="{x:Bind}"
                                                 Text="Collapse" />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutNew"
+                                                IsEnabled="False"
                                                 Tag="{x:Bind}"
                                                 Text="New" />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutFind"
+                                                IsEnabled="False"
                                                 Tag="{x:Bind}"
                                                 Text="Find" />
                                             <MenuFlyoutSeparator />
@@ -133,6 +137,7 @@
                                             <MenuFlyoutSeparator />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutExport"
+                                                IsEnabled="False"
                                                 Tag="{x:Bind}"
                                                 Text="Export" />
                                             <MenuFlyoutItem

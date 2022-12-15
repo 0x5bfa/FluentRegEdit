@@ -1,10 +1,12 @@
 ﻿namespace RegistryValley.App.Models
 {
-    public class KeyItem
+    public class KeyItem : ObservableObject
     {
-        public string Name { get; set; }
+        private string _name;
+        public string Name { get => _name; set => SetProperty(ref _name, value); }
 
-        public string Path { get; set; }
+        private string _path;
+        public string Path { get => _path; set => SetProperty(ref _path, value); }
 
         public string DisplayPath
         {
@@ -50,13 +52,17 @@
             }
         }
 
-        public bool IsSelected { get; set; }
+        private bool _isSelected;
+        public bool IsSelected { get => _isSelected; set => SetProperty(ref _isSelected, value); }
 
-        public bool IsExpanded { get; set; } = false;
+        private bool _isExpanded;
+        public bool IsExpanded { get => _isExpanded; set => SetProperty(ref _isExpanded, value); }
 
-        public HKEY RootHive { get; set; }
+        private HKEY _rootHive;
+        public HKEY RootHive { get => _rootHive; set => SetProperty(ref _rootHive, value); }
 
-        public string Image { get; set; }
+        private string _image;
+        public string Image { get => _image; set => SetProperty(ref _image, value); }
 
         public ObservableCollection<KeyItem> Children { get; set; } = new();
 
