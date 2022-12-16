@@ -43,6 +43,7 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_CLASSES_ROOT",
                         RootHive = HKEY.HKEY_CLASSES_ROOT,
                         Path = "",
+                        HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -50,6 +51,7 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_CURRENT_USER",
                         RootHive = HKEY.HKEY_CURRENT_USER,
                         Path = "",
+                        HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -57,6 +59,7 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_LOCAL_MACHINE",
                         RootHive = HKEY.HKEY_LOCAL_MACHINE,
                         Path = "",
+                        HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -64,6 +67,7 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_USERS",
                         RootHive = HKEY.HKEY_USERS,
                         Path = "",
+                        HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -71,23 +75,20 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_CURRENT_CONFIG",
                         RootHive = HKEY.HKEY_CURRENT_CONFIG,
                         Path = "",
+                        HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     }
                 },
             });
         }
 
-        public IEnumerable<KeyItem> EnumerateRegistryKeys(HKEY hkey, string subRoot)
+        public IEnumerable<KeyItem> EnumerateRegistryKeys(HKEY hRootKey, string subRoot)
         {
             List<KeyItem> keys = new();
-
-            //SetPathItems(hkey, subRoot);
-
-            #region Win32API Calling
             Win32Error result;
 
             // Win32API
-            result = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ, out var handle);
+            result = RegValleyOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
             if (result.Failed)
             {
                 Kernel32.SetLastError((uint)result);
@@ -95,35 +96,74 @@ namespace RegistryValley.App.ViewModels
             }
 
             // Win32API
-            result = RegQueryInfoKey(handle, null, ref NullRef<uint>(), default, out uint cKeys, out uint cbMaxSubKeyLen, out _, out _, out _, out _, out _, out _);
+            result = RegQueryInfoKey(phKey, null, ref NullRef<uint>(), default, out uint cSubKeys, out uint cbMaxSubKeyLen, out _, out _, out _, out _, out _, out _);
             if (result.Failed)
             {
                 return null;
             }
 
-            for (uint index = 0; index < cKeys; index++)
+            StringBuilder szName;
+            uint cchName;
+
+            for (uint dwIndex = 0; dwIndex < cSubKeys; dwIndex++)
             {
-                uint cchName = cbMaxSubKeyLen + 1;
-                StringBuilder sb = new((int)cchName);
+                cchName = cbMaxSubKeyLen + 1;
+                szName = new((int)cchName, (int)cchName);
 
                 // Win32API
-                result = RegEnumKeyEx(handle, index, sb, ref cchName, default, null, ref NullRef<uint>(), out _);
+                result = RegEnumKeyEx(phKey, dwIndex, szName, ref cchName, default, null, ref NullRef<uint>(), out _);
                 if (result.Failed)
+                {
+                    return null;
+                }
+
+                var subKeyPath = subRoot == "" ? $"{szName}" : $"{subRoot}\\{szName}";
+
+                result = HasSubKeys(hRootKey, subKeyPath, out var hasChildren);
+                if (result.Failed && result != Win32Error.ERROR_ACCESS_DENIED)
                 {
                     return null;
                 }
 
                 keys.Add(new()
                 {
-                    Name = sb.ToString(),
-                    Path = subRoot + sb.ToString() + "\\",
-                    RootHive = hkey,
+                    Name = szName.ToString(),
+                    Path = subKeyPath,
+                    RootHive = hRootKey,
+                    HasUnrealizedChildren = hasChildren,
                     Image = "ms-appx:///Assets/Images/Folder.png",
                 });
             }
-            #endregion
 
             return keys;
+        }
+
+        public Win32Error HasSubKeys(HKEY hRootKey, string subRoot, out bool hasChildren)
+        {
+            Win32Error result;
+            hasChildren = false;
+
+            // Win32API
+            result = RegValleyOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
+            if (result.Failed)
+            {
+                Kernel32.SetLastError((uint)result);
+                return result;
+            }
+
+            // Win32API
+            result = RegQueryInfoKey(phKey, null, ref NullRef<uint>(), default, out uint cSubKeys, out _, out _, out _, out _, out _, out _, out _);
+            if (result.Failed)
+            {
+                return result;
+            }
+
+            if (cSubKeys == 0)
+                hasChildren = false;
+            else
+                hasChildren = true;
+
+            return Win32Error.ERROR_SUCCESS;
         }
     }
 }

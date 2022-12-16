@@ -67,17 +67,17 @@ namespace RegistryValley.App.ViewModels
             _selectedKeyPathItems.Add(new() { PathItem = "Computer" });
         }
 
-        public Win32Error EnumerateRegistryValues(HKEY hkey, string subRoot)
+        public Win32Error EnumerateRegistryValues(HKEY hRootKey, string subRoot)
         {
             _valueItems.Clear();
 
-            SetBreadcrumbBarItems(hkey, subRoot);
+            SetBreadcrumbBarItems(hRootKey, subRoot);
 
             #region Win32API Calling
             Win32Error result;
 
             // Win32API
-            result = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_QUERY_VALUE | REGSAM.READ_CONTROL, out var handle);
+            result = RegValleyOpenKey(hRootKey, subRoot, REGSAM.KEY_QUERY_VALUE | REGSAM.READ_CONTROL, out var handle);
             if (result.Failed)
             {
                 return Kernel32.GetLastError();

@@ -8,6 +8,7 @@
     xmlns:local="using:RegistryValley.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:RegistryValley.App.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
     xmlns:ui="using:CommunityToolkit.WinUI.UI"
@@ -18,23 +19,38 @@
         <ResourceDictionary>
 
             <ResourceDictionary.MergedDictionaries>
+
                 <ResourceDictionary Source="ms-appx:///ResourceDictionaries/DefaultGridSplitterStyle.xaml" />
+
+                <ResourceDictionary>
+                    <Style
+                        x:Name="HeaderGridSplitterStyle"
+                        BasedOn="{StaticResource DefaultGridSplitterStyle}"
+                        TargetType="toolkit:GridSplitter">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Width" Value="12" />
+                        <Setter Property="Margin" Value="0,4,0,4" />
+                        <Setter Property="Opacity" Value="0.8" />
+                        <Setter Property="Canvas.ZIndex" Value="1" />
+                    </Style>
+
+                    <Style
+                        x:Key="NavigationBarButtonStyle"
+                        BasedOn="{StaticResource DefaultButtonStyle}"
+                        TargetType="Button">
+                        <Setter Property="Height" Value="36" />
+                        <Setter Property="Padding" Value="8,0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                    </Style>
+
+                </ResourceDictionary>
+
             </ResourceDictionary.MergedDictionaries>
 
             <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
             <converters:StringToSurroundedStringConverter x:Key="StringToSurroundedStringConverter" />
             <converters:ValueTypeToBoolConverter x:Key="ValueTypeToBoolConverter" />
-
-            <Style
-                x:Name="HeaderGridSplitterStyle"
-                BasedOn="{StaticResource DefaultGridSplitterStyle}"
-                TargetType="toolkit:GridSplitter">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Width" Value="12" />
-                <Setter Property="Margin" Value="0,4,0,4" />
-                <Setter Property="Opacity" Value="0.8" />
-                <Setter Property="Canvas.ZIndex" Value="1" />
-            </Style>
 
         </ResourceDictionary>
     </Page.Resources>
@@ -113,11 +129,7 @@
                         <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="New" />
                     </StackPanel>
                 </DropDownButton>
-                <Button
-                    Height="36"
-                    Padding="8,0"
-                    Background="Transparent"
-                    BorderThickness="0">
+                <Button Style="{StaticResource NavigationBarButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon
                             FontSize="16"
@@ -126,11 +138,7 @@
                         <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Import" />
                     </StackPanel>
                 </Button>
-                <Button
-                    Height="36"
-                    Padding="8,0"
-                    Background="Transparent"
-                    BorderThickness="0">
+                <Button Style="{StaticResource NavigationBarButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon
                             FontSize="16"
@@ -139,11 +147,7 @@
                         <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Export" />
                     </StackPanel>
                 </Button>
-                <Button
-                    Height="36"
-                    Padding="8,0"
-                    Background="Transparent"
-                    BorderThickness="0">
+                <Button Style="{StaticResource NavigationBarButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon
                             FontSize="16"
@@ -152,32 +156,13 @@
                         <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Connect" />
                     </StackPanel>
                 </Button>
-                <Button
-                    Height="36"
-                    Padding="8,0"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Click="OnKeyPermissionsButtonClick">
+                <Button Click="OnKeyPermissionsButtonClick" Style="{StaticResource NavigationBarButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon
                             FontSize="16"
                             Foreground="{ThemeResource SystemAccentColor}"
                             Glyph="&#xe8d7;" />
                         <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Permissions" />
-                    </StackPanel>
-                </Button>
-                <Button
-                    Height="36"
-                    Padding="8,0"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Click="OnAboutButtonClick">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon
-                            FontSize="16"
-                            Foreground="{ThemeResource SystemAccentColor}"
-                            Glyph="&#xe946;" />
-                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="About" />
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -352,13 +337,6 @@
 
             </ListView>
 
-            <TextBlock
-                x:Name="NoKeySelectedTextBlock"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                x:Load="{x:Bind ViewModel.ValueItems.Count, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
-                Text="Select a key to view its values" />
-
         </Grid>
 
         <Grid
@@ -402,7 +380,7 @@
                         VerticalAlignment="Center"
                         Foreground="{ThemeResource TextFillColorSecondary}"
                         Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="{x:Bind ViewModel.SelectedValueItem.DisplayName, Mode=OneWay}" />
+                        Text="{x:Bind ViewModel.SelectedValueItem.DisplayName, Converter={StaticResource StringToSurroundedStringConverter}, ConverterParameter=quotes, Mode=OneWay}" />
 
                     <TextBlock
                         VerticalAlignment="Center"

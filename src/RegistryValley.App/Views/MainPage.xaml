@@ -39,19 +39,20 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="44" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <ProgressBar
+        <!--<ProgressBar
             x:Name="LoadingProgressBar"
             VerticalAlignment="Top"
-            x:Load="{x:Bind ViewModel.Loading, Mode=OneWay}"
-            IsIndeterminate="True" />
+            IsIndeterminate="True"
+            Visibility="{x:Bind ViewModel.Loading, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}" />-->
 
-        <uc:TitleBarControl />
+        <uc:TitleBarControl Grid.Row="1" Margin="0,-3,0,0" />
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" MinWidth="144" />
                 <ColumnDefinition Width="6" />
@@ -67,7 +68,7 @@
                 </Grid.RowDefinitions>
 
                 <ScrollViewer
-                    Padding="0,2,0,4"
+                    Padding="0,2,4,4"
                     HorizontalScrollBarVisibility="Auto"
                     HorizontalScrollMode="Auto">
                     <TreeView
@@ -101,7 +102,7 @@
                                 <TreeViewItem
                                     x:Name="KeyTreeViewItem"
                                     GlyphSize="11"
-                                    HasUnrealizedChildren="True"
+                                    HasUnrealizedChildren="{x:Bind HasUnrealizedChildren}"
                                     IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
                                     IsSelected="{x:Bind IsSelected, Mode=TwoWay}"
                                     ItemsSource="{x:Bind Children}"

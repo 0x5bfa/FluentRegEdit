@@ -64,6 +64,9 @@
         private string _image;
         public string Image { get => _image; set => SetProperty(ref _image, value); }
 
+        private bool _hasUnrealizedChildren;
+        public bool HasUnrealizedChildren { get => _hasUnrealizedChildren; set => SetProperty(ref _hasUnrealizedChildren, value); }
+
         public ObservableCollection<KeyItem> Children { get; set; } = new();
 
         public override string ToString()

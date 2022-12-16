@@ -7,13 +7,28 @@ namespace RegistryValley.App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (parameter is string strParam && strParam.Length == 2)
+            if (parameter is string strParam)
             {
-                return $"{strParam.First()}{value.ToString().Trim()}{strParam.Last()}";
+                if (strParam == "quotes")
+                {
+                    return @$"""{value}""";
+                }
+                else if (strParam == "brackets")
+                {
+                    return $"({value})";
+                }
+                else if (strParam.Length == 2)
+                {
+                    return $"{strParam.First()}{value}{strParam.Last()}";
+                }
+                else
+                {
+                    return value;
+                }
             }
             else
             {
-                return value.ToString().Trim();
+                return value;
             }
         }
 
