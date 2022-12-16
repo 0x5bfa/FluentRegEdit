@@ -45,7 +45,7 @@ namespace RegistryValley.App.Views
                 }
                 else
                 {
-                    var result = Kernel32.GetLastError()
+                    var result = Kernel32.GetLastError();
                     if (result.Failed)
                     {
                         ValuesViewerViewModel.StatusBarMessage = result.FormatMessage();

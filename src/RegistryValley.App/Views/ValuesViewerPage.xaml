@@ -426,11 +426,17 @@
                         Height="20"
                         Background="{ThemeResource DividerStrokeColorDefault}" />
 
-                    <TextBlock
+                    <Border
+                        Padding="4,2"
                         VerticalAlignment="Center"
-                        Foreground="{ThemeResource TextFillColorSecondary}"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="1 item selected" />
+                        Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                        CornerRadius="4">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind ViewModel.StatusBarMessage, Mode=OneWay}" />
+                    </Border>
 
                 </StackPanel>
 

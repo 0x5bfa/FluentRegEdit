@@ -77,8 +77,8 @@ namespace RegistryValley.App.ViewModels
             Win32Error result;
 
             // Win32API
-            var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_QUERY_VALUE | REGSAM.READ_CONTROL);
-            if (handle != HKEY.NULL)
+            result = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_QUERY_VALUE | REGSAM.READ_CONTROL, out var handle);
+            if (result.Failed)
             {
                 return Kernel32.GetLastError();
             }

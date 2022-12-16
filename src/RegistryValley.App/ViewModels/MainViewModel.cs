@@ -8,6 +8,7 @@ using Vanara.Extensions;
 using Vanara.InteropServices;
 using Vanara.PInvoke;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
+using static RegistryValley.Core.Helpers.RegistryServices;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -86,9 +87,10 @@ namespace RegistryValley.App.ViewModels
             Win32Error result;
 
             // Win32API
-            var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ);
-            if (handle != HKEY.NULL)
+            result = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ, out var handle);
+            if (result.Failed)
             {
+                Kernel32.SetLastError((uint)result);
                 return null;
             }
 
@@ -122,22 +124,6 @@ namespace RegistryValley.App.ViewModels
             #endregion
 
             return keys;
-        }
-
-        private HKEY RegValleyOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)
-        {
-            // If specified machine, should use RegConnectRegistry
-            var result = RegOpenKeyEx(hkey, subRoot, 0, samDesired, out var phkResult);
-
-            if (result.Succeeded)
-                return phkResult;
-            else
-                return HKEY.NULL;
-        }
-
-        unsafe static ref T NullRef<T>()
-        {
-            return ref Unsafe.AsRef<T>(null);
         }
     }
 }
