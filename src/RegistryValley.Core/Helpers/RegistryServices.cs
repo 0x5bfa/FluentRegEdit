@@ -14,7 +14,10 @@ namespace RegistryValley.Core.Helpers
             if (result.Succeeded)
                 return phkResult;
             else
+            {
+                Kernel32.SetLastError((uint)result);
                 return HKEY.NULL;
+            }
         }
 
         public unsafe static ref T NullRef<T>()

@@ -1,39 +1,39 @@
 ﻿namespace RegistryValley.App.Models
 {
-    public class ValueItem
+    public class ValueItem : ObservableObject
     {
-        public string Name { get; set; }
+        public ValueItem()
+        {
+            Type = REG_VALUE_TYPE.REG_NONE;
+            IsRenamable = true;
+            DataIsEditable = true;
+        }
 
-        public uint DataSize { get; set; }
+        private string _name;
+        public string Name { get => _name; set => SetProperty(ref _name, value); }
 
-        public REG_VALUE_TYPE Type { get; set; } = REG_VALUE_TYPE.REG_NONE;
+        private string _displayName;
+        public string DisplayName { get => _displayName; set => SetProperty(ref _displayName, value); }
 
+        private string _displayValue;
+        public string DisplayValue { get => _displayValue; set => SetProperty(ref _displayValue, value); }
 
-        public string DisplayName { get; set; }
+        private string _editableValue;
+        public string EditableValue { get => _editableValue; set => SetProperty(ref _editableValue, value); }
 
-        public string TypeString { get; set; }
+        private uint _dataSize;
+        public uint DataSize { get => _dataSize; set => SetProperty(ref _dataSize, value); }
 
-        public string DisplayValue { get; set; }
+        private REG_VALUE_TYPE _type;
+        public REG_VALUE_TYPE Type { get => _type; set => SetProperty(ref _type, value); }
 
-        public string EditableValue { get; set; }
+        private string _typeString;
+        public string TypeString { get => _typeString; set => SetProperty(ref _typeString, value); }
 
+        private bool _isRenamable;
+        public bool IsRenamable { get => _isRenamable; set => SetProperty(ref _isRenamable, value); }
 
-        public bool IsRenamable { get; set; } = true;
-
-        public bool DataIsEditable { get; set; } = true;
-
-
-        public bool IsBinary { get; set; }
-
-        public bool IsDwordOrQword { get; set; }
-
-        public bool IsString { get; set; }
-
-        public bool IsMultiString { get; set; }
-
-
-        public bool IsStringBased { get; set; }
-
-        public bool IsNumericalBased { get; set; }
+        private bool _dataIsEditable;
+        public bool DataIsEditable { get => _dataIsEditable; set => SetProperty(ref _dataIsEditable, value); }
     }
 }

@@ -8,6 +8,7 @@ namespace RegistryValley.App.Dialogs
 {
     public sealed partial class ValueViewerDialog : ContentDialog
     {
+        #region propdp
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register(
                 nameof(ViewModel),
@@ -20,6 +21,7 @@ namespace RegistryValley.App.Dialogs
             get => (ValueViewerDialogViewModel)GetValue(ViewModelProperty);
             set => SetValue(ViewModelProperty, value);
         }
+        #endregion
 
         public ValueViewerDialog()
             => InitializeComponent();

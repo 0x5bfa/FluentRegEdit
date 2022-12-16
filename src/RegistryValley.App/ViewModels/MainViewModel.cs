@@ -85,37 +85,31 @@ namespace RegistryValley.App.ViewModels
             #region Win32API Calling
             Win32Error result;
 
+            // Win32API
             var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_READ);
+            if (handle != HKEY.NULL)
+            {
+                return null;
+            }
 
-            result = RegQueryInfoKey(
-                handle,
-                null,
-                ref NullRef<uint>(),
-                IntPtr.Zero,
-                out uint cKeys,
-                out uint cbMaxSubKeyLen,
-                out NullRef<uint>(),
-                out NullRef<uint>(),
-                out NullRef<uint>(),
-                out NullRef<uint>(),
-                out NullRef<uint>(),
-                out NullRef<FILETIME>()
-                );
+            // Win32API
+            result = RegQueryInfoKey(handle, null, ref NullRef<uint>(), default, out uint cKeys, out uint cbMaxSubKeyLen, out _, out _, out _, out _, out _, out _);
+            if (result.Failed)
+            {
+                return null;
+            }
 
             for (uint index = 0; index < cKeys; index++)
             {
                 uint cchName = cbMaxSubKeyLen + 1;
                 StringBuilder sb = new((int)cchName);
 
-                result = RegEnumKeyEx(
-                    handle,
-                    index,
-                    sb,
-                    ref cchName,
-                    IntPtr.Zero,
-                    null,
-                    ref NullRef<uint>(),
-                    out NullRef<FILETIME>());
+                // Win32API
+                result = RegEnumKeyEx(handle, index, sb, ref cchName, default, null, ref NullRef<uint>(), out _);
+                if (result.Failed)
+                {
+                    return null;
+                }
 
                 keys.Add(new()
                 {

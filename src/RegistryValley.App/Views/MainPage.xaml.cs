@@ -43,6 +43,14 @@ namespace RegistryValley.App.Views
                     foreach (var child in children)
                         item.Children.Add(child);
                 }
+                else
+                {
+                    var result = Kernel32.GetLastError()
+                    if (result.Failed)
+                    {
+                        ValuesViewerViewModel.StatusBarMessage = result.FormatMessage();
+                    }
+                }
             }
         }
 

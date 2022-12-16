@@ -20,9 +20,12 @@ namespace RegistryValley.App.Views
 
         public ValuesViewerViewModel ViewModel { get; }
 
-        private async void OnValueListViewDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        private async void ValueListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             var item = (ValueItem)ValueListView.SelectedItem;
+            if (item == null)
+                return;
+
             var dialog = new ValueViewerDialog
             {
                 ViewModel = new() { ValueItem = item },
@@ -31,6 +34,11 @@ namespace RegistryValley.App.Views
             };
 
             _ = await dialog.ShowAsync();
+        }
+
+        private void ValueListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ViewModel.SelectedValueItem = (ValueItem)ValueListView.SelectedItem;
         }
 
         private async void OnAboutButtonClick(object sender, RoutedEventArgs e)

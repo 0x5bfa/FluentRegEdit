@@ -54,8 +54,9 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" MinWidth="144" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="6" />
                 <ColumnDefinition Width="*" MinWidth="144" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <Grid>
@@ -65,7 +66,10 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto">
+                <ScrollViewer
+                    Padding="0,2,0,4"
+                    HorizontalScrollBarVisibility="Auto"
+                    HorizontalScrollMode="Auto">
                     <TreeView
                         x:Name="KeyTreeView"
                         MinWidth="256"
@@ -179,7 +183,10 @@
                     </TreeView>
                 </ScrollViewer>
 
-                <MenuFlyoutSeparator Grid.Row="1" />
+                <Border
+                    Grid.Row="1"
+                    Height="1"
+                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
                 <Button
                     x:Name="SettingsButton"
@@ -235,11 +242,13 @@
 
             <toolkit:GridSplitter
                 Grid.Column="1"
-                Width="1"
+                Width="6"
+                Canvas.ZIndex="30"
                 Style="{StaticResource InvisibleGridSplitterStyle}" />
 
             <Grid
                 Grid.Column="2"
+                Margin="-6,0,0,0"
                 Background="{ThemeResource LayerFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1,1,0,0"

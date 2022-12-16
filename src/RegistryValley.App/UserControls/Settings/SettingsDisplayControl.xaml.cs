@@ -8,30 +8,16 @@ using Microsoft.UI.Xaml.Markup;
 namespace RegistryValley.App.UserControls.Settings
 {
     [ContentProperty(Name = nameof(SettingsActionableElement))]
-    public sealed partial class SettingsBlockControl : UserControl
+    public sealed partial class SettingsDisplayControl : UserControl
     {
         #region propdp
         public FrameworkElement SettingsActionableElement { get; set; }
-
-        public static readonly DependencyProperty ExpandableContentProperty =
-            DependencyProperty.Register(
-                nameof(ExpandableContent),
-                typeof(FrameworkElement),
-                typeof(SettingsBlockControl),
-                new PropertyMetadata(null)
-                );
-
-        public FrameworkElement ExpandableContent
-        {
-            get => (FrameworkElement)GetValue(ExpandableContentProperty);
-            set => SetValue(ExpandableContentProperty, value);
-        }
 
         public static readonly DependencyProperty AdditionalDescriptionContentProperty =
             DependencyProperty.Register(
                 nameof(AdditionalDescriptionContent),
                 typeof(FrameworkElement),
-                typeof(SettingsBlockControl),
+                typeof(SettingsDisplayControl),
                 new PropertyMetadata(null)
                 );
 
@@ -45,7 +31,7 @@ namespace RegistryValley.App.UserControls.Settings
             DependencyProperty.Register(
                 nameof(Title),
                 typeof(string),
-                typeof(SettingsBlockControl),
+                typeof(SettingsDisplayControl),
                 new PropertyMetadata(null)
                 );
 
@@ -59,7 +45,7 @@ namespace RegistryValley.App.UserControls.Settings
             DependencyProperty.Register(
                 nameof(Description),
                 typeof(string),
-                typeof(SettingsBlockControl),
+                typeof(SettingsDisplayControl),
                 new PropertyMetadata(null)
                 );
 
@@ -73,7 +59,7 @@ namespace RegistryValley.App.UserControls.Settings
             DependencyProperty.Register(
                 nameof(Icon),
                 typeof(IconElement),
-                typeof(SettingsBlockControl),
+                typeof(SettingsDisplayControl),
                 new PropertyMetadata(null)
                 );
 
@@ -82,34 +68,28 @@ namespace RegistryValley.App.UserControls.Settings
             get => (IconElement)GetValue(IconProperty);
             set => SetValue(IconProperty, value);
         }
-
-        public static readonly DependencyProperty IsClickableProperty =
-            DependencyProperty.Register(
-                nameof(IsClickable),
-                typeof(bool),
-                typeof(SettingsBlockControl),
-                new PropertyMetadata(false)
-                );
-
-        public bool IsClickable
-        {
-            get => (bool)GetValue(IsClickableProperty);
-            set => SetValue(IsClickableProperty, value);
-        }
         #endregion
 
-        public event RoutedEventHandler Click;
+        public SettingsDisplayControl()
+        {
+            InitializeComponent();
 
-        public SettingsBlockControl()
-            => InitializeComponent();
+            VisualStateManager.GoToState(this, "NormalState", false);
+        }
 
-        private void ActionableButton_Click(object sender, RoutedEventArgs e)
-            => Click?.Invoke(this, e);
+        private void MainPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (e.NewSize.Width == e.PreviousSize.Width)
+                return;
 
-        private void Expander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
-            => Click?.Invoke(this, new RoutedEventArgs());
-
-        private void Expander_Collapsed(Expander sender, ExpanderCollapsedEventArgs args)
-            => Click?.Invoke(this, new RoutedEventArgs());
+            if (ActionableElement.ActualWidth > e.NewSize.Width / 3)
+            {
+                VisualStateManager.GoToState(this, "CompactState", false);
+            }
+            else
+            {
+                VisualStateManager.GoToState(this, "NormalState", false);
+            }
+        }
     }
 }

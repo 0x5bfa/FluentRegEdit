@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 using RegistryValley.App.Models;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using Vanara.InteropServices;
 using static RegistryValley.Core.Helpers.RegistryServices;
@@ -39,10 +40,18 @@ namespace RegistryValley.App.ViewModels
 
                 if (value.RootHive != HKEY.NULL)
                 {
-                    EnumerateRegistryValues(value.RootHive, value.Path);
+                    var result = EnumerateRegistryValues(value.RootHive, value.Path);
+                    if (result.Failed)
+                        StatusBarMessage = result.FormatMessage();
                 }
             }
         }
+
+        private ValueItem _selectedValueItem;
+        public ValueItem SelectedValueItem { get => _selectedValueItem; set => SetProperty(ref _selectedValueItem, value); }
+
+        private string _statusBarMessage;
+        public string StatusBarMessage { get => _statusBarMessage; set => SetProperty(ref _statusBarMessage, value); }
 
         private GridLength _columnName = new(256d);
         public GridLength ColumnName { get => _columnName; set => SetProperty(ref _columnName, value); }
@@ -58,7 +67,7 @@ namespace RegistryValley.App.ViewModels
             _selectedKeyPathItems.Add(new() { PathItem = "Computer" });
         }
 
-        public void EnumerateRegistryValues(HKEY hkey, string subRoot)
+        public Win32Error EnumerateRegistryValues(HKEY hkey, string subRoot)
         {
             _valueItems.Clear();
 
@@ -67,37 +76,41 @@ namespace RegistryValley.App.ViewModels
             #region Win32API Calling
             Win32Error result;
 
+            // Win32API
             var handle = RegValleyOpenKey(hkey, subRoot, REGSAM.KEY_QUERY_VALUE | REGSAM.READ_CONTROL);
+            if (handle != HKEY.NULL)
+            {
+                return Kernel32.GetLastError();
+            }
 
-            result = RegQueryInfoKey(
-                handle,
-                null,
-                ref NullRef<uint>(),
-                IntPtr.Zero,
-                out _,
-                out _,
-                out _,
-                out uint cValues,
-                out uint cbMaxValueNameLen,
-                out uint cbMaxValueLen,
-                out _,
-                out _
-                );
+            // Win32API
+            result = RegQueryInfoKey(handle, null, ref NullRef<uint>(), default, out _, out _, out _, out var cValues, out var cbMaxValueNameLen, out var cbMaxValueLen, out _, out _);
+            if (result.Failed)
+            {
+                return result;
+            }
 
+            ValueItem defaultItem = new();
             bool hasDefaultKey = false;
-            StringBuilder valueName;
+
             uint cchValueName;
             uint cbData;
+            StringBuilder valueName;
             SafeHGlobalHandle data;
 
             for (uint index = 0; index < cValues; index++)
             {
-                cchValueName = cbMaxValueNameLen + 1;
+                cchValueName = cbMaxValueNameLen + 4;
                 valueName = new((int)cchValueName);
                 cbData = cbMaxValueLen + (cbMaxValueLen % 2);
                 data = new SafeHGlobalHandle(cbData);
 
+                // Win32API
                 result = RegEnumValue(handle, index, valueName, ref cchValueName, default, out var type, data, ref cbData);
+                if (result.Failed)
+                {
+                    return result;
+                }
 
                 ValueItem item = new()
                 {
@@ -110,28 +123,31 @@ namespace RegistryValley.App.ViewModels
 
                 if (string.IsNullOrEmpty(item.Name) && !hasDefaultKey)
                 {
-                    item.DisplayName = "(Default)";
-                    item.IsRenamable = false;
-                    item.DisplayValue = data.ToString(-1, CharSet.Auto);
-                    item.EditableValue = "";
-                    item.IsString = true;
-                    item.IsStringBased = true;
-                    item.Type = REG_VALUE_TYPE.REG_SZ;
-                    item.TypeString = "REG_SZ";
+                    defaultItem = new()
+                    {
+                        Name = valueName.ToString(),
+                        DataSize = 0,
+                        DisplayName = "(Default)",
+                        IsRenamable = false,
+                        DisplayValue = data.ToString(-1, CharSet.Auto),
+                        EditableValue = "",
+                        Type = REG_VALUE_TYPE.REG_SZ,
+                        TypeString = "REG_SZ",
+                    };
+
                     hasDefaultKey = true;
 
-                    _valueItems.Add(item);
                     data.Close();
                     continue;
                 }
+                // TODO: Buggy. Because of Vanara?
+                else if (string.IsNullOrEmpty(item.Name))
+                    continue;
 
                 switch (type)
                 {
                     case REG_VALUE_TYPE.REG_SZ:
                         {
-                            item.IsString = true;
-                            item.IsStringBased = true;
-
                             var value = data.ToString(-1, CharSet.Auto);
 
                             item.DisplayValue = value;
@@ -141,9 +157,6 @@ namespace RegistryValley.App.ViewModels
 
                     case REG_VALUE_TYPE.REG_EXPAND_SZ:
                         {
-                            item.IsString = true;
-                            item.IsStringBased = true;
-
                             var value = data.ToString(-1, CharSet.Auto);
 
                             item.DisplayValue = value;
@@ -153,9 +166,6 @@ namespace RegistryValley.App.ViewModels
 
                     case REG_VALUE_TYPE.REG_BINARY:
                         {
-                            item.IsBinary = true;
-                            item.IsNumericalBased = true;
-
                             var value = data.ToStructure<byte[]>();
                             value = value.Take((int)item.DataSize).ToArray();
 
@@ -178,9 +188,7 @@ namespace RegistryValley.App.ViewModels
 
                     case REG_VALUE_TYPE.REG_DWORD:
                         {
-                            item.IsDwordOrQword = true;
                             item.TypeString = "REG_DWORD";
-                            item.IsNumericalBased = true;
 
                             var value = data.ToStructure<uint>();
 
@@ -191,9 +199,6 @@ namespace RegistryValley.App.ViewModels
 
                     case REG_VALUE_TYPE.REG_MULTI_SZ:
                         {
-                            item.IsMultiString = true;
-                            item.IsStringBased = true;
-
                             var value = data.ToString(-1, CharSet.Auto);
 
                             foreach (var atom in value.Split('\n'))
@@ -208,9 +213,7 @@ namespace RegistryValley.App.ViewModels
 
                     case REG_VALUE_TYPE.REG_QWORD:
                         {
-                            item.IsDwordOrQword = true;
                             item.TypeString = "REG_QWORD";
-                            item.IsNumericalBased = true;
 
                             var value = data.ToStructure<ulong>();
 
@@ -226,29 +229,28 @@ namespace RegistryValley.App.ViewModels
 
             if (!hasDefaultKey)
             {
-                _valueItems.Insert(0, new()
+                defaultItem = new()
                 {
                     Name = "",
                     DataSize = 0,
-                    Type = REG_VALUE_TYPE.REG_SZ,
-
                     DisplayName = "(Default)",
-                    TypeString = "REG_SZ",
+                    IsRenamable = false,
                     DisplayValue = "(Value not set)",
                     EditableValue = "",
-
-                    IsRenamable = false,
-                    IsString = true,
-                    IsStringBased = true,
-                });
+                    Type = REG_VALUE_TYPE.REG_SZ,
+                    TypeString = "REG_SZ",
+                };
             }
             #endregion
 
-            // Order
             var alphabetic = new ObservableCollection<ValueItem>(_valueItems.OrderBy(x => x.DisplayName));
             _valueItems.Clear();
             foreach (var item in alphabetic)
                 _valueItems.Add(item);
+
+            _valueItems.Insert(0, defaultItem);
+
+            return Win32Error.ERROR_SUCCESS;
         }
 
         public void SetBreadcrumbBarItems(HKEY hkey, string subRoot)

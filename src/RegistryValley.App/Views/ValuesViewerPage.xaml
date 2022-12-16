@@ -22,6 +22,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
+            <converters:StringToSurroundedStringConverter x:Key="StringToSurroundedStringConverter" />
+            <converters:ValueTypeToBoolConverter x:Key="ValueTypeToBoolConverter" />
 
             <Style
                 x:Name="HeaderGridSplitterStyle"
@@ -42,6 +44,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid Margin="24,24,24,4">
@@ -193,8 +196,9 @@
                 HorizontalAlignment="Stretch"
                 VerticalContentAlignment="Stretch"
                 ui:ListViewExtensions.AlternateColor="{ThemeResource SubtleFillColorTertiary}"
-                DoubleTapped="OnValueListViewDoubleTapped"
+                DoubleTapped="ValueListView_DoubleTapped"
                 ItemsSource="{x:Bind ViewModel.ValueItems, Mode=OneWay}"
+                SelectionChanged="ValueListView_SelectionChanged"
                 SelectionMode="Single">
 
                 <ListView.Header>
@@ -286,22 +290,33 @@
                                 <ColumnDefinition x:Name="ColumnData" Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Grid HorizontalAlignment="Left">
-                                <toolkit:SwitchPresenter TargetType="x:Boolean" Value="{x:Bind IsStringBased}">
-                                    <toolkit:Case Value="True">
-                                        <Image
-                                            Width="24"
-                                            Height="24"
-                                            Source="/Assets/Images/StringValue.png" />
-                                    </toolkit:Case>
-                                    <toolkit:Case Value="False">
-                                        <Image
-                                            Width="24"
-                                            Height="24"
-                                            Source="/Assets/Images/BinaryValue.png" />
-                                    </toolkit:Case>
-                                </toolkit:SwitchPresenter>
-                            </Grid>
+                            <Image
+                                x:Name="ListViewItemStringBasedValueImage"
+                                Width="24"
+                                Height="24"
+                                HorizontalAlignment="Left"
+                                x:Load="{x:Bind Type, Converter={StaticResource ValueTypeToBoolConverter}}">
+                                <Image.Source>
+                                    <BitmapImage
+                                        DecodePixelHeight="24"
+                                        DecodePixelWidth="24"
+                                        UriSource="/Assets/Images/StringValue.png" />
+                                </Image.Source>
+                            </Image>
+
+                            <Image
+                                x:Name="ListViewItemBinaryBasedValueImage"
+                                Width="24"
+                                Height="24"
+                                HorizontalAlignment="Left"
+                                x:Load="{x:Bind Type, Converter={StaticResource ValueTypeToBoolConverter}, ConverterParameter=Invert}">
+                                <Image.Source>
+                                    <BitmapImage
+                                        DecodePixelHeight="24"
+                                        DecodePixelWidth="24"
+                                        UriSource="/Assets/Images/BinaryValue.png" />
+                                </Image.Source>
+                            </Image>
 
                             <TextBlock
                                 Margin="32,0,0,0"
@@ -344,6 +359,82 @@
                 x:Load="{x:Bind ViewModel.ValueItems.Count, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
                 Text="Select a key to view its values" />
 
+        </Grid>
+
+        <Grid
+            Grid.Row="3"
+            Height="32"
+            BorderBrush="{ThemeResource DividerStrokeColorDefault}"
+            BorderThickness="0,1,0,0">
+            <StackPanel
+                Margin="12,-2,12,0"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="12">
+
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondary}"
+                    Style="{StaticResource CaptionTextBlockStyle}">
+                    <Run Text="{x:Bind ViewModel.ValueItems.Count, Mode=OneWay}" />
+                    <Run Text="items" />
+                </TextBlock>
+
+                <StackPanel
+                    x:Name="StatusBarSelectedItemInfo"
+                    VerticalAlignment="Center"
+                    x:Load="{x:Bind ValueListView.SelectedItem, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}"
+                    Orientation="Horizontal"
+                    Spacing="12">
+
+                    <Border
+                        Width="1"
+                        Height="20"
+                        Background="{ThemeResource DividerStrokeColorDefault}" />
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondary}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="1 item selected" />
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondary}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind ViewModel.SelectedValueItem.DisplayName, Mode=OneWay}" />
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondary}"
+                        Style="{StaticResource CaptionTextBlockStyle}">
+                        <Run Text="{x:Bind ViewModel.SelectedValueItem.DataSize, Mode=OneWay}" />
+                        <Run Text="Bytes" />
+                    </TextBlock>
+
+                </StackPanel>
+
+                <StackPanel
+                    x:Name="StatusBarMessage"
+                    VerticalAlignment="Center"
+                    x:Load="{x:Bind ViewModel.StatusBarMessage, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}"
+                    Orientation="Horizontal"
+                    Spacing="12">
+
+                    <Border
+                        Width="1"
+                        Height="20"
+                        Background="{ThemeResource DividerStrokeColorDefault}" />
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondary}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="1 item selected" />
+
+                </StackPanel>
+
+            </StackPanel>
         </Grid>
 
     </Grid>
