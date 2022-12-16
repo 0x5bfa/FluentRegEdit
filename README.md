@@ -24,7 +24,7 @@ See the [build section](#-building-the-code).
 
 ## 📸 Screenshots
 
-![image](https://user-images.githubusercontent.com/62196528/206452528-0e36f5e3-187f-4085-9413-1b8caf7a78ac.png)
+![image](https://user-images.githubusercontent.com/62196528/208145307-7ce0b4a0-8257-47b6-ad88-7b4b4bd45983.png)
 
 ## 🧑‍💻 Contributing
 
@@ -41,7 +41,7 @@ There are multiple ways to participate in the community:
 ├──src                                    // The source code.
    ├──RegistryValley.App                  // Code for most front-end elements of the app.
    ├──RegistryValley.Core                 // Core elements of the app.
-   ├──RegistryValley.Console              // Console playgrounds for Vanara
+   └──RegistryValley.Console              // Console playgrounds for Vanara
 ```
 
 ### 🗃️ Contributors
