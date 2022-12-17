@@ -12,7 +12,6 @@
         {
             get
             {
-                string path = Path;
                 string displayPath;
 
                 if (string.IsNullOrEmpty(Path))
@@ -32,7 +31,7 @@
                 }
                 else
                 {
-                    path = Path.TrimEnd('\\');
+                    var path = Path.TrimEnd('\\');
 
                     if (RootHive == HKEY.HKEY_CLASSES_ROOT)
                         displayPath = $"HKCR:\\{path}";
@@ -66,6 +65,18 @@
 
         private bool _hasUnrealizedChildren;
         public bool HasUnrealizedChildren { get => _hasUnrealizedChildren; set => SetProperty(ref _hasUnrealizedChildren, value); }
+
+        private bool _isDeletable;
+        public bool IsDeletable { get => _isDeletable; set => SetProperty(ref _isDeletable, value); }
+
+        private bool _isRenamable;
+        public bool IsRenamable { get => _isRenamable; set => SetProperty(ref _isRenamable, value); }
+
+        private bool _selectedRootComputer;
+        public bool SelectedRootComputer { get => _selectedRootComputer; set => SetProperty(ref _selectedRootComputer, value); }
+
+        private KeyItem _parent;
+        public KeyItem Parent { get => _parent; set => SetProperty(ref _parent, value); }
 
         public ObservableCollection<KeyItem> Children { get; set; } = new();
 

@@ -1,13 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using RegistryValley.Core.Services;
 using RegistryValley.App.Models;
-using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Windows.Input;
-using Vanara.Extensions;
-using Vanara.InteropServices;
-using Vanara.PInvoke;
-using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 using static RegistryValley.Core.Helpers.RegistryServices;
 
 namespace RegistryValley.App.ViewModels
@@ -19,23 +11,35 @@ namespace RegistryValley.App.ViewModels
             _keyItems = new();
             KeyItems = new(_keyItems);
 
+            DeleteKeyCommand = new RelayCommand<KeyItem>(DeleteSelectedKey);
+
             InitializeHiveTree();
         }
 
+        #region Fields and Properties
         private readonly ObservableCollection<KeyItem> _keyItems;
         public ReadOnlyObservableCollection<KeyItem> KeyItems { get; }
 
         private bool _loading;
         public bool Loading { get => _loading; set => SetProperty(ref _loading, value); }
 
-        public void InitializeHiveTree()
+        public IRelayCommand DeleteKeyCommand { get; }
+        #endregion
+
+        private void InitializeHiveTree()
         {
             _keyItems.Add(new()
             {
                 Name = "Computer",
-                Image = "ms-appx:///Assets/Images/Computer.png",
+                RootHive = HKEY.NULL,
                 IsExpanded = true,
                 IsSelected = true,
+                Path = "",
+                IsDeletable = false,
+                IsRenamable = false,
+                HasUnrealizedChildren = true,
+                SelectedRootComputer = true,
+                Image = "ms-appx:///Assets/Images/Computer.png",
                 Children = new()
                 {
                     new()
@@ -43,6 +47,8 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_CLASSES_ROOT",
                         RootHive = HKEY.HKEY_CLASSES_ROOT,
                         Path = "",
+                        IsDeletable = false,
+                        IsRenamable = false,
                         HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -51,6 +57,8 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_CURRENT_USER",
                         RootHive = HKEY.HKEY_CURRENT_USER,
                         Path = "",
+                        IsDeletable = false,
+                        IsRenamable = false,
                         HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -59,6 +67,8 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_LOCAL_MACHINE",
                         RootHive = HKEY.HKEY_LOCAL_MACHINE,
                         Path = "",
+                        IsDeletable = false,
+                        IsRenamable = false,
                         HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -67,6 +77,8 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_USERS",
                         RootHive = HKEY.HKEY_USERS,
                         Path = "",
+                        IsDeletable = false,
+                        IsRenamable = false,
                         HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -75,6 +87,8 @@ namespace RegistryValley.App.ViewModels
                         Name = "HKEY_CURRENT_CONFIG",
                         RootHive = HKEY.HKEY_CURRENT_CONFIG,
                         Path = "",
+                        IsDeletable = false,
+                        IsRenamable = false,
                         HasUnrealizedChildren = true,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     }
@@ -82,7 +96,8 @@ namespace RegistryValley.App.ViewModels
             });
         }
 
-        public IEnumerable<KeyItem> EnumerateRegistryKeys(HKEY hRootKey, string subRoot)
+        #region Enumerating methods
+        public IEnumerable<KeyItem> EnumerateRegistryKeys(HKEY hRootKey, string subRoot, KeyItem parent)
         {
             List<KeyItem> keys = new();
             Win32Error result;
@@ -128,17 +143,20 @@ namespace RegistryValley.App.ViewModels
                 keys.Add(new()
                 {
                     Name = szName.ToString(),
-                    Path = subKeyPath,
                     RootHive = hRootKey,
+                    Path = subKeyPath,
+                    IsDeletable = true,
+                    IsRenamable = true,
                     HasUnrealizedChildren = hasChildren,
                     Image = "ms-appx:///Assets/Images/Folder.png",
+                    Parent = parent,
                 });
             }
 
             return keys;
         }
 
-        public Win32Error HasSubKeys(HKEY hRootKey, string subRoot, out bool hasChildren)
+        private Win32Error HasSubKeys(HKEY hRootKey, string subRoot, out bool hasChildren)
         {
             Win32Error result;
             hasChildren = false;
@@ -165,5 +183,24 @@ namespace RegistryValley.App.ViewModels
 
             return Win32Error.ERROR_SUCCESS;
         }
+        #endregion
+
+        #region Deleting methods
+        private void DeleteSelectedKey(KeyItem key)
+        {
+            // Run powershell
+            bool result = PowershellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.DisplayPath}' -Force");
+            if (!result)
+                return;
+
+            // Remove the key from parent node
+            result = key.Parent.Children.Remove(key);
+            if (!result)
+                return;
+        }
+        #endregion
+
+        #region Renaming methods
+        #endregion
     }
 }

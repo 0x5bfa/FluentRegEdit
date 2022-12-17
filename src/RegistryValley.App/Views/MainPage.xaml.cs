@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.Common;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using RegistryValley.App.Dialogs;
@@ -24,7 +25,7 @@ namespace RegistryValley.App.Views
         public ValuesViewerViewModel ValuesViewerViewModel { get; }
         #endregion
 
-        #region Event methods
+        #region TreeView event methods
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             ContentFrame.Navigate(typeof(ValuesViewerPage));
@@ -49,10 +50,73 @@ namespace RegistryValley.App.Views
             var item = (KeyItem)args.InvokedItem;
             ValuesViewerViewModel.SelectedKeyItem = item;
         }
+        #endregion
+
+        #region MenuFlyout event methods
+        private void KeyTreeViewItemMenuFlyout_Opened(object sender, object e)
+        {
+            EnsureCurrentPageIsValuesViewer();
+
+            var flyout = (MenuFlyout)sender;
+            var target = (TreeViewItem)flyout.Target;
+            var item = (KeyItem)target.DataContext;
+            item.IsSelected = true;
+
+            if (ValuesViewerViewModel.SelectedKeyItem != item)
+                ValuesViewerViewModel.SelectedKeyItem = item;
+        }
+
+        private void KeyTreeViewItemMenuFlyoutExpand_Click(object sender, RoutedEventArgs e)
+        {
+            // Triggering an event KeyTreeView_Expanding
+            ((KeyItem)((MenuFlyoutItem)sender).DataContext).IsExpanded = true;
+        }
+
+        private void KeyTreeViewItemMenuFlyoutCollapse_Click(object sender, RoutedEventArgs e)
+        {
+            // Triggering an event KeyTreeView_Collapsed
+            ((KeyItem)((MenuFlyoutItem)sender).DataContext).IsExpanded = false;
+        }
+
+        private async void KeyTreeViewItemMenuFlyoutDelete_Click(object sender, RoutedEventArgs e)
+        {
+            var item = ((KeyItem)((MenuFlyoutItem)sender).DataContext);
+
+            ContentDialog dialog = new()
+            {
+                Title = "Confirm key deletion",
+                Content = "Are you sure you want permanently\ndelete this key and all of its subkeys?",
+                PrimaryButtonText = "Yes",
+                SecondaryButtonText = "No",
+                XamlRoot = Content.XamlRoot,
+            };
+
+            // Make sure user want to
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Secondary)
+                return;
+
+            var command = ViewModel.DeleteKeyCommand;
+            if (command.CanExecute(item))
+                command.Execute(item);
+
+            // TODO: Get command running status before getting result
+            //var result = command.ExecutionTask.GetResultOrDefault();
+        }
+
+        private void KeyTreeViewItemMenuFlyoutRename_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void KeyTreeViewItemMenuFlyoutExport_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
 
         private async void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
         {
-            var item = (KeyItem)((MenuFlyoutItem)sender).Tag;
+            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
 
             var dialog = new KeyPermissionsViewerDialog
             {
@@ -64,15 +128,11 @@ namespace RegistryValley.App.Views
             var result = await dialog.ShowAsync();
         }
 
-        private void KeyTreeViewItemMenuFlyoutExpand_Click(object sender, RoutedEventArgs e)
+        private void KeyTreeViewItemMenuFlyoutCopyKeyName_Click(object sender, RoutedEventArgs e)
         {
-            ((KeyItem)((MenuFlyoutItem)sender).Tag).IsExpanded = true;
-        }
 
-        private void KeyTreeViewItemMenuFlyoutCollapse_Click(object sender, RoutedEventArgs e)
-        {
-            ((KeyItem)((MenuFlyoutItem)sender).Tag).IsExpanded = false;
         }
+        #endregion
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
@@ -84,7 +144,6 @@ namespace RegistryValley.App.Views
 
             ContentFrame.Navigate(typeof(SettingsPage));
         }
-        #endregion
 
         private void EnsureCurrentPageIsValuesViewer()
         {
@@ -104,7 +163,7 @@ namespace RegistryValley.App.Views
             {
                 item.Children.Clear();
 
-                var children = ViewModel.EnumerateRegistryKeys(item.RootHive, item.Path);
+                var children = ViewModel.EnumerateRegistryKeys(item.RootHive, item.Path, item);
                 if (children != null)
                 {
                     foreach (var child in children)
@@ -124,6 +183,7 @@ namespace RegistryValley.App.Views
         private void CollapseChildItems(KeyItem item)
         {
             item.Children.Clear();
+            item.HasUnrealizedChildren = true;
         }
     }
 }
