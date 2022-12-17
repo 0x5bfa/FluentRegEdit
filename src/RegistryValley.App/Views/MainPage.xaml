@@ -112,12 +112,14 @@
                                         <MenuFlyout>
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutExpand"
-                                                x:Load="{x:Bind IsExpanded, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
+                                                x:Load="{x:Bind IsExpanded, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
+                                                Click="KeyTreeViewItemMenuFlyoutExpand_Click"
                                                 Tag="{x:Bind}"
                                                 Text="Expand" />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutCollapse"
-                                                x:Load="{x:Bind IsExpanded}"
+                                                x:Load="{x:Bind IsExpanded, Mode=OneWay}"
+                                                Click="KeyTreeViewItemMenuFlyoutCollapse_Click"
                                                 Tag="{x:Bind}"
                                                 Text="Collapse" />
                                             <MenuFlyoutItem

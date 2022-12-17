@@ -33,6 +33,73 @@ namespace RegistryValley.App.Views
         private void KeyTreeView_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
         {
             var item = (KeyItem)args.Item;
+            ExpandChildItems(item);
+        }
+
+        private void KeyTreeView_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
+        {
+            var item = (KeyItem)args.Item;
+            CollapseChildItems(item);
+        }
+
+        private void KeyTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
+        {
+            EnsureCurrentPageIsValuesViewer();
+
+            var item = (KeyItem)args.InvokedItem;
+            ValuesViewerViewModel.SelectedKeyItem = item;
+        }
+
+        private async void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (KeyItem)((MenuFlyoutItem)sender).Tag;
+
+            var dialog = new KeyPermissionsViewerDialog
+            {
+                ViewModel = new() { KeyItem = item },
+                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
+                XamlRoot = Content.XamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+        }
+
+        private void KeyTreeViewItemMenuFlyoutExpand_Click(object sender, RoutedEventArgs e)
+        {
+            ((KeyItem)((MenuFlyoutItem)sender).Tag).IsExpanded = true;
+        }
+
+        private void KeyTreeViewItemMenuFlyoutCollapse_Click(object sender, RoutedEventArgs e)
+        {
+            ((KeyItem)((MenuFlyoutItem)sender).Tag).IsExpanded = false;
+        }
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ValuesViewerViewModel.SelectedKeyItem != null)
+                ValuesViewerViewModel.SelectedKeyItem.IsSelected = false;
+
+            SettingsButtonClickedIndicator.Visibility = Visibility.Visible;
+            SettingsButtonClickedBackground.Visibility = Visibility.Visible;
+
+            ContentFrame.Navigate(typeof(SettingsPage));
+        }
+        #endregion
+
+        private void EnsureCurrentPageIsValuesViewer()
+        {
+            var currentSourcePageType = ContentFrame.CurrentSourcePageType;
+
+            if (currentSourcePageType == typeof(SettingsPage))
+            {
+                SettingsButtonClickedIndicator.Visibility = Visibility.Collapsed;
+                SettingsButtonClickedBackground.Visibility = Visibility.Collapsed;
+                ContentFrame.Navigate(typeof(ValuesViewerPage));
+            }
+        }
+
+        private void ExpandChildItems(KeyItem item)
+        {
             if (item.RootHive != HKEY.NULL)
             {
                 item.Children.Clear();
@@ -54,59 +121,9 @@ namespace RegistryValley.App.Views
             }
         }
 
-        private void KeyTreeView_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
+        private void CollapseChildItems(KeyItem item)
         {
-            var item = (KeyItem)args.Item;
             item.Children.Clear();
-        }
-
-        private void KeyTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
-        {
-            EnsureCurrentPageIsValuesViewer();
-
-            var item = (KeyItem)args.InvokedItem;
-            ValuesViewerViewModel.SelectedKeyItem = item;
-        }
-
-        private async void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)((MenuFlyoutItem)sender).Tag;
-
-            var dialog = new KeyPermissionsViewerDialog
-            {
-                ViewModel = new()
-                {
-                    KeyItem = item,
-                },
-
-                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
-                XamlRoot = this.Content.XamlRoot,
-            };
-
-            var result = await dialog.ShowAsync();
-        }
-
-        private void SettingsButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ValuesViewerViewModel.SelectedKeyItem != null)
-                ValuesViewerViewModel.SelectedKeyItem.IsSelected = false;
-            SettingsButtonClickedIndicator.Visibility = Visibility.Visible;
-            SettingsButtonClickedBackground.Visibility = Visibility.Visible;
-
-            ContentFrame.Navigate(typeof(SettingsPage));
-        }
-        #endregion
-
-        private void EnsureCurrentPageIsValuesViewer()
-        {
-            var currentSourcePageType = ContentFrame.CurrentSourcePageType;
-
-            if (currentSourcePageType == typeof(SettingsPage))
-            {
-                SettingsButtonClickedIndicator.Visibility = Visibility.Collapsed;
-                SettingsButtonClickedBackground.Visibility = Visibility.Collapsed;
-                ContentFrame.Navigate(typeof(ValuesViewerPage));
-            }
         }
     }
 }
