@@ -189,7 +189,7 @@ namespace RegistryValley.App.ViewModels
         private void DeleteSelectedKey(KeyItem key)
         {
             // Run powershell
-            bool result = PowershellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.DisplayPath}' -Force");
+            bool result = ShellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.PathForPwsh}' -Force");
             if (!result)
                 return;
 

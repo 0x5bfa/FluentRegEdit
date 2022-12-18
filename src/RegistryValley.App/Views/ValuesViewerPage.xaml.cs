@@ -26,7 +26,7 @@ namespace RegistryValley.App.Views
             if (item == null)
                 return;
 
-            var dialog = new ValueViewerDialog
+            var dialog = new ValueEditingDialog
             {
                 ViewModel = new() { ValueItem = item },
                 // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504

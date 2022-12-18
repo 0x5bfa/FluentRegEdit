@@ -12,7 +12,7 @@ namespace RegistryValley.App.Dialogs
             DependencyProperty.Register(
                 nameof(ViewModel),
                 typeof(KeyPermissionsViewerDialogViewModel),
-                typeof(ValueViewerDialog),
+                typeof(ValueEditingDialog),
                 new PropertyMetadata(null));
 
         public KeyPermissionsViewerDialogViewModel ViewModel

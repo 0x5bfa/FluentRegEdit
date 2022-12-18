@@ -6,24 +6,24 @@ using RegistryValley.App.ViewModels.Dialogs;
 
 namespace RegistryValley.App.Dialogs
 {
-    public sealed partial class ValueViewerDialog : ContentDialog
+    public sealed partial class ValueEditingDialog : ContentDialog
     {
         #region propdp
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register(
                 nameof(ViewModel),
-                typeof(ValueViewerDialogViewModel),
-                typeof(ValueViewerDialog),
+                typeof(ValueEditingDialogViewModel),
+                typeof(ValueEditingDialog),
                 new PropertyMetadata(null));
 
-        public ValueViewerDialogViewModel ViewModel
+        public ValueEditingDialogViewModel ViewModel
         {
-            get => (ValueViewerDialogViewModel)GetValue(ViewModelProperty);
+            get => (ValueEditingDialogViewModel)GetValue(ViewModelProperty);
             set => SetValue(ViewModelProperty, value);
         }
         #endregion
 
-        public ValueViewerDialog()
+        public ValueEditingDialog()
             => InitializeComponent();
 
         private void OnValueEditorTextBoxTextChanged(object sender, TextChangedEventArgs e)

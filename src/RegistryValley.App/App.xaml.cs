@@ -44,7 +44,7 @@ namespace RegistryValley.App
                 .AddSingleton<MainViewModel>()
                 .AddSingleton<ValuesViewerViewModel>()
                 .AddTransient<SettingsViewModel>()
-                .AddTransient<ViewModels.Dialogs.ValueViewerDialogViewModel>()
+                .AddTransient<ViewModels.Dialogs.ValueEditingDialogViewModel>()
                 .BuildServiceProvider();
         }
 

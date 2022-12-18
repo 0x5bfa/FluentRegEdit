@@ -1,10 +1,11 @@
-﻿using CommunityToolkit.Common;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using RegistryValley.App.Dialogs;
 using RegistryValley.App.Models;
 using RegistryValley.App.ViewModels;
+using RegistryValley.Core.Services;
+using WinRT.Interop;
 
 namespace RegistryValley.App.Views
 {
@@ -48,7 +49,9 @@ namespace RegistryValley.App.Views
             EnsureCurrentPageIsValuesViewer();
 
             var item = (KeyItem)args.InvokedItem;
-            ValuesViewerViewModel.SelectedKeyItem = item;
+
+            if (ValuesViewerViewModel.SelectedKeyItem != item)
+                ValuesViewerViewModel.SelectedKeyItem = item;
         }
         #endregion
 
@@ -78,6 +81,20 @@ namespace RegistryValley.App.Views
             ((KeyItem)((MenuFlyoutItem)sender).DataContext).IsExpanded = false;
         }
 
+        private async void KeyTreeViewItemMenuFlyoutNew_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
+
+            var dialog = new KeyAddingDialog
+            {
+                KeyItem = item,
+                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
+                XamlRoot = Content.XamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+        }
+
         private async void KeyTreeViewItemMenuFlyoutDelete_Click(object sender, RoutedEventArgs e)
         {
             var item = ((KeyItem)((MenuFlyoutItem)sender).DataContext);
@@ -104,14 +121,33 @@ namespace RegistryValley.App.Views
             //var result = command.ExecutionTask.GetResultOrDefault();
         }
 
-        private void KeyTreeViewItemMenuFlyoutRename_Click(object sender, RoutedEventArgs e)
+        private async void KeyTreeViewItemMenuFlyoutRename_Click(object sender, RoutedEventArgs e)
         {
+            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
 
+            var dialog = new KeyRenamingDialog
+            {
+                KeyItem = item,
+                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
+                XamlRoot = Content.XamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
         }
 
-        private void KeyTreeViewItemMenuFlyoutExport_Click(object sender, RoutedEventArgs e)
+        private async void KeyTreeViewItemMenuFlyoutExport_Click(object sender, RoutedEventArgs e)
         {
+            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
 
+            var picker = new Windows.Storage.Pickers.FileSavePicker();
+            picker.FileTypeChoices.Add("Registration Entries", new List<string>() { ".reg" });
+
+            InitializeWithWindow.Initialize(picker, App.WindowHandle);
+
+            var file = await picker.PickSaveFileAsync();
+
+            if (file != null)
+                ShellServices.RunCmdPromptCommand(runAs: true, $"/c REG EXPORT {item.PathForCmd} {file.Path}");
         }
 
         private async void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
@@ -130,7 +166,11 @@ namespace RegistryValley.App.Views
 
         private void KeyTreeViewItemMenuFlyoutCopyKeyName_Click(object sender, RoutedEventArgs e)
         {
+            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
 
+            var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            dp.SetText(item.PathForPwsh);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
         }
         #endregion
 

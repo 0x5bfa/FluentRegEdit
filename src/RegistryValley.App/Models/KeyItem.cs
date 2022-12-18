@@ -8,7 +8,7 @@
         private string _path;
         public string Path { get => _path; set => SetProperty(ref _path, value); }
 
-        public string DisplayPath
+        public string PathForPwsh
         {
             get
             {
@@ -43,6 +43,51 @@
                         displayPath = $"HKLM:\\{path}";
                     else if (RootHive == HKEY.HKEY_USERS)
                         displayPath = $"HKU:\\{path}";
+                    else
+                        displayPath = $"{path}";
+                }
+
+                return displayPath;
+            }
+        }
+
+        public string PathForCmd
+        {
+            get
+            {
+                string displayPath;
+
+                // TODO: Fix following redundant code
+
+                if (string.IsNullOrEmpty(Path))
+                {
+                    if (RootHive == HKEY.HKEY_CLASSES_ROOT)
+                        displayPath = $"HKCR";
+                    else if (RootHive == HKEY.HKEY_CURRENT_CONFIG)
+                        displayPath = $"HKCC";
+                    else if (RootHive == HKEY.HKEY_CURRENT_USER)
+                        displayPath = $"HKCU";
+                    else if (RootHive == HKEY.HKEY_LOCAL_MACHINE)
+                        displayPath = $"HKLM";
+                    else if (RootHive == HKEY.HKEY_USERS)
+                        displayPath = $"HKU";
+                    else
+                        displayPath = $"";
+                }
+                else
+                {
+                    var path = Path.TrimEnd('\\');
+
+                    if (RootHive == HKEY.HKEY_CLASSES_ROOT)
+                        displayPath = $"HKCR\\{path}";
+                    else if (RootHive == HKEY.HKEY_CURRENT_CONFIG)
+                        displayPath = $"HKCC\\{path}";
+                    else if (RootHive == HKEY.HKEY_CURRENT_USER)
+                        displayPath = $"HKCU\\{path}";
+                    else if (RootHive == HKEY.HKEY_LOCAL_MACHINE)
+                        displayPath = $"HKLM\\{path}";
+                    else if (RootHive == HKEY.HKEY_USERS)
+                        displayPath = $"HKU\\{path}";
                     else
                         displayPath = $"{path}";
                 }

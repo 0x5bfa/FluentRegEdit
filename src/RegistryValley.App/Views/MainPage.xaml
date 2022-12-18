@@ -106,7 +106,7 @@
                                     IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
                                     IsSelected="{x:Bind IsSelected, Mode=TwoWay}"
                                     ItemsSource="{x:Bind Children}"
-                                    ToolTipService.ToolTip="{x:Bind DisplayPath, Mode=OneWay}">
+                                    ToolTipService.ToolTip="{x:Bind PathForPwsh, Mode=OneWay}">
 
                                     <TreeViewItem.ContextFlyout>
                                         <MenuFlyout x:Name="KeyTreeViewItemMenuFlyout" Opened="KeyTreeViewItemMenuFlyout_Opened">
@@ -124,7 +124,7 @@
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutNew"
                                                 x:Load="{x:Bind SelectedRootComputer, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
-                                                IsEnabled="False"
+                                                Click="KeyTreeViewItemMenuFlyoutNew_Click"
                                                 Text="New" />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutFind"
@@ -148,7 +148,6 @@
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutExport"
                                                 Click="KeyTreeViewItemMenuFlyoutExport_Click"
-                                                IsEnabled="False"
                                                 Text="Export" />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutPermissions"

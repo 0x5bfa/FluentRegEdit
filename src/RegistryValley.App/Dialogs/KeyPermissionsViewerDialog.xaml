@@ -47,7 +47,7 @@
                     TextWrapping="NoWrap"
                     ToolTipService.ToolTip="{x:Bind AdvancedPermissionsGridTitleTextBlock.Text, Mode=OneWay}">
                     <Run Text="Permissions for" />
-                    <Run Text="{x:Bind ViewModel.KeyItem.DisplayPath, Mode=OneWay}" />
+                    <Run Text="{x:Bind ViewModel.KeyItem.PathForPwsh, Mode=OneWay}" />
                 </TextBlock>
 
             </StackPanel>
@@ -346,7 +346,7 @@
                                 TextWrapping="NoWrap"
                                 ToolTipService.ToolTip="{x:Bind AdvancedPermissionsGridTitleTextBlock.Text, Mode=OneWay}">
                                 <Run Text="Advanced permissions for" />
-                                <Run Text="{x:Bind ViewModel.KeyItem.DisplayPath, Mode=OneWay}" />
+                                <Run Text="{x:Bind ViewModel.KeyItem.PathForPwsh, Mode=OneWay}" />
                             </TextBlock>
 
                         </StackPanel>
@@ -655,7 +655,7 @@
                                 <Run Text="Permission entry" />
                                 <Run Text="{x:Bind ViewModel.SelectedPrincipalAdvancedPermission.DisplayName, Mode=OneWay}" />
                                 <Run Text="for" />
-                                <Run Text="{x:Bind ViewModel.KeyItem.DisplayPath, Mode=OneWay}" />
+                                <Run Text="{x:Bind ViewModel.KeyItem.PathForPwsh, Mode=OneWay}" />
                             </TextBlock>
 
                         </StackPanel>

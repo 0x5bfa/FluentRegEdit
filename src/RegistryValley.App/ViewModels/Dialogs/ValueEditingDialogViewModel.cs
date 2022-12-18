@@ -2,9 +2,9 @@
 
 namespace RegistryValley.App.ViewModels.Dialogs
 {
-    public class ValueViewerDialogViewModel : ObservableObject
+    public class ValueEditingDialogViewModel : ObservableObject
     {
-        public ValueViewerDialogViewModel()
+        public ValueEditingDialogViewModel()
         {
         }
 
