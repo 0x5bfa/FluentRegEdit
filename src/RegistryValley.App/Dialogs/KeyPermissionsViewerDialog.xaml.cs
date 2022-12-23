@@ -8,6 +8,7 @@ namespace RegistryValley.App.Dialogs
 {
     public sealed partial class KeyPermissionsViewerDialog : ContentDialog
     {
+        #region propdp
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register(
                 nameof(ViewModel),
@@ -29,6 +30,7 @@ namespace RegistryValley.App.Dialogs
                     command.Execute(null);
             }
         }
+        #endregion
 
         public KeyPermissionsViewerDialog()
         {
@@ -43,7 +45,7 @@ namespace RegistryValley.App.Dialogs
 
         private void OnBackToSummaryPermissionsGridButtonClick(object sender, RoutedEventArgs e)
         {
-            ViewModel.LoadKeySecurityDescriptor();
+            ViewModel.GetKeyAccessControlList();
             ViewModel.ShowAdvancedPermissions = false;
         }
 

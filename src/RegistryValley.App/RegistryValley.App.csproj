@@ -27,6 +27,7 @@
     <Configurations>Debug;Release;Sideload</Configurations>
     <TieredCompilation>true</TieredCompilation>
     <TieredPgo>true</TieredPgo>
+    <NoWarn>CS8618</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">

@@ -1,6 +1,7 @@
 ﻿using RegistryValley.App.Models;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 
 namespace RegistryValley.App.ViewModels.Dialogs
 {
@@ -8,17 +9,24 @@ namespace RegistryValley.App.ViewModels.Dialogs
     {
         public KeyPermissionsViewerDialogViewModel()
         {
-            _principals = new();
-            Principals = new(_principals);
+            _principalsMerged = new();
+            PrincipalsMerged = new(_principalsMerged);
+
+            _principalsAdvanced = new();
+            PrincipalsAdvanced = new(_principalsAdvanced);
 
             LoadKeySecurityCommand = new RelayCommand(LoadKeySecurity);
         }
 
+        #region Fields and Properties
         private KeyItem _keyItem;
         public KeyItem KeyItem { get => _keyItem; set => SetProperty(ref _keyItem, value); }
 
-        private readonly ObservableCollection<PermissionPrincipalItem> _principals;
-        public ReadOnlyObservableCollection<PermissionPrincipalItem> Principals { get; }
+        private readonly ObservableCollection<PermissionPrincipalItem> _principalsMerged;
+        public ReadOnlyObservableCollection<PermissionPrincipalItem> PrincipalsMerged { get; }
+
+        private readonly ObservableCollection<PermissionPrincipalItem> _principalsAdvanced;
+        public ReadOnlyObservableCollection<PermissionPrincipalItem> PrincipalsAdvanced { get; }
 
         private PermissionPrincipalItem _selectedPrincipal;
         public PermissionPrincipalItem SelectedPrincipal { get => _selectedPrincipal; set => SetProperty(ref _selectedPrincipal, value); }
@@ -39,108 +47,142 @@ namespace RegistryValley.App.ViewModels.Dialogs
         public PermissionPrincipalItem SelectedPrincipalAdvancedPermission { get => _selectedPrincipalAdvancedPermission; set => SetProperty(ref _selectedPrincipalAdvancedPermission, value); }
 
         public IRelayCommand LoadKeySecurityCommand { get; }
+        #endregion
 
         private void LoadKeySecurity()
         {
             LoadKeySecurityOwner();
 
-            LoadKeySecurityDescriptor();
+            GetKeyAccessControlList();
         }
 
-        public void LoadKeySecurityDescriptor()
+        public void GetKeyAccessControlList()
         {
-            if (_principals != null && _principals.Any())
-                _principals?.Clear();
+            try
+            {
+                Win32Error result;
+                bool bResult;
 
+                var hkey = RVRegOpenKey(KeyItem.RootHive, KeyItem.Path, REGSAM.READ_CONTROL);
+
+                var pSD = new SafePSECURITY_DESCRIPTOR(1024);
+                var cbSD = (uint)pSD.Size;
+
+                result = RegGetKeySecurity(hkey, SECURITY_INFORMATION.DACL_SECURITY_INFORMATION, pSD, ref cbSD);
+
+                bResult = GetSecurityDescriptorDacl(pSD, out var lpbDaclPresent, out var pDacl, out bool lpbDaclDefaulted);
+                result = Kernel32.GetLastError();
+
+                if (!lpbDaclPresent)
+                {
+                    HasDacl = false;
+                }
+                else
+                {
+                    bResult = GetAclInformation(pDacl, out ACL_SIZE_INFORMATION asi, (uint)Marshal.SizeOf(typeof(ACL_SIZE_INFORMATION)), ACL_INFORMATION_CLASS.AclSizeInformation);
+                    result = Kernel32.GetLastError();
+
+                    HasDacl = true;
+
+                    GetKeyAccessControlEntries(pDacl, asi.AceCount);
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+            }
+        }
+
+        private void GetKeyAccessControlEntries(PACL pDacl, uint nAceCount)
+        {
             Win32Error result;
             bool bResult;
 
-            var hkey = RegValleyOpenKey(KeyItem.RootHive, KeyItem.Path, REGSAM.READ_CONTROL);
+            SafePSID lpSid;
+            AceType aceType;
+            ACE_HEADER aceHeader;
+            bool aceIsObjectAce;
+            ACCESS_MASK accessMask;
 
-            var pSD = new SafePSECURITY_DESCRIPTOR(512);
-            var sdsz = (uint)pSD.Size;
+            bool isGroup = false;
+            bool isUser = false;
 
-            result = RegGetKeySecurity(hkey, SECURITY_INFORMATION.DACL_SECURITY_INFORMATION, pSD, ref sdsz);
-
-            bResult = GetSecurityDescriptorDacl(pSD, out var lpbDaclPresent, out var pDacl, out bool lpbDaclDefaulted);
-            result = Kernel32.GetLastError();
-
-            if (!lpbDaclPresent)
+            try
             {
-                HasDacl =  false;
-            }
-            else
-            {
-                bResult = GetAclInformation(pDacl, out ACL_SIZE_INFORMATION asi, (uint)Marshal.SizeOf(typeof(ACL_SIZE_INFORMATION)), ACL_INFORMATION_CLASS.AclSizeInformation);
-                result = Kernel32.GetLastError();
-
-                HasDacl = true;
-
-                for (var index = 0U; index < asi.AceCount; index++)
+                for (var index = 0U; index < nAceCount; index++)
                 {
+                    bResult = GetAce(pDacl, index, out var pAce);
                     result = Kernel32.GetLastError();
 
-                    var pAce = pDacl.GetAce(index);
+                    lpSid = pAce.GetSid();
+                    aceType = pAce.GetAceType();
+                    aceHeader = pAce.GetHeader();
+                    aceIsObjectAce = pAce.IsObjectAce();
+                    accessMask = new ACCESS_MASK(pAce.GetMask());
+
+                    // Default inheritance is CIID (CONTAINER_INHERIT_ACE & INHERITED_ACE),
+                    // however it is determined by only ID that whether ACE is inherited or not.
+                    bool isInherited = aceHeader.AceFlags.HasFlag(AceFlags.InheritOnly);
+
+                    var cchName = 2048;
+                    var cchReferencedDomainName = 2048;
+                    var lpName = new StringBuilder(cchName, cchName);
+                    var lpReferencedDomainName = new StringBuilder(cchReferencedDomainName, cchReferencedDomainName);
+
+                    bResult = LookupAccountSid(null, lpSid, lpName, ref cchName, lpReferencedDomainName, ref cchReferencedDomainName, out var snu);
                     result = Kernel32.GetLastError();
-                    var sid = pAce.GetSid();
 
-                    var accountSize = 2048;
-                    var domainSize = 2048;
-                    var outuser = new StringBuilder(accountSize, accountSize);
-                    var outdomain = new StringBuilder(domainSize, domainSize);
-
-                    bResult = LookupAccountSid(null, sid, outuser, ref accountSize, outdomain, ref domainSize, out var snu);
-                    result = Kernel32.GetLastError();
-
-                    bool isGroup = false;
-                    bool isUser = false;
-
-                    if (snu == SID_NAME_USE.SidTypeAlias ||
-                        snu == SID_NAME_USE.SidTypeGroup ||
-                        snu == SID_NAME_USE.SidTypeWellKnownGroup)
+                    if (snu == SID_NAME_USE.SidTypeAlias || snu == SID_NAME_USE.SidTypeGroup || snu == SID_NAME_USE.SidTypeWellKnownGroup)
                         isGroup = true;
                     else if (snu == SID_NAME_USE.SidTypeUser)
                         isUser = true;
 
+                    // Uknown SID type
                     if (result.Failed && result == Win32Error.ERROR_NONE_MAPPED)
                     {
                         // Reset
-                        outuser.Clear();
-                        outdomain.Clear();
+                        lpName.Clear();
+                        lpReferencedDomainName.Clear();
                         isGroup = false;
                         isUser = false;
                     }
 
-                    //var regsam = (REGSAM)pAce.GetMask();
-                    var accessMask = new ACCESS_MASK(pAce.GetMask());
-
                     var principal = new PermissionPrincipalItem()
                     {
-                        Glyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
-                        Name = outuser.ToString(),
-                        Domain = outdomain.ToString(),
+                        SidTypeGlyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
                         Sid = pAce.GetSid().ToString(),
-                        AccessControlTypeGlyph = pAce.GetHeader().AceType == System.Security.AccessControl.AceType.AccessAllowed ? "\xE73E" : "\xE711",
-                        AccessRule = new(),
+                        Name = lpName.ToString(),
+                        Domain = lpReferencedDomainName.ToString(),
+                        AccessControlTypeGlyph = aceType == AceType.AccessAllowed ? "\xE73E" : "\xE711",
+                        AccessRuleMerged = new(),
+                        AccessRuleAdvanced = new()
                     };
 
-                    if (pAce.GetAceType() == System.Security.AccessControl.AceType.AccessAllowed)
-                    {
-                        principal.AccessRule.GrantsAccessMask = accessMask;
-                    }
-                    else if (pAce.GetAceType() == System.Security.AccessControl.AceType.AccessDenied)
-                    {
-                        principal.AccessRule.DeniesAccessMask = accessMask;
-                    }
+                    _principalsMerged.Add(principal);
+                    _principalsAdvanced.Add(principal);
 
-                    _principals.Add(principal);
-
-                    outuser.Clear();
-                    outdomain.Clear();
+                    lpName?.Clear();
+                    lpReferencedDomainName?.Clear();
                 }
             }
+            catch
+            {
 
-            pSD.Close();
+            }
+            finally
+            {
+            }
+        }
+
+        private void GetAdvancedAccessRules()
+        {
+        }
+
+        private void GetMergedAccessRules()
+        {
+
         }
 
         public void LoadKeySecurityOwner()
@@ -151,7 +193,7 @@ namespace RegistryValley.App.ViewModels.Dialogs
             Win32Error result;
             bool bResult;
 
-            var hkey = RegValleyOpenKey(KeyItem.RootHive, KeyItem.Path, REGSAM.READ_CONTROL);
+            var hkey = RVRegOpenKey(KeyItem.RootHive, KeyItem.Path, REGSAM.READ_CONTROL);
 
             var pSD = new SafePSECURITY_DESCRIPTOR(512);
             var sdsz = (uint)pSD.Size;
@@ -172,16 +214,14 @@ namespace RegistryValley.App.ViewModels.Dialogs
             bool isGroup = false;
             bool isUser = false;
 
-            if (snu == SID_NAME_USE.SidTypeAlias ||
-                snu == SID_NAME_USE.SidTypeGroup ||
-                snu == SID_NAME_USE.SidTypeWellKnownGroup)
+            if (snu == SID_NAME_USE.SidTypeAlias || snu == SID_NAME_USE.SidTypeGroup || snu == SID_NAME_USE.SidTypeWellKnownGroup)
                 isGroup = true;
             else if (snu == SID_NAME_USE.SidTypeUser)
                 isUser = true;
 
             SecurityDescriptorOwner = new()
             {
-                Glyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
+                SidTypeGlyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
                 Name = outuser.ToString(),
                 Domain = outdomain.ToString(),
                 Sid = owner.ToString(),
@@ -193,7 +233,7 @@ namespace RegistryValley.App.ViewModels.Dialogs
             pSD.Close();
         }
 
-        HKEY RegValleyOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)
+        HKEY RVRegOpenKey(HKEY hkey, string subRoot, REGSAM samDesired, bool use86Arch = false)
         {
             // If specified machine, should use RegConnectRegistry
             var result = RegOpenKeyEx(hkey, subRoot, 0, samDesired, out var phkResult);

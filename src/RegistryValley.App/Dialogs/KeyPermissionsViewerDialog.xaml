@@ -18,6 +18,7 @@
         <ResourceDictionary>
             <x:Double x:Key="ContentDialogMaxWidth">898</x:Double>
             <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
+            <converters:StringToSurroundedStringConverter x:Key="StringToSurroundedStringConverter" />
         </ResourceDictionary>
     </ContentDialog.Resources>
 
@@ -79,20 +80,19 @@
                             VerticalAlignment="Center"
                             Text="Group or user names" />
 
-                        <MenuFlyoutSeparator
+                        <Border
                             Grid.Row="1"
-                            Grid.Column="0"
+                            Height="1"
                             Margin="-12,0"
-                            Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
                         <ListView
-                            x:Name="PermissionPrincipalsListView"
+                            x:Name="MergedPermissionPrincipalsListView"
                             Grid.Row="2"
                             MaxHeight="160"
                             Margin="-4,0"
                             HorizontalAlignment="Stretch"
-                            ItemsSource="{x:Bind ViewModel.Principals, Mode=OneWay}"
-                            SelectedIndex="0"
+                            ItemsSource="{x:Bind ViewModel.PrincipalsMerged, Mode=OneWay}"
                             SelectedItem="{x:Bind ViewModel.SelectedPrincipal, Mode=TwoWay}"
                             SelectionMode="Single">
 
@@ -109,7 +109,7 @@
                                             HorizontalAlignment="Left"
                                             FontFamily="{StaticResource SymbolThemeFontFamily}"
                                             FontSize="16"
-                                            Glyph="{x:Bind Glyph}" />
+                                            Glyph="{x:Bind SidTypeGlyph}" />
 
                                         <StackPanel
                                             Grid.Column="1"
@@ -117,11 +117,10 @@
                                             Spacing="4"
                                             ToolTipService.ToolTip="{x:Bind FullNameOrSid}">
                                             <TextBlock Text="{x:Bind DisplayName}" />
-                                            <TextBlock Foreground="{ThemeResource TextFillColorSecondary}" Style="{StaticResource BodyTextBlockStyle}">
-                                                <Run Text="(" />
-                                                <Run Text="{x:Bind FullNameOrSid}" />
-                                                <Run Text=")" />
-                                            </TextBlock>
+                                            <TextBlock
+                                                Foreground="{ThemeResource TextFillColorSecondary}"
+                                                Style="{StaticResource BodyTextBlockStyle}"
+                                                Text="{x:Bind FullNameOrSid, Converter={StaticResource StringToSurroundedStringConverter}, ConverterParameter=brackets}" />
                                         </StackPanel>
 
                                     </Grid>
@@ -132,7 +131,7 @@
                     </Grid>
 
                     <Grid
-                        x:Name="SelectedItemAccessControl"
+                        x:Name="SelectedItemAccessControlEntry"
                         Grid.Row="1"
                         Padding="8"
                         x:Load="{x:Bind ViewModel.HasDacl, Mode=OneWay}"
@@ -221,8 +220,8 @@
                                 Padding="0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRule.GrantsFullControl, Mode=TwoWay}"
-                                IsEnabled="False" />
+                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.AllowFullControl, Mode=TwoWay}"
+                                IsEnabled="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.IsInheritedAllowedMask, Mode=TwoWay}" />
 
                             <CheckBox
                                 Grid.Row="1"
@@ -231,8 +230,8 @@
                                 Padding="0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRule.DeniesFullControl, Mode=TwoWay}"
-                                IsEnabled="False" />
+                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.DenyFullControl, Mode=TwoWay}"
+                                IsEnabled="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.IsInheritedDeniedMask, Mode=TwoWay}" />
 
                             <TextBlock
                                 Grid.Row="2"
@@ -248,8 +247,8 @@
                                 Padding="0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRule.GrantsRead, Mode=TwoWay}"
-                                IsEnabled="False" />
+                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.AllowRead, Mode=TwoWay}"
+                                IsEnabled="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.IsInheritedAllowedMask, Mode=TwoWay}" />
 
                             <CheckBox
                                 Grid.Row="2"
@@ -258,8 +257,8 @@
                                 Padding="0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRule.DeniesRead, Mode=TwoWay}"
-                                IsEnabled="False" />
+                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.DenyRead, Mode=TwoWay}"
+                                IsEnabled="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.IsInheritedDeniedMask, Mode=TwoWay}" />
 
                             <TextBlock
                                 Grid.Row="3"
@@ -275,8 +274,8 @@
                                 Padding="0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRule.GrantsSpecial, Mode=TwoWay}"
-                                IsEnabled="False" />
+                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.AllowSpecialPermissions, Mode=TwoWay}"
+                                IsEnabled="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.IsInheritedAllowedMask, Mode=TwoWay}" />
 
                             <CheckBox
                                 Grid.Row="3"
@@ -285,18 +284,19 @@
                                 Padding="0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRule.DeniesSpecial, Mode=TwoWay}"
-                                IsEnabled="False" />
+                                IsChecked="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.DenySpecialPermissions, Mode=TwoWay}"
+                                IsEnabled="{x:Bind ViewModel.SelectedPrincipal.AccessRuleMerged.IsInheritedDeniedMask, Mode=TwoWay}" />
 
                         </Grid>
 
                         <!--<TextBlock
-                        x:Name="CannotReadPropsText"
-                        Grid.Row="2"
-                        Padding="8"
-                        HorizontalAlignment="Left"
-                        Text="You do not have permissions to view the security properties of this object. Click Advanced permissions to proceed."
-                        TextWrapping="WrapWholeWords" />-->
+                            x:Name="CannotReadPropsText"
+                            Grid.Row="2"
+                            Padding="8"
+                            HorizontalAlignment="Left"
+                            Text="You do not have permissions to view the security properties of this object. Click Advanced permissions to proceed."
+                            TextWrapping="WrapWholeWords" />-->
+
                     </Grid>
 
                 </Grid>
@@ -380,7 +380,7 @@
                                     VerticalAlignment="Center"
                                     FontFamily="{StaticResource SymbolThemeFontFamily}"
                                     FontSize="16"
-                                    Glyph="{x:Bind ViewModel.SecurityDescriptorOwner.Glyph, Mode=OneWay}" />
+                                    Glyph="{x:Bind ViewModel.SecurityDescriptorOwner.SidTypeGlyph, Mode=OneWay}" />
 
                                 <TextBlock VerticalAlignment="Center" Text="{x:Bind ViewModel.SecurityDescriptorOwner.DisplayName}" />
                                 <TextBlock
@@ -461,7 +461,7 @@
                                 Grid.ColumnSpan="2"
                                 HorizontalAlignment="Stretch"
                                 DoubleTapped="OnAdvancedPermissionListViewItemDoubleTapped"
-                                ItemsSource="{x:Bind ViewModel.Principals, Mode=OneWay}"
+                                ItemsSource="{x:Bind ViewModel.PrincipalsMerged, Mode=OneWay}"
                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                 ScrollViewer.HorizontalScrollMode="Auto"
                                 SelectionMode="Single">
@@ -530,7 +530,7 @@
                                                 VerticalAlignment="Center"
                                                 FontFamily="{StaticResource SymbolThemeFontFamily}"
                                                 FontSize="16"
-                                                Glyph="{x:Bind Glyph}" />
+                                                Glyph="{x:Bind SidTypeGlyph}" />
 
                                             <FontIcon
                                                 x:Name="TypeIcon"
@@ -689,7 +689,7 @@
                                     VerticalAlignment="Center"
                                     FontFamily="{StaticResource SymbolThemeFontFamily}"
                                     FontSize="16"
-                                    Glyph="{x:Bind ViewModel.SelectedPrincipalAdvancedPermission.Glyph, Mode=OneWay}" />
+                                    Glyph="{x:Bind ViewModel.SelectedPrincipalAdvancedPermission.SidTypeGlyph, Mode=OneWay}" />
 
                                 <TextBlock
                                     MaxWidth="320"

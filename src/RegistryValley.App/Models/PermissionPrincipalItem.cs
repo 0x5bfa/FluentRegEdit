@@ -2,7 +2,7 @@
 {
     public class PermissionPrincipalItem
     {
-        public string Glyph { get; set; }
+        public string SidTypeGlyph { get; set; }
 
         public string Sid { get; set; }
 
@@ -18,6 +18,8 @@
         public string FullNameOrSid
             => string.IsNullOrEmpty(Name) ? Sid : (string.IsNullOrEmpty(Domain) ? Name : $"{Domain}\\{Name}");
 
-        public AccessRuleItem AccessRule { get; set; }
+        public AccessRuleAdvancedItem AccessRuleAdvanced { get; set; }
+
+        public AccessRuleMergedItem AccessRuleMerged { get; set; }
     }
 }
