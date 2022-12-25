@@ -41,10 +41,16 @@ namespace RegistryValley.App
                 //.AddSingleton<ToastService>()
                 .AddSingleton<IMessenger>(StrongReferenceMessenger.Default)
                 // ViewModels
-                .AddSingleton<MainViewModel>()
-                .AddSingleton<ValuesViewerViewModel>()
-                .AddTransient<SettingsViewModel>()
+                .AddTransient<ViewModels.Dialogs.KeyAddingDialogViewModel>()
+                .AddTransient<ViewModels.Dialogs.KeyRenamingDialogViewModel>()
+                .AddTransient<ViewModels.Dialogs.ValueAddingDialogViewModel>()
                 .AddTransient<ViewModels.Dialogs.ValueEditingDialogViewModel>()
+                .AddTransient<ViewModels.Properties.GeneralViewModel>()
+                .AddTransient<ViewModels.Properties.MainPropertyViewModel>()
+                .AddTransient<ViewModels.Properties.SecurityViewModel>()
+                .AddSingleton<MainViewModel>()
+                .AddTransient<SettingsViewModel>()
+                .AddSingleton<ValuesViewerViewModel>()
                 .BuildServiceProvider();
         }
 

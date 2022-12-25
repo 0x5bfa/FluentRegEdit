@@ -1,6 +1,11 @@
-﻿namespace RegistryValley.App.ViewModels.Dialogs
+﻿using RegistryValley.App.Models;
+
+namespace RegistryValley.App.ViewModels.Dialogs
 {
-    public class KeyAddingDialogViewModel
+    public class KeyAddingDialogViewModel : ObservableObject
     {
+        public KeyAddingDialogViewModel()
+        {
+        }
     }
 }

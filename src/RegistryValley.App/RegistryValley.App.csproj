@@ -75,6 +75,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Views\Properties\GeneralPage.xaml" />
+    <None Remove="Views\Properties\MainPropertyPage.xaml" />
+    <None Remove="Views\Properties\SecurityPage.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.UI" Version="7.1.2" />
     <PackageReference Include="Humanizer" Version="2.14.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
@@ -100,6 +106,24 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RegistryValley.Core\RegistryValley.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\PropertyPages\SecurityPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\PropertyPages\GeneralPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\PropertyPages\MainPropertyPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
 </Project>

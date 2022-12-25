@@ -150,18 +150,11 @@ namespace RegistryValley.App.Views
                 ShellServices.RunCmdPromptCommand(runAs: true, $"/c REG EXPORT {item.PathForCmd} {file.Path}");
         }
 
-        private async void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
+        private void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
 
-            var dialog = new KeyPermissionsViewerDialog
-            {
-                ViewModel = new() { KeyItem = item },
-                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
-                XamlRoot = Content.XamlRoot,
-            };
-
-            var result = await dialog.ShowAsync();
+            Helpers.PropertyWindowHelpers.CreatePropertyWindow(item);
         }
 
         private void KeyTreeViewItemMenuFlyoutCopyKeyName_Click(object sender, RoutedEventArgs e)

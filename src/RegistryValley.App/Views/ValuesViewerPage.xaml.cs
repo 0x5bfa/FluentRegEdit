@@ -20,6 +20,7 @@ namespace RegistryValley.App.Views
 
         public ValuesViewerViewModel ViewModel { get; }
 
+        #region ListView events
         private async void ValueListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             var item = (ValueItem)ValueListView.SelectedItem;
@@ -40,29 +41,15 @@ namespace RegistryValley.App.Views
         {
             ViewModel.SelectedValueItem = (ValueItem)ValueListView.SelectedItem;
         }
+        #endregion
 
-        private async void OnAboutButtonClick(object sender, RoutedEventArgs e)
-        {
-            var dialog = new AboutDialog
-            {
-                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
-                XamlRoot = Content.XamlRoot,
-            };
-
-            _ = await dialog.ShowAsync();
-        }
-
-        private async void OnKeyPermissionsButtonClick(object sender, RoutedEventArgs e)
+        #region Custom AppBarCommandButtons event
+        private void OnKeyPermissionsButtonClick(object sender, RoutedEventArgs e)
         {
             var item = ViewModel.SelectedKeyItem;
-            var dialog = new KeyPermissionsViewerDialog
-            {
-                ViewModel = new() { KeyItem = item },
-                // WinUI3: https://github.com/microsoft/microsoft-ui-xaml/issues/2504
-                XamlRoot = Content.XamlRoot,
-            };
 
-            _ = await dialog.ShowAsync();
+            Helpers.PropertyWindowHelpers.CreatePropertyWindow(item);
         }
+        #endregion
     }
 }

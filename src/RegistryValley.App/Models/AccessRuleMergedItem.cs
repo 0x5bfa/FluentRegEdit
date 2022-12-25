@@ -14,38 +14,38 @@
         #region Permission Properties
         public bool AllowFullControl
         {
-            get => HasFlag(ACCESS_MASK.GENERIC_ALL, true);
-            set => ToggleFlag(ACCESS_MASK.GENERIC_ALL, true, value);
+            get => HasFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, true);
+            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, true, value);
         }
 
         public bool AllowRead
         {
-            get => HasFlag(ACCESS_MASK.GENERIC_READ, true);
-            set => ToggleFlag(ACCESS_MASK.GENERIC_READ, true, value);
+            get => HasFlag(ACCESS_MASK.READ_CONTROL, true);
+            set => ToggleFlag(ACCESS_MASK.READ_CONTROL, true, value);
         }
 
         public bool AllowSpecialPermissions
         {
             get => HasAllSpecialPermissions(true);
-            set => ToggleFlag(ACCESS_MASK.GENERIC_ALL, true, value);
+            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, true, value);
         }
 
         public bool DenyFullControl
         {
-            get => HasFlag(ACCESS_MASK.GENERIC_ALL, false);
-            set => ToggleFlag(ACCESS_MASK.GENERIC_ALL, false, value);
+            get => HasFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, false);
+            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, false, value);
         }
 
         public bool DenyRead
         {
-            get => HasFlag(ACCESS_MASK.GENERIC_READ, false);
-            set => ToggleFlag(ACCESS_MASK.GENERIC_READ, false, value);
+            get => HasFlag(ACCESS_MASK.READ_CONTROL, false);
+            set => ToggleFlag(ACCESS_MASK.READ_CONTROL, false, value);
         }
 
         public bool DenySpecialPermissions
         {
             get => HasAllSpecialPermissions(false);
-            set => ToggleFlag(ACCESS_MASK.GENERIC_ALL, false, value);
+            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, false, value);
         }
         #endregion
 
