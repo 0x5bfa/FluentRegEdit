@@ -1,8 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using RegistryValley.App.Models;
 using RegistryValley.App.ViewModels.Properties;
+using Windows.Foundation.Metadata;
+using Windows.Graphics;
 
 namespace RegistryValley.App.Views.Properties
 {
@@ -26,7 +30,45 @@ namespace RegistryValley.App.Views.Properties
 
         private void ViewAdvancedSecurityButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 8))
+            {
+                var frame = new Frame()
+                {
+                    RequestedTheme = Services.ThemeModeServices.RootTheme,
+                };
 
+                frame.Navigate(typeof(SecurityAdvancedPage), new SuppressNavigationTransitionInfo());
+
+                // Initialize window
+                var propertiesWindow = new WinUIEx.WindowEx()
+                {
+                    IsMinimizable = false,
+                    IsMaximizable = false,
+                    Content = frame,
+                    MinWidth = 850,
+                    MinHeight = 550,
+                    Backdrop = new WinUIEx.MicaSystemBackdrop(),
+                };
+
+                var appWindow = propertiesWindow.AppWindow;
+
+                if (frame.Content is SecurityAdvancedPage properties)
+                    properties.AppWindow = appWindow;
+
+                appWindow.SetIcon("");
+                appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                appWindow.Title = string.Format("Advanced Permissions");
+                appWindow.Resize(new SizeInt32(850, 550));
+                //appWindow.Destroying += AppWindow_Destroying;
+                appWindow.Show();
+            }
+            else
+            {
+                // Unsupported
+            }
         }
 
         private void MergedPermissionPrincipalsListView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
