@@ -103,7 +103,7 @@ namespace RegistryValley.App.ViewModels
             Win32Error result;
 
             // Win32API
-            result = RegValleyOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
+            result = RVRegOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
             if (result.Failed)
             {
                 Kernel32.SetLastError((uint)result);
@@ -162,7 +162,7 @@ namespace RegistryValley.App.ViewModels
             hasChildren = false;
 
             // Win32API
-            result = RegValleyOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
+            result = RVRegOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
             if (result.Failed)
             {
                 Kernel32.SetLastError((uint)result);

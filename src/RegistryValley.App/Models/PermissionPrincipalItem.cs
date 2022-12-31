@@ -13,10 +13,16 @@
         public string AccessControlTypeGlyph { get; set; }
 
         public string DisplayName
-            => string.IsNullOrEmpty(Name) ? "Unknown Account" : Name;
+            => string.IsNullOrEmpty(Name) ? Sid : Name;
 
-        public string FullNameOrSid
-            => string.IsNullOrEmpty(Name) ? Sid : (string.IsNullOrEmpty(Domain) ? Name : $"{Domain}\\{Name}");
+        public string FullName
+            => string.IsNullOrEmpty(Domain) ? "" : $"{Domain}\\{Name}";
+
+        public string HumanizedAccessControl { get; set; }
+
+        public string HumanizedInheritance { get; set; }
+
+        public string HumanizedAccessControlType { get; set; }
 
         public AccessRuleAdvancedItem AccessRuleAdvanced { get; set; }
 

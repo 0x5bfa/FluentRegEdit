@@ -9,11 +9,11 @@ namespace RegistryValley.App.Converters
         {
             if (parameter is string strParam)
             {
-                if (strParam == "quotes")
+                if (strParam == "quotes" && value.ToString().Length != 0)
                 {
                     return @$"""{value}""";
                 }
-                else if (strParam == "brackets")
+                else if (strParam == "brackets" && value.ToString().Length != 0)
                 {
                     return $"({value})";
                 }

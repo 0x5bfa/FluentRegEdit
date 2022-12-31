@@ -8,7 +8,7 @@
     xmlns:uc="using:RegistryValley.App.UserControls"
     mc:Ignorable="d">
 
-    <Grid VerticalAlignment="Stretch">
+    <Grid>
         <Grid.Resources>
             <ResourceDictionary>
                 <Thickness x:Key="NavigationViewTopPaneHeight">36</Thickness>

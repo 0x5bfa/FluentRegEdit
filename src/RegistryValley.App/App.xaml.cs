@@ -47,6 +47,7 @@ namespace RegistryValley.App
                 .AddTransient<ViewModels.Dialogs.ValueEditingDialogViewModel>()
                 .AddTransient<ViewModels.Properties.GeneralViewModel>()
                 .AddTransient<ViewModels.Properties.MainPropertyViewModel>()
+                .AddTransient<ViewModels.Properties.SecurityAdvancedViewModel>()
                 .AddTransient<ViewModels.Properties.SecurityViewModel>()
                 .AddSingleton<MainViewModel>()
                 .AddTransient<SettingsViewModel>()

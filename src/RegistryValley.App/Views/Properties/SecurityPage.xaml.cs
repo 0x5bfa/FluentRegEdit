@@ -37,7 +37,7 @@ namespace RegistryValley.App.Views.Properties
                     RequestedTheme = Services.ThemeModeServices.RootTheme,
                 };
 
-                frame.Navigate(typeof(SecurityAdvancedPage), new SuppressNavigationTransitionInfo());
+                frame.Navigate(typeof(SecurityAdvancedPage), ViewModel.KeyItem, new SuppressNavigationTransitionInfo());
 
                 // Initialize window
                 var propertiesWindow = new WinUIEx.WindowEx()

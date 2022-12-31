@@ -1,4 +1,5 @@
-﻿using RegistryValley.App.Models;
+﻿using Microsoft.UI.Xaml;
+using RegistryValley.App.Models;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -6,9 +7,9 @@ using static RegistryValley.Core.Helpers.RegistryServices;
 
 namespace RegistryValley.App.ViewModels.Properties
 {
-    public class SecurityViewModel : ObservableObject
+    public class SecurityAdvancedViewModel : ObservableObject
     {
-        public SecurityViewModel()
+        public SecurityAdvancedViewModel()
         {
             _principals = new();
             Principals = new(_principals);
@@ -29,7 +30,90 @@ namespace RegistryValley.App.ViewModels.Properties
 
         private bool _hasDacl;
         public bool HasDacl { get => _hasDacl; set => SetProperty(ref _hasDacl, value); }
+
+        private GridLength _columnType = new(36d);
+        public GridLength ColumnType { get => _columnType; set => SetProperty(ref _columnType, value); }
+
+        private GridLength _columnEntity = new(200d);
+        public GridLength ColumnEntity { get => _columnEntity; set => SetProperty(ref _columnEntity, value); }
+
+        private GridLength _columnAccess = new(160d);
+        public GridLength ColumnAccess { get => _columnAccess; set => SetProperty(ref _columnAccess, value); }
+
+        private GridLength _columnInherited = new(70d);
+        public GridLength ColumnInherited { get => _columnInherited; set => SetProperty(ref _columnInherited, value); }
         #endregion
+
+        public void LoadKeySecurityOwner()
+        {
+            if (KeyItem == null)
+                return;
+
+            Win32Error result;
+            bool bResult;
+
+            result = RVRegOpenKey(KeyItem.RootHive, KeyItem.Path, REGSAM.READ_CONTROL, out var phkResult);
+
+            var pSD = new SafePSECURITY_DESCRIPTOR(512);
+            var sdsz = (uint)pSD.Size;
+
+            RegGetKeySecurity(phkResult, SECURITY_INFORMATION.OWNER_SECURITY_INFORMATION, pSD, ref sdsz);
+
+            bResult = GetSecurityDescriptorOwner(pSD, out var lpSid, out var bOwnerDefaulted);
+            result = Kernel32.GetLastError();
+
+            var cchName = 2048;
+            var cchReferencedDomainName = 2048;
+            var lpName = new StringBuilder(cchName, cchName);
+            var lpReferencedDomainName = new StringBuilder(cchReferencedDomainName, cchReferencedDomainName);
+
+            bResult = LookupAccountSid(null, lpSid, lpName, ref cchName, lpReferencedDomainName, ref cchReferencedDomainName, out var snu);
+            result = Kernel32.GetLastError();
+
+            bool isGroup = false;
+            bool isUser = false;
+
+            if (snu == SID_NAME_USE.SidTypeAlias || snu == SID_NAME_USE.SidTypeGroup || snu == SID_NAME_USE.SidTypeWellKnownGroup)
+                isGroup = true;
+            else if (snu == SID_NAME_USE.SidTypeUser)
+                isUser = true;
+
+            // Uknown SID type
+            if (result.Failed && result == Win32Error.ERROR_NONE_MAPPED)
+            {
+                // Reset
+                lpName.Clear();
+                lpReferencedDomainName.Clear();
+                isGroup = false;
+                isUser = false;
+            }
+
+            // Referenced domain name will be used as computer log on name
+            if (lpReferencedDomainName.ToString() == "BUILTIN")
+            {
+                lpReferencedDomainName.Clear();
+                lpReferencedDomainName = new(256, 256);
+                uint size = (uint)lpReferencedDomainName.Capacity;
+                bResult = Kernel32.GetComputerName(lpReferencedDomainName, ref size);
+            }
+            else
+            {
+                lpReferencedDomainName.Clear();
+            }
+
+            SecurityDescriptorOwner = new()
+            {
+                SidTypeGlyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
+                Name = lpName.ToString(),
+                Domain = lpReferencedDomainName.Length == 0 ? "" : lpReferencedDomainName.ToString().ToLower(),
+                Sid = lpSid.ToString(),
+            };
+
+            lpName.Clear();
+            lpReferencedDomainName.Clear();
+
+            pSD.Close();
+        }
 
         public void GetKeyAccessControlList()
         {
@@ -149,15 +233,29 @@ namespace RegistryValley.App.ViewModels.Properties
                         isUser = false;
                     }
 
+                    // Referenced domain name will be used as computer log on name
+                    if (lpReferencedDomainName.ToString() == "BUILTIN")
+                    {
+                        lpReferencedDomainName.Clear();
+                        lpReferencedDomainName = new(256, 256);
+                        uint size = (uint)lpReferencedDomainName.Capacity;
+                        bResult = Kernel32.GetComputerName(lpReferencedDomainName, ref size);
+                    }
+                    else
+                    {
+                        lpReferencedDomainName.Clear();
+                    }
+
                     var principal = new PermissionPrincipalItem()
                     {
                         SidTypeGlyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
                         Sid = pAce.GetSid().ToString(),
                         Name = lpName.ToString(),
-                        Domain = lpReferencedDomainName.ToString(),
+                        Domain = lpReferencedDomainName.Length == 0 ? "" : lpReferencedDomainName.ToString().ToLower(),
                         AccessControlTypeGlyph = aceType == AceType.AccessAllowed ? "\xE73E" : "\xE711",
                         AccessRuleMerged = new(),
-                        AccessRuleAdvanced = new()
+                        AccessRuleAdvanced = new(),
+                        HumanizedAccessControlType = aceType == AceType.AccessAllowed ? "Allow" : (aceType == AceType.AccessDenied ? "Deny" : "Unknown")
                     };
 
                     // TODO: Should merge
@@ -178,6 +276,8 @@ namespace RegistryValley.App.ViewModels.Properties
                         };
                     }
 
+                    HumanizeInheritance(principal.AccessRuleAdvanced, aceHeader.AceFlags);
+
                     _principals.Add(principal);
 
                     lpName?.Clear();
@@ -186,10 +286,32 @@ namespace RegistryValley.App.ViewModels.Properties
             }
             catch
             {
-
             }
             finally
             {
+            }
+        }
+
+        private void HumanizeAccessRuleAdvanced(AccessRuleAdvancedItem item)
+        {
+
+        }
+
+        private void HumanizeInheritance(AccessRuleAdvancedItem item, AceFlags flags)
+        {
+            int a = 0;
+
+            if (flags.HasFlag(AceFlags.InheritOnly))
+            {
+                a++;
+            }
+            else if (flags.HasFlag(AceFlags.Inherited))
+            {
+                a++;
+            }
+            else if (flags.HasFlag(AceFlags.ContainerInherit))
+            {
+                a++;
             }
         }
     }
