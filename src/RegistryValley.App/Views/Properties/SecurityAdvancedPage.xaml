@@ -66,7 +66,7 @@
                     ColumnSpacing="8"
                     CornerRadius="4">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="92" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
@@ -94,7 +94,8 @@
                             Padding="6,4"
                             VerticalAlignment="Center"
                             Background="Transparent"
-                            BorderThickness="0">
+                            BorderThickness="0"
+                            IsEnabled="False">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <FontIcon FontSize="14" Glyph="&#xE104;" />
                                 <TextBlock Text="Change" />
@@ -245,7 +246,7 @@
                             <DataTemplate x:DataType="models:PermissionPrincipalItem">
                                 <Grid ColumnSpacing="13">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="20" />
                                         <ColumnDefinition x:Name="ColumnType" Width="{Binding ElementName=AdvancedPermissionListView, Path=DataContext.ColumnType}" />
                                         <ColumnDefinition x:Name="ColumnEntity" Width="{Binding ElementName=AdvancedPermissionListView, Path=DataContext.ColumnEntity}" />
                                         <ColumnDefinition x:Name="ColumnAccess" Width="{Binding ElementName=AdvancedPermissionListView, Path=DataContext.ColumnAccess}" />
@@ -253,18 +254,15 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
-                                    <FontIcon
-                                        x:Name="FontIcon"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                        FontSize="16"
-                                        Glyph="{x:Bind SidTypeGlyph}" />
+                                    <Image
+                                        Width="20"
+                                        Height="20"
+                                        Source="{x:Bind SidTypeImagePath}" />
 
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{x:Bind HumanizedAccessControlType}"
+                                        Text="{x:Bind AccessRuleAdvanced.HumanizedAccessControlType}"
                                         TextTrimming="CharacterEllipsis" />
 
                                     <TextBlock
@@ -278,22 +276,22 @@
                                     </TextBlock>
 
                                     <TextBlock
-                                        x:Name="RightsTextBox"
+                                        x:Name="RightsTextBlock"
                                         Grid.Column="3"
                                         VerticalAlignment="Center"
-                                        Text="N/A"
+                                        Text="{x:Bind AccessRuleAdvanced.HumanizedAccessControl}"
                                         TextTrimming="CharacterEllipsis" />
 
                                     <TextBlock
                                         Grid.Column="4"
                                         VerticalAlignment="Center"
-                                        Text="False" />
+                                        Text="{x:Bind AccessRuleAdvanced.HumanizedIsInheritance}" />
 
                                     <TextBlock
-                                        x:Name="InheritTextBox"
+                                        x:Name="InheritTextBlock"
                                         Grid.Column="5"
                                         VerticalAlignment="Center"
-                                        Text="None"
+                                        Text="{x:Bind AccessRuleAdvanced.HumanizedAppliesTo}"
                                         TextTrimming="CharacterEllipsis" />
 
                                 </Grid>
@@ -323,13 +321,13 @@
                         VerticalAlignment="Center"
                         Orientation="Horizontal"
                         Spacing="8">
-                        <Button Padding="6,4">
+                        <Button Padding="6,4" IsEnabled="False">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <FontIcon FontSize="16" Glyph="&#xE109;" />
                                 <TextBlock Text="Add" />
                             </StackPanel>
                         </Button>
-                        <Button Padding="6,4" IsEnabled="{x:Bind AdvancedPermissionListView.SelectedItem, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}">
+                        <Button Padding="6,4" IsEnabled="False">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <FontIcon FontSize="16" Glyph="&#xE108;" />
                                 <TextBlock Text="Remove" />
@@ -342,37 +340,50 @@
                 <Grid
                     Grid.Row="2"
                     Margin="8,0,8,8"
-                    Padding="8"
+                    Padding="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     ColumnSpacing="12"
                     CornerRadius="4"
-                    RowSpacing="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                    RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                    <SplitButton x:Name="SplitButton" MaxWidth="200">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            x:Name="DisableInheritanceButton"
+                            MaxWidth="200"
+                            Content="Disable inheritance"
+                            IsEnabled="False" />
 
-                        <TextBlock Text="Disable inheritance" TextTrimming="CharacterEllipsis" />
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <FontIcon
+                                Margin="0,2,0,0"
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                Glyph="&#xE946;" />
 
-                        <SplitButton.Flyout>
-                            <MenuFlyout Placement="Top">
-                                <MenuFlyoutItem CommandParameter="False,False" Text="Enable inheritance" />
-                                <MenuFlyoutItem CommandParameter="True,True" Text="Convert inheritance" />
-                                <MenuFlyoutItem Text="Remove inheritance" />
-                            </MenuFlyout>
-                        </SplitButton.Flyout>
-                    </SplitButton>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                Style="{StaticResource BodyTextBlockStyle}"
+                                Text="If inheritance is disabled, the key will not inherit permissions from its parent key." />
+                        </StackPanel>
+                    </StackPanel>
 
-                    <Button
-                        x:Name="ReplaceChildPermissionsButton"
-                        Grid.Column="1"
-                        Visibility="Collapsed">
-                        <TextBlock Text="Replace" TextTrimming="CharacterEllipsis" />
-                    </Button>
+                    <StackPanel Grid.Row="1" Spacing="4">
+                        <CheckBox
+                            x:Name="ReplaceChildPermissionsButton"
+                            Grid.Column="1"
+                            IsEnabled="False">
+                            <TextBlock Text="Replace all child object permission entries with inheritable permission entries from this object" TextTrimming="CharacterEllipsis" />
+                        </CheckBox>
+                    </StackPanel>
+
 
                 </Grid>
 

@@ -1,17 +1,12 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using RegistryValley.App.Models;
+using RegistryValley.App.ViewModels.Properties;
+using Windows.Foundation.Metadata;
+using Windows.Graphics;
 
 namespace RegistryValley.App.Views.Properties
 {
@@ -19,7 +14,17 @@ namespace RegistryValley.App.Views.Properties
     {
         public GeneralPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+
+            var provider = App.Current.Services;
+            ViewModel = provider.GetRequiredService<GeneralViewModel>();
+        }
+
+        public GeneralViewModel ViewModel { get; }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            ViewModel.KeyItem = e.Parameter as KeyItem;
         }
     }
 }

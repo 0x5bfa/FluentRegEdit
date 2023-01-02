@@ -71,17 +71,16 @@
 
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:PermissionPrincipalItem">
-                            <Grid>
+                            <Grid ColumnSpacing="8">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="20" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <FontIcon
-                                    x:Name="FontIcon"
-                                    HorizontalAlignment="Left"
-                                    FontSize="16"
-                                    Glyph="{x:Bind SidTypeGlyph}" />
+                                <Image
+                                    Width="20"
+                                    Height="20"
+                                    Source="{x:Bind SidTypeImagePath}" />
 
                                 <StackPanel
                                     Grid.Column="1"

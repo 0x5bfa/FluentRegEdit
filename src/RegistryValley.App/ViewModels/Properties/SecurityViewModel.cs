@@ -1,5 +1,4 @@
 ﻿using RegistryValley.App.Models;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using static RegistryValley.Core.Helpers.RegistryServices;
@@ -103,10 +102,7 @@ namespace RegistryValley.App.ViewModels.Properties
             AceType aceType;
             ACE_HEADER aceHeader;
             bool aceIsObjectAce;
-            ACCESS_MASK accessMask;
-
-            bool isGroup = false;
-            bool isUser = false;
+            uint accessMask;
 
             try
             {
@@ -120,11 +116,9 @@ namespace RegistryValley.App.ViewModels.Properties
                     aceType = pAce.GetAceType();
                     aceHeader = pAce.GetHeader();
                     aceIsObjectAce = pAce.IsObjectAce();
-                    accessMask = new ACCESS_MASK(pAce.GetMask());
+                    accessMask = pAce.GetMask();
 
-                    // Default inheritance is CIID (CONTAINER_INHERIT_ACE & INHERITED_ACE),
-                    // however it is determined by only ID that whether ACE is inherited or not.
-                    bool isInherited = aceHeader.AceFlags.HasFlag(AceFlags.InheritOnly);
+                    bool isInherited = aceHeader.AceFlags.HasFlag(AceFlags.Inherited);
 
                     var cchName = 2048;
                     var cchReferencedDomainName = 2048;
@@ -134,47 +128,57 @@ namespace RegistryValley.App.ViewModels.Properties
                     bResult = LookupAccountSid(null, lpSid, lpName, ref cchName, lpReferencedDomainName, ref cchReferencedDomainName, out var snu);
                     result = Kernel32.GetLastError();
 
-                    if (snu == SID_NAME_USE.SidTypeAlias || snu == SID_NAME_USE.SidTypeGroup || snu == SID_NAME_USE.SidTypeWellKnownGroup)
-                        isGroup = true;
-                    else if (snu == SID_NAME_USE.SidTypeUser)
-                        isUser = true;
-
                     // Uknown SID type
                     if (result.Failed && result == Win32Error.ERROR_NONE_MAPPED)
                     {
                         // Reset
                         lpName.Clear();
                         lpReferencedDomainName.Clear();
-                        isGroup = false;
-                        isUser = false;
+                    }
+
+                    // Referenced domain name will be used as computer log on name
+                    if (lpReferencedDomainName.ToString() == "BUILTIN")
+                    {
+                        lpReferencedDomainName.Clear();
+                        lpReferencedDomainName = new(256, 256);
+                        uint size = (uint)lpReferencedDomainName.Capacity;
+                        bResult = Kernel32.GetComputerName(lpReferencedDomainName, ref size);
+                    }
+                    else
+                    {
+                        lpReferencedDomainName.Clear();
                     }
 
                     var principal = new PermissionPrincipalItem()
                     {
-                        SidTypeGlyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
+                        SidType = snu,
                         Sid = pAce.GetSid().ToString(),
                         Name = lpName.ToString(),
-                        Domain = lpReferencedDomainName.ToString(),
-                        AccessControlTypeGlyph = aceType == AceType.AccessAllowed ? "\xE73E" : "\xE711",
-                        AccessRuleMerged = new(),
-                        AccessRuleAdvanced = new()
+                        Domain = lpReferencedDomainName.ToString().ToLower(),
                     };
 
-                    // TODO: Should merge
                     if (aceType == AceType.AccessAllowed)
                     {
                         principal.AccessRuleMerged = new()
                         {
-                            MaskAllowed = accessMask,
-                            IsInheritedAllowedMask = isInherited,
+                            MaskAllowed = (REGSAM)accessMask,
+
+                            // REMOVE: This is temporary code to disable to change access control
+                            //IsInheritedAllowedMask = isInherited,
+                            IsInheritedAllowedMask = true,
+                            IsInheritedDeniedMask = true,
                         };
                     }
                     else if (aceType == AceType.AccessDenied)
                     {
                         principal.AccessRuleMerged = new()
                         {
-                            MaskDenied = accessMask,
-                            IsInheritedDeniedMask = isInherited,
+                            MaskDenied = (REGSAM)accessMask,
+
+                            // REMOVE: This is temporary code to disable to change access control
+                            //IsInheritedDeniedMask = isInherited,
+                            IsInheritedAllowedMask = true,
+                            IsInheritedDeniedMask = true,
                         };
                     }
 
@@ -186,7 +190,6 @@ namespace RegistryValley.App.ViewModels.Properties
             }
             catch
             {
-
             }
             finally
             {

@@ -52,9 +52,9 @@
                 <TextBox IsEnabled="False" PlaceholderText="Key name" />
 
                 <TextBlock>
-                    <Run Text="10" />
-                    <Run Text="keys," />
-                    <Run Text="10" />
+                    <Run Text="{x:Bind ViewModel.KeyItem.SubKeysCount, Mode=OneWay}" />
+                    <Run Text="subkeys," />
+                    <Run Text="{x:Bind ViewModel.KeyItem.ValuesCount, Mode=OneWay}" />
                     <Run Text="values" />
                 </TextBlock>
             </StackPanel>
@@ -106,12 +106,16 @@
                     Style="{StaticResource BodyStrongTextBlockStyle}"
                     Text="Created At" />
 
-                <TextBlock Grid.Column="1" Text="HKEY" />
+                <TextBlock
+                    Grid.Column="1"
+                    IsTextSelectionEnabled="True"
+                    Text="{x:Bind ViewModel.KeyItem.PathForPwsh, Mode=OneWay}" />
 
                 <TextBlock
                     Grid.Row="1"
                     Grid.Column="1"
-                    Text="Sunday, 20 November 2022" />
+                    IsTextSelectionEnabled="True"
+                    Text="{x:Bind ViewModel.KeyItem.CreatedAt, Mode=OneWay}" />
 
             </Grid>
         </Grid>

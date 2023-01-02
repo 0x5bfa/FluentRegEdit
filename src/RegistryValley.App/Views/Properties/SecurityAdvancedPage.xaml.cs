@@ -37,10 +37,16 @@ namespace RegistryValley.App.Views.Properties
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: Save and sync
+
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 8))
+                AppWindow.Destroy();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 8))
+                AppWindow.Destroy();
         }
     }
 }

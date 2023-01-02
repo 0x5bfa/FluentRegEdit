@@ -125,6 +125,15 @@
 
         public ObservableCollection<KeyItem> Children { get; set; } = new();
 
+        private int _subKeysCount;
+        public int SubKeysCount { get => _subKeysCount; set => SetProperty(ref _subKeysCount, value); }
+
+        private int _valuesCount;
+        public int ValuesCount { get => _valuesCount; set => SetProperty(ref _valuesCount, value); }
+
+        private DateTime _createdAt;
+        public DateTime CreatedAt { get => _createdAt; set => SetProperty(ref _createdAt, value); }
+
         public override string ToString()
             => Name;
     }

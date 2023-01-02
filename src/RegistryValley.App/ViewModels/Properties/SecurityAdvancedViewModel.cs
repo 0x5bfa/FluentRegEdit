@@ -1,6 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
 using RegistryValley.App.Models;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using static RegistryValley.Core.Helpers.RegistryServices;
@@ -31,7 +30,7 @@ namespace RegistryValley.App.ViewModels.Properties
         private bool _hasDacl;
         public bool HasDacl { get => _hasDacl; set => SetProperty(ref _hasDacl, value); }
 
-        private GridLength _columnType = new(36d);
+        private GridLength _columnType = new(48d);
         public GridLength ColumnType { get => _columnType; set => SetProperty(ref _columnType, value); }
 
         private GridLength _columnEntity = new(200d);
@@ -70,22 +69,12 @@ namespace RegistryValley.App.ViewModels.Properties
             bResult = LookupAccountSid(null, lpSid, lpName, ref cchName, lpReferencedDomainName, ref cchReferencedDomainName, out var snu);
             result = Kernel32.GetLastError();
 
-            bool isGroup = false;
-            bool isUser = false;
-
-            if (snu == SID_NAME_USE.SidTypeAlias || snu == SID_NAME_USE.SidTypeGroup || snu == SID_NAME_USE.SidTypeWellKnownGroup)
-                isGroup = true;
-            else if (snu == SID_NAME_USE.SidTypeUser)
-                isUser = true;
-
             // Uknown SID type
             if (result.Failed && result == Win32Error.ERROR_NONE_MAPPED)
             {
                 // Reset
                 lpName.Clear();
                 lpReferencedDomainName.Clear();
-                isGroup = false;
-                isUser = false;
             }
 
             // Referenced domain name will be used as computer log on name
@@ -103,7 +92,7 @@ namespace RegistryValley.App.ViewModels.Properties
 
             SecurityDescriptorOwner = new()
             {
-                SidTypeGlyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
+                SidType = snu,
                 Name = lpName.ToString(),
                 Domain = lpReferencedDomainName.Length == 0 ? "" : lpReferencedDomainName.ToString().ToLower(),
                 Sid = lpSid.ToString(),
@@ -187,10 +176,7 @@ namespace RegistryValley.App.ViewModels.Properties
             AceType aceType;
             ACE_HEADER aceHeader;
             bool aceIsObjectAce;
-            ACCESS_MASK accessMask;
-
-            bool isGroup = false;
-            bool isUser = false;
+            uint accessMask;
 
             try
             {
@@ -204,11 +190,9 @@ namespace RegistryValley.App.ViewModels.Properties
                     aceType = pAce.GetAceType();
                     aceHeader = pAce.GetHeader();
                     aceIsObjectAce = pAce.IsObjectAce();
-                    accessMask = new ACCESS_MASK(pAce.GetMask());
+                    accessMask = pAce.GetMask();
 
-                    // Default inheritance is CIID (CONTAINER_INHERIT_ACE & INHERITED_ACE),
-                    // however it is determined by only ID that whether ACE is inherited or not.
-                    bool isInherited = aceHeader.AceFlags.HasFlag(AceFlags.InheritOnly);
+                    bool isInherited = aceHeader.AceFlags.HasFlag(AceFlags.Inherited);
 
                     var cchName = 2048;
                     var cchReferencedDomainName = 2048;
@@ -218,19 +202,12 @@ namespace RegistryValley.App.ViewModels.Properties
                     bResult = LookupAccountSid(null, lpSid, lpName, ref cchName, lpReferencedDomainName, ref cchReferencedDomainName, out var snu);
                     result = Kernel32.GetLastError();
 
-                    if (snu == SID_NAME_USE.SidTypeAlias || snu == SID_NAME_USE.SidTypeGroup || snu == SID_NAME_USE.SidTypeWellKnownGroup)
-                        isGroup = true;
-                    else if (snu == SID_NAME_USE.SidTypeUser)
-                        isUser = true;
-
                     // Uknown SID type
                     if (result.Failed && result == Win32Error.ERROR_NONE_MAPPED)
                     {
                         // Reset
                         lpName.Clear();
                         lpReferencedDomainName.Clear();
-                        isGroup = false;
-                        isUser = false;
                     }
 
                     // Referenced domain name will be used as computer log on name
@@ -248,35 +225,22 @@ namespace RegistryValley.App.ViewModels.Properties
 
                     var principal = new PermissionPrincipalItem()
                     {
-                        SidTypeGlyph = isGroup ? "\xE902" : (isUser ? "\xE2AF" : "\xE716"),
+                        SidType = snu,
                         Sid = pAce.GetSid().ToString(),
                         Name = lpName.ToString(),
-                        Domain = lpReferencedDomainName.Length == 0 ? "" : lpReferencedDomainName.ToString().ToLower(),
-                        AccessControlTypeGlyph = aceType == AceType.AccessAllowed ? "\xE73E" : "\xE711",
-                        AccessRuleMerged = new(),
-                        AccessRuleAdvanced = new(),
-                        HumanizedAccessControlType = aceType == AceType.AccessAllowed ? "Allow" : (aceType == AceType.AccessDenied ? "Deny" : "Unknown")
+                        Domain = lpReferencedDomainName.ToString().ToLower(),
+                        AccessRuleAdvanced = new()
+                        {
+                            HumanizedAccessControlType = aceType == AceType.AccessAllowed ? "Allow" : (aceType == AceType.AccessDenied ? "Deny" : "Unknown"),
+                            HumanizedAccessControl = "None",
+                            HumanizedIsInheritance = isInherited ? "True" : "False",
+                            HumanizedAppliesTo = "None",
+                        },
                     };
 
-                    // TODO: Should merge
-                    if (aceType == AceType.AccessAllowed)
-                    {
-                        principal.AccessRuleMerged = new()
-                        {
-                            MaskAllowed = accessMask,
-                            IsInheritedAllowedMask = isInherited,
-                        };
-                    }
-                    else if (aceType == AceType.AccessDenied)
-                    {
-                        principal.AccessRuleMerged = new()
-                        {
-                            MaskDenied = accessMask,
-                            IsInheritedDeniedMask = isInherited,
-                        };
-                    }
+                    HumanizeAccessRuleAdvanced(principal.AccessRuleAdvanced, (REGSAM)accessMask);
 
-                    HumanizeInheritance(principal.AccessRuleAdvanced, aceHeader.AceFlags);
+                    HumanizeAppliesTo(principal.AccessRuleAdvanced, aceHeader.AceFlags);
 
                     _principals.Add(principal);
 
@@ -292,26 +256,34 @@ namespace RegistryValley.App.ViewModels.Properties
             }
         }
 
-        private void HumanizeAccessRuleAdvanced(AccessRuleAdvancedItem item)
+        private void HumanizeAccessRuleAdvanced(AccessRuleAdvancedItem item, REGSAM mask)
         {
+            if (mask.HasFlag(REGSAM.KEY_ALL_ACCESS))
+            {
+                item.HumanizedAccessControl = "Full Control";
+                return;
+            }
+            else if (mask.HasFlag(REGSAM.KEY_READ))
+            {
+                item.HumanizedAccessControl = "Read";
+                return;
+            }
 
+            item.HumanizedAccessControl = "Special";
+            return;
         }
 
-        private void HumanizeInheritance(AccessRuleAdvancedItem item, AceFlags flags)
+        private void HumanizeAppliesTo(AccessRuleAdvancedItem item, AceFlags flags)
         {
-            int a = 0;
-
-            if (flags.HasFlag(AceFlags.InheritOnly))
+            if (flags.HasFlag(AceFlags.ContainerInherit) && flags.HasFlag(AceFlags.InheritOnly))
             {
-                a++;
-            }
-            else if (flags.HasFlag(AceFlags.Inherited))
-            {
-                a++;
+                item.HumanizedAppliesTo = "Subkeys only";
+                return;
             }
             else if (flags.HasFlag(AceFlags.ContainerInherit))
             {
-                a++;
+                item.HumanizedAppliesTo = "This key and subkeys";
+                return;
             }
         }
     }

@@ -2,6 +2,16 @@
 {
     public class AccessRuleAdvancedItem : ObservableObject
     {
+        #region Humanized Strings Properties
+        public string HumanizedAccessControlType { get; set; }
+
+        public string HumanizedAccessControl { get; set; }
+
+        public string HumanizedIsInheritance { get; set; }
+
+        public string HumanizedAppliesTo { get; set; }
+        #endregion
+
         #region Basic Permission Properties
         private bool _allowFullControl;
         public bool AllowFullControl { get => _allowFullControl; set => SetProperty(ref _allowFullControl, value); }

@@ -2,8 +2,8 @@
 {
     public class AccessRuleMergedItem : ObservableObject
     {
-        public ACCESS_MASK MaskAllowed { get; set; }
-        public ACCESS_MASK MaskDenied { get; set; }
+        public REGSAM MaskAllowed { get; set; }
+        public REGSAM MaskDenied { get; set; }
 
         private bool _isInheritedDeniedMask;
         public bool IsInheritedDeniedMask { get => _isInheritedDeniedMask; set => SetProperty(ref _isInheritedDeniedMask, value); }
@@ -14,57 +14,49 @@
         #region Permission Properties
         public bool AllowFullControl
         {
-            get => HasFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, true);
-            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, true, value);
+            get => MaskAllowed.HasFlag(REGSAM.KEY_ALL_ACCESS);
+            set => ToggleFlag(REGSAM.KEY_ALL_ACCESS, true, value);
         }
 
         public bool AllowRead
         {
-            get => HasFlag(ACCESS_MASK.READ_CONTROL, true);
-            set => ToggleFlag(ACCESS_MASK.READ_CONTROL, true, value);
+            get => MaskAllowed.HasFlag(REGSAM.KEY_READ);
+            set => ToggleFlag(REGSAM.KEY_READ, true, value);
         }
 
-        public bool AllowSpecialPermissions
+        public bool AllowSpecialPermissions // TODO
         {
-            get => HasAllSpecialPermissions(true);
-            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, true, value);
+            get => false;
+            set => ToggleFlag(REGSAM.DELETE, true, value);
         }
 
         public bool DenyFullControl
         {
-            get => HasFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, false);
-            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, false, value);
+            get => MaskDenied.HasFlag(REGSAM.KEY_ALL_ACCESS);
+            set => ToggleFlag(REGSAM.KEY_ALL_ACCESS, false, value);
         }
 
         public bool DenyRead
         {
-            get => HasFlag(ACCESS_MASK.READ_CONTROL, false);
-            set => ToggleFlag(ACCESS_MASK.READ_CONTROL, false, value);
+            get => MaskDenied.HasFlag(REGSAM.KEY_READ);
+            set => ToggleFlag(REGSAM.KEY_READ, false, value);
         }
 
-        public bool DenySpecialPermissions
+        public bool DenySpecialPermissions // TODO
         {
-            get => HasAllSpecialPermissions(false);
-            set => ToggleFlag(ACCESS_MASK.STANDARD_RIGHTS_REQUIRED, false, value);
+            get => false;
+            set => ToggleFlag(REGSAM.DELETE, false, value);
         }
         #endregion
 
         #region Methods
-        private bool HasFlag(ACCESS_MASK target, bool allowedMask)
-        {
-            if (allowedMask)
-                return (MaskAllowed & target) == target;
-            else
-                return (MaskDenied & target) == target;
-        }
-
         private bool HasAllSpecialPermissions(bool allowedMask)
         {
             // TODO
             return false;
         }
 
-        private void ToggleFlag(ACCESS_MASK target, bool allowedMask, bool value)
+        private void ToggleFlag(REGSAM target, bool allowedMask, bool value)
         {
             // TODO
         }
