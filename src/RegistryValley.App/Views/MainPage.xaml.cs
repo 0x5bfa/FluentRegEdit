@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using RegistryValley.App.Dialogs;
+using RegistryValley.App.Extensions;
 using RegistryValley.App.Models;
 using RegistryValley.App.ViewModels;
 using RegistryValley.Core.Services;
@@ -26,32 +27,36 @@ namespace RegistryValley.App.Views
         public ValuesViewerViewModel ValuesViewerViewModel { get; }
         #endregion
 
-        #region TreeView event methods
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             ContentFrame.Navigate(typeof(ValuesViewerPage));
         }
 
-        private void KeyTreeView_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
-        {
-            var item = (KeyItem)args.Item;
-            ExpandChildItems(item);
-        }
-
-        private void KeyTreeView_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
-        {
-            var item = (KeyItem)args.Item;
-            CollapseChildItems(item);
-        }
-
-        private void KeyTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
+        #region TreeView event methods
+        private void CustomMainTreeView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             EnsureCurrentPageIsValuesViewer();
 
-            var item = (KeyItem)args.InvokedItem;
-
-            if (ValuesViewerViewModel.SelectedKeyItem != item)
+            if (CustomMainTreeView.SelectedItem != null
+                && CustomMainTreeView.SelectedItem is KeyItem item
+                && ValuesViewerViewModel.SelectedKeyItem != item)
+            {
                 ValuesViewerViewModel.SelectedKeyItem = item;
+            }
+        }
+
+        private void ExpandCollapseGlyphFontIcon_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            var item = (KeyItem)((FontIcon)sender).DataContext;
+
+            if (item.IsExpanded)
+            {
+                RemoveItems(item);
+            }
+            else
+            {
+                InsertItems(item);
+            }
         }
         #endregion
 
@@ -61,7 +66,7 @@ namespace RegistryValley.App.Views
             EnsureCurrentPageIsValuesViewer();
 
             var flyout = (MenuFlyout)sender;
-            var target = (TreeViewItem)flyout.Target;
+            var target = (Grid)flyout.Target;
             var item = (KeyItem)target.DataContext;
             item.IsSelected = true;
 
@@ -217,6 +222,56 @@ namespace RegistryValley.App.Views
         {
             item.Children.Clear();
             item.HasUnrealizedChildren = true;
+        }
+
+        private void InsertItems(KeyItem item)
+        {
+            int index = (CustomMainTreeView.ItemsSource as ReadOnlyObservableCollection<KeyItem>).IndexOf(item) + 1;
+
+            var node = CustomMainTreeView.NodeItemSource as ReadOnlyObservableCollection<KeyItem>;
+            var flattenKeyItems = GetFlattenNodes(node);
+
+            var flattenNodeItem = flattenKeyItems.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
+
+            item.IsExpanded = true;
+            flattenNodeItem.IsExpanded = true;
+            ExpandChildItems(flattenNodeItem);
+
+            foreach (var child in flattenNodeItem.Children)
+            {
+                ViewModel.Insert(index, child);
+                index++;
+            }
+        }
+
+        private void RemoveItems(KeyItem item)
+        {
+            int index = (CustomMainTreeView.ItemsSource as ReadOnlyObservableCollection<KeyItem>).IndexOf(item) + 1;
+
+            var node = CustomMainTreeView.NodeItemSource as ReadOnlyObservableCollection<KeyItem>;
+            var flattenKeyItems = GetFlattenNodes(node);
+
+            var flattenNodeItem = flattenKeyItems.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
+            var removeCount = flattenNodeItem.Children.Count;
+
+            item.IsExpanded = false;
+            flattenNodeItem.IsExpanded = false;
+            CollapseChildItems(flattenNodeItem);
+
+            ViewModel.RemoveRange(index, removeCount);
+        }
+
+        public IEnumerable<KeyItem> GetFlattenNodes(IEnumerable<KeyItem> masterList)
+        {
+            foreach (var node in masterList)
+            {
+                yield return node;
+
+                foreach (var children in GetFlattenNodes(node.Children))
+                {
+                    yield return children;
+                }
+            }
         }
     }
 }

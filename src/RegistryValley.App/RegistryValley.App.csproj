@@ -75,6 +75,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="UserControls\BranchDisplay.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.UI" Version="7.1.2" />
     <PackageReference Include="Humanizer" Version="2.14.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
@@ -100,6 +104,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RegistryValley.Core\RegistryValley.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="UserControls\BranchDisplay.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
 </Project>

@@ -134,6 +134,9 @@
         private DateTime _createdAt;
         public DateTime CreatedAt { get => _createdAt; set => SetProperty(ref _createdAt, value); }
 
+        private int _depth;
+        public int Depth { get => _depth; set => SetProperty(ref _depth, value); }
+
         public override string ToString()
             => Name;
     }

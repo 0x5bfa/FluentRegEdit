@@ -11,6 +11,9 @@ namespace RegistryValley.App.ViewModels
             _keyItems = new();
             KeyItems = new(_keyItems);
 
+            _flatKeyItems = new();
+            FlatKeyItems = new(_flatKeyItems);
+
             DeleteKeyCommand = new RelayCommand<KeyItem>(DeleteSelectedKey);
 
             InitializeHiveTree();
@@ -19,6 +22,9 @@ namespace RegistryValley.App.ViewModels
         #region Fields and Properties
         private readonly ObservableCollection<KeyItem> _keyItems;
         public ReadOnlyObservableCollection<KeyItem> KeyItems { get; }
+
+        private readonly ObservableCollection<KeyItem> _flatKeyItems;
+        public ReadOnlyObservableCollection<KeyItem> FlatKeyItems { get; }
 
         private bool _loading;
         public bool Loading { get => _loading; set => SetProperty(ref _loading, value); }
@@ -40,6 +46,7 @@ namespace RegistryValley.App.ViewModels
                 HasUnrealizedChildren = true,
                 SelectedRootComputer = true,
                 Image = "ms-appx:///Assets/Images/Computer.png",
+                Depth = 1,
                 Children = new()
                 {
                     new()
@@ -50,6 +57,7 @@ namespace RegistryValley.App.ViewModels
                         IsDeletable = false,
                         IsRenamable = false,
                         HasUnrealizedChildren = true,
+                        Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -60,6 +68,7 @@ namespace RegistryValley.App.ViewModels
                         IsDeletable = false,
                         IsRenamable = false,
                         HasUnrealizedChildren = true,
+                        Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -70,6 +79,7 @@ namespace RegistryValley.App.ViewModels
                         IsDeletable = false,
                         IsRenamable = false,
                         HasUnrealizedChildren = true,
+                        Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -80,6 +90,7 @@ namespace RegistryValley.App.ViewModels
                         IsDeletable = false,
                         IsRenamable = false,
                         HasUnrealizedChildren = true,
+                        Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
                     new()
@@ -90,10 +101,82 @@ namespace RegistryValley.App.ViewModels
                         IsDeletable = false,
                         IsRenamable = false,
                         HasUnrealizedChildren = true,
+                        Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     }
                 },
             });
+
+            _flatKeyItems.Add(new()
+            {
+                Name = "Computer",
+                RootHive = HKEY.NULL,
+                IsExpanded = true,
+                IsSelected = true,
+                Path = "",
+                IsDeletable = false,
+                IsRenamable = false,
+                HasUnrealizedChildren = true,
+                SelectedRootComputer = true,
+                Depth = 1,
+                Image = "ms-appx:///Assets/Images/Computer.png",
+            });
+            _flatKeyItems.Add(new()
+            {
+                Name = "HKEY_CLASSES_ROOT",
+                RootHive = HKEY.HKEY_CLASSES_ROOT,
+                Path = "",
+                IsDeletable = false,
+                IsRenamable = false,
+                HasUnrealizedChildren = true,
+                Depth = 2,
+                Image = "ms-appx:///Assets/Images/Folder.png"
+            });
+            _flatKeyItems.Add(new()
+            {
+                Name = "HKEY_CURRENT_USER",
+                RootHive = HKEY.HKEY_CURRENT_USER,
+                Path = "",
+                IsDeletable = false,
+                IsRenamable = false,
+                HasUnrealizedChildren = true,
+                Depth = 2,
+                Image = "ms-appx:///Assets/Images/Folder.png"
+            });
+            _flatKeyItems.Add(new()
+            {
+                Name = "HKEY_LOCAL_MACHINE",
+                RootHive = HKEY.HKEY_LOCAL_MACHINE,
+                Path = "",
+                IsDeletable = false,
+                IsRenamable = false,
+                HasUnrealizedChildren = true,
+                Depth = 2,
+                Image = "ms-appx:///Assets/Images/Folder.png"
+            });
+            _flatKeyItems.Add(new()
+            {
+                Name = "HKEY_USERS",
+                RootHive = HKEY.HKEY_USERS,
+                Path = "",
+                IsDeletable = false,
+                IsRenamable = false,
+                HasUnrealizedChildren = true,
+                Depth = 2,
+                Image = "ms-appx:///Assets/Images/Folder.png"
+            });
+            _flatKeyItems.Add(new()
+            {
+                Name = "HKEY_CURRENT_CONFIG",
+                RootHive = HKEY.HKEY_CURRENT_CONFIG,
+                Path = "",
+                IsDeletable = false,
+                IsRenamable = false,
+                HasUnrealizedChildren = true,
+                Depth = 2,
+                Image = "ms-appx:///Assets/Images/Folder.png"
+            });
+
         }
 
         #region Enumerating methods
@@ -149,6 +232,7 @@ namespace RegistryValley.App.ViewModels
                     IsRenamable = true,
                     HasUnrealizedChildren = hasChildren,
                     Image = "ms-appx:///Assets/Images/Folder.png",
+                    Depth = parent.Depth + 1,
                     Parent = parent,
                 });
             }
@@ -201,6 +285,21 @@ namespace RegistryValley.App.ViewModels
         #endregion
 
         #region Renaming methods
+        #endregion
+
+        #region Collection handling
+        public void Insert(int index, KeyItem item)
+        {
+            _flatKeyItems.Insert(index, item);
+        }
+
+        public void RemoveRange(int index, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                _flatKeyItems.RemoveAt(index);
+            }
+        }
         #endregion
     }
 }

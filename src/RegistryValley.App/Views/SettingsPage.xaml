@@ -41,8 +41,54 @@
                 <TextBlock
                     Margin="0,20,0,0"
                     Style="{StaticResource BodyStrongTextBlockStyle}"
-                    Text="Appearances" />
-                <settingsui:SettingsBlockControl Title="v1.0" IsClickable="False">
+                    Text="Preferences" />
+                <settingsui:SettingsBlockControl
+                    Title="Registry accessing log"
+                    Description="The app records any information on every registry access and make it visible to end-users"
+                    IsClickable="False">
+                    <settingsui:SettingsBlockControl.Icon>
+                        <FontIcon Glyph="&#xE943;" />
+                    </settingsui:SettingsBlockControl.Icon>
+                    <StackPanel
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button
+                            HorizontalAlignment="Right"
+                            Content="View"
+                            IsEnabled="False" />
+                        <Button
+                            HorizontalAlignment="Right"
+                            Content="Open location"
+                            IsEnabled="False" />
+                    </StackPanel>
+                </settingsui:SettingsBlockControl>
+                <settingsui:SettingsBlockControl
+                    Title="Run as Administrator"
+                    Description="Run the app with administrator privileges on startup (UAC might be needed)"
+                    IsClickable="False">
+                    <settingsui:SettingsBlockControl.Icon>
+                        <FontIcon Glyph="&#xE7EF;" />
+                    </settingsui:SettingsBlockControl.Icon>
+                    <StackPanel
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <ToggleSwitch
+                            FlowDirection="RightToLeft"
+                            IsEnabled="False"
+                            IsOn="True" />
+                    </StackPanel>
+                </settingsui:SettingsBlockControl>
+
+                <TextBlock
+                    Margin="0,20,0,0"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="Updates" />
+                <settingsui:SettingsBlockControl
+                    Title="v1.0"
+                    Description="1.0.0.0 | x64 | Release"
+                    IsClickable="False">
                     <settingsui:SettingsBlockControl.Icon>
                         <FontIcon Glyph="&#xE117;" />
                     </settingsui:SettingsBlockControl.Icon>
@@ -60,8 +106,47 @@
                     Title="Download updates automatically"
                     Description="Except on metered conections"
                     IsClickable="False">
+                    <settingsui:SettingsBlockControl.Icon>
+                        <FontIcon Glyph="&#xE8B6;" />
+                    </settingsui:SettingsBlockControl.Icon>
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                         <ToggleSwitch FlowDirection="RightToLeft" IsEnabled="False" />
+                    </StackPanel>
+                </settingsui:SettingsBlockControl>
+
+                <TextBlock
+                    Margin="0,20,0,0"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="About" />
+                <settingsui:SettingsBlockControl
+                    Title="RegistryValley"
+                    Description="A powerful yet fluent registry editor fow Windows 10/11 with WinUI3"
+                    IsClickable="False">
+                    <settingsui:SettingsBlockControl.Icon>
+                        <ImageIcon
+                            Height="28"
+                            Margin="-6"
+                            Source="ms-appx:///Assets/AppTiles/StoreLogo.png" />
+                    </settingsui:SettingsBlockControl.Icon>
+                </settingsui:SettingsBlockControl>
+                <settingsui:SettingsBlockControl Title="Links" IsClickable="False">
+                    <settingsui:SettingsBlockControl.Icon>
+                        <FontIcon Glyph="&#xE71B;" />
+                    </settingsui:SettingsBlockControl.Icon>
+                    <StackPanel
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="0">
+                        <HyperlinkButton
+                            HorizontalAlignment="Right"
+                            Content="onein528"
+                            NavigateUri="https://github.com/onein528"
+                            ToolTipService.ToolTip="https://github.com/onein528" />
+                        <HyperlinkButton
+                            HorizontalAlignment="Right"
+                            Content="RegistryValley"
+                            NavigateUri="https://github.com/onein528/RegistryValley"
+                            ToolTipService.ToolTip="https://github.com/onein528/RegistryValley" />
                     </StackPanel>
                 </settingsui:SettingsBlockControl>
 

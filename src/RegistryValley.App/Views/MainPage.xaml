@@ -10,6 +10,7 @@
     xmlns:models="using:RegistryValley.App.Models"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
+    xmlns:uctree="using:RegistryValley.App.UserControls.TreeView"
     DataContext="{x:Bind ViewModel, Mode=OneWay}"
     Loaded="Page_Loaded"
     mc:Ignorable="d">
@@ -22,6 +23,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
+
+            <Thickness x:Key="TreeViewItemPresenterPadding">0,0,0,0</Thickness>
 
             <Style
                 x:Name="HeaderGridSplitterStyle"
@@ -44,12 +47,6 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!--<ProgressBar
-            x:Name="LoadingProgressBar"
-            VerticalAlignment="Top"
-            IsIndeterminate="True"
-            Visibility="{x:Bind ViewModel.Loading, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}" />-->
-
         <uc:TitleBarControl Grid.Row="1" Margin="0,-3,0,0" />
 
         <Grid Grid.Row="2">
@@ -68,47 +65,39 @@
                 </Grid.RowDefinitions>
 
                 <ScrollViewer
-                    Padding="0,2,0,4"
+                    Padding="0,0,0,4"
                     HorizontalScrollBarVisibility="Auto"
                     HorizontalScrollMode="Auto">
-                    <TreeView
-                        x:Name="KeyTreeView"
+                    <uctree:TreeView
+                        x:Name="CustomMainTreeView"
                         MinWidth="256"
                         Margin="0,0,0,24"
                         CanDrag="False"
                         CanDragItems="False"
                         CanReorderItems="False"
-                        Collapsed="KeyTreeView_Collapsed"
-                        Expanding="KeyTreeView_Expanding"
-                        ItemInvoked="KeyTreeView_ItemInvoked"
-                        ItemsSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
+                        IsItemClickEnabled="True"
+                        SelectionChanged="CustomMainTreeView_SelectionChanged"
+                        ItemsSource="{x:Bind ViewModel.FlatKeyItems, Mode=OneWay}"
+                        NodeItemSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                         ScrollViewer.HorizontalScrollMode="Disabled"
                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
                         ScrollViewer.VerticalScrollMode="Disabled"
                         SelectionMode="Single">
 
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="TreeViewItem">
-                                <Setter Property="CollapsedGlyph" Value="&#xE70D;" />
-                                <Setter Property="ExpandedGlyph" Value="&#xE70E;" />
-                                <Setter Property="Height" Value="38" />
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-
-                        <TreeView.ItemTemplate>
+                        <uctree:TreeView.ItemTemplate>
                             <DataTemplate x:DataType="models:KeyItem">
 
-                                <TreeViewItem
-                                    x:Name="KeyTreeViewItem"
-                                    GlyphSize="11"
-                                    HasUnrealizedChildren="{x:Bind HasUnrealizedChildren}"
-                                    IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
-                                    IsSelected="{x:Bind IsSelected, Mode=TwoWay}"
-                                    ItemsSource="{x:Bind Children}"
-                                    ToolTipService.ToolTip="{x:Bind PathForPwsh, Mode=OneWay}">
+                                <Grid Height="32" Margin="-4,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                                    <TreeViewItem.ContextFlyout>
+                                    <Grid.ContextFlyout>
                                         <MenuFlyout x:Name="KeyTreeViewItemMenuFlyout" Opened="KeyTreeViewItemMenuFlyout_Opened">
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutExpand"
@@ -161,38 +150,46 @@
                                                 Click="KeyTreeViewItemMenuFlyoutCopyKeyName_Click"
                                                 Text="Copy key name" />
                                         </MenuFlyout>
-                                    </TreeViewItem.ContextFlyout>
+                                    </Grid.ContextFlyout>
 
-                                    <Grid Margin="-4,0,0,0" Padding="0,0,8,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
+                                    <uc:BranchDisplay
+                                        Margin="0,-10"
+                                        HasChildren="{x:Bind HasUnrealizedChildren}"
+                                        NumberOfBranch="{x:Bind Depth}" />
 
-                                        <Image
-                                            Width="18"
-                                            Height="18"
-                                            HorizontalAlignment="Left"
-                                            Source="{x:Bind Image}" />
+                                    <FontIcon
+                                        x:Name="ExpandCollapseGlyphFontIcon"
+                                        Grid.Column="1"
+                                        Margin="6,0,0,0"
+                                        FontSize="12"
+                                        Glyph="&#xE70D;"
+                                        Tapped="ExpandCollapseGlyphFontIcon_Tapped"
+                                        Visibility="{x:Bind HasUnrealizedChildren, Converter={StaticResource ObjectToBoolConverter}}" />
 
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Margin="6,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            Style="{ThemeResource BodyTextBlockStyle}"
-                                            Text="{x:Bind Name, Mode=OneWay}"
-                                            TextTrimming="CharacterEllipsis"
-                                            TextWrapping="NoWrap" />
+                                    <Image
+                                        Grid.Column="2"
+                                        Width="18"
+                                        Height="18"
+                                        Margin="6,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        Source="{x:Bind Image}" />
 
-                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Margin="6,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Style="{ThemeResource BodyTextBlockStyle}"
+                                        Text="{x:Bind Name, Mode=OneWay}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap" />
 
-                                </TreeViewItem>
+                                </Grid>
 
                             </DataTemplate>
-                        </TreeView.ItemTemplate>
+                        </uctree:TreeView.ItemTemplate>
 
-                    </TreeView>
+                    </uctree:TreeView>
                 </ScrollViewer>
 
                 <Border
