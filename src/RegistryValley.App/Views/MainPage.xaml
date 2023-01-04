@@ -76,13 +76,13 @@
                         CanDragItems="False"
                         CanReorderItems="False"
                         IsItemClickEnabled="True"
-                        SelectionChanged="CustomMainTreeView_SelectionChanged"
                         ItemsSource="{x:Bind ViewModel.FlatKeyItems, Mode=OneWay}"
                         NodeItemSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                         ScrollViewer.HorizontalScrollMode="Disabled"
                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
                         ScrollViewer.VerticalScrollMode="Disabled"
+                        SelectionChanged="CustomMainTreeView_SelectionChanged"
                         SelectionMode="Single">
 
                         <uctree:TreeView.ItemTemplate>
@@ -157,14 +157,30 @@
                                         HasChildren="{x:Bind HasUnrealizedChildren}"
                                         NumberOfBranch="{x:Bind Depth}" />
 
-                                    <FontIcon
-                                        x:Name="ExpandCollapseGlyphFontIcon"
+                                    <StackPanel
                                         Grid.Column="1"
-                                        Margin="6,0,0,0"
-                                        FontSize="12"
-                                        Glyph="&#xE70D;"
-                                        Tapped="ExpandCollapseGlyphFontIcon_Tapped"
-                                        Visibility="{x:Bind HasUnrealizedChildren, Converter={StaticResource ObjectToBoolConverter}}" />
+                                        Margin="6,-12,0,-12"
+                                        Visibility="{x:Bind HasUnrealizedChildren, Converter={StaticResource ObjectToBoolConverter}}">
+                                        <Border
+                                            Width="1"
+                                            Height="20"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Top"
+                                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                                        <FontIcon
+                                            x:Name="ExpandCollapseGlyphFontIcon"
+                                            FontSize="12"
+                                            Glyph="&#xE70D;"
+                                            Tapped="ExpandCollapseGlyphFontIcon_Tapped" />
+
+                                        <Border
+                                            Width="1"
+                                            Height="20"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Top"
+                                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                                    </StackPanel>
 
                                     <Image
                                         Grid.Column="2"

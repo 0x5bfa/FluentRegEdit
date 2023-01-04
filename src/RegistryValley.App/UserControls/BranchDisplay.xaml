@@ -16,7 +16,7 @@
 
     <StackPanel
         x:Name="BranchesItemsRepeater"
-        Margin="11,0,8,0"
+        Margin="12,0,8,0"
         x:Load="{x:Bind Branches.Count, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}"
         Orientation="Horizontal">
         <ItemsRepeater ItemsSource="{x:Bind Branches, Mode=OneWay}">
@@ -27,7 +27,7 @@
                 <DataTemplate>
                     <Border
                         Width="1"
-                        Height="50"
+                        Height="40"
                         Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
                 </DataTemplate>
             </ItemsRepeater.ItemTemplate>
@@ -35,7 +35,7 @@
         <Border
             x:Name="LastBranchBorder"
             Width="1"
-            Height="50"
+            Height="40"
             Margin="20,0,-3,0"
             x:Load="{x:Bind HasChildren, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
             Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
