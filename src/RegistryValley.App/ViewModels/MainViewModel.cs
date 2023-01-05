@@ -287,17 +287,24 @@ namespace RegistryValley.App.ViewModels
         #region Renaming methods
         #endregion
 
-        #region Collection handling
+        #region Flat Collection Handling methods
         public void Insert(int index, KeyItem item)
         {
             _flatKeyItems.Insert(index, item);
         }
 
-        public void RemoveRange(int index, int count)
+        public void RemoveAll(int depth, int startIndex)
         {
-            for (int i = 0; i < count; i++)
+            int lastRemovedItemIndex = 0;
+            var list = _flatKeyItems.Where(x => x.Depth > depth && _flatKeyItems.IndexOf(x) > startIndex).ToList();
+            lastRemovedItemIndex = _flatKeyItems.IndexOf(list.FirstOrDefault());
+
+            foreach (var item in list)
             {
-                _flatKeyItems.RemoveAt(index);
+                if (lastRemovedItemIndex == _flatKeyItems.IndexOf(item))
+                    _flatKeyItems.Remove(item);
+                else
+                    break;
             }
         }
         #endregion

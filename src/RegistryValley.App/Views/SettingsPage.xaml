@@ -125,29 +125,48 @@
                     <settingsui:SettingsBlockControl.Icon>
                         <ImageIcon
                             Height="28"
-                            Margin="-6"
+                            Margin="-4"
                             Source="ms-appx:///Assets/AppTiles/StoreLogo.png" />
                     </settingsui:SettingsBlockControl.Icon>
                 </settingsui:SettingsBlockControl>
-                <settingsui:SettingsBlockControl Title="Links" IsClickable="False">
+                <settingsui:SettingsBlockControl
+                    Title="License"
+                    Description="Licensed under the MIT license and the source code is hosted in GitHub"
+                    IsClickable="False">
                     <settingsui:SettingsBlockControl.Icon>
-                        <FontIcon Glyph="&#xE71B;" />
+                        <FontIcon Glyph="&#xE82D;" />
                     </settingsui:SettingsBlockControl.Icon>
-                    <StackPanel
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="0">
-                        <HyperlinkButton
-                            HorizontalAlignment="Right"
-                            Content="onein528"
-                            NavigateUri="https://github.com/onein528"
-                            ToolTipService.ToolTip="https://github.com/onein528" />
-                        <HyperlinkButton
-                            HorizontalAlignment="Right"
-                            Content="RegistryValley"
-                            NavigateUri="https://github.com/onein528/RegistryValley"
-                            ToolTipService.ToolTip="https://github.com/onein528/RegistryValley" />
-                    </StackPanel>
+                    <HyperlinkButton
+                        HorizontalAlignment="Right"
+                        NavigateUri="https://github.com/onein528/RegistryValley"
+                        ToolTipService.ToolTip="https://github.com/onein528/RegistryValley">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Image Width="16" Height="16">
+                                <Image.Source>
+                                    <SvgImageSource UriSource="ms-appx:///Assets/Images/GitHubLogo.svg" />
+                                </Image.Source>
+                            </Image>
+                            <TextBlock Text="RegistryValley" />
+                        </StackPanel>
+                    </HyperlinkButton>
+                </settingsui:SettingsBlockControl>
+                <settingsui:SettingsBlockControl Title="Credit" IsClickable="False">
+                    <settingsui:SettingsBlockControl.Icon>
+                        <FontIcon Glyph="&#xE902;" />
+                    </settingsui:SettingsBlockControl.Icon>
+                    <HyperlinkButton
+                        HorizontalAlignment="Right"
+                        NavigateUri="https://github.com/onein528"
+                        ToolTipService.ToolTip="https://github.com/onein528">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Image Width="16" Height="16">
+                                <Image.Source>
+                                    <SvgImageSource UriSource="ms-appx:///Assets/Images/GitHubLogo.svg" />
+                                </Image.Source>
+                            </Image>
+                            <TextBlock Text="onein528" />
+                        </StackPanel>
+                    </HyperlinkButton>
                 </settingsui:SettingsBlockControl>
 
             </StackPanel>

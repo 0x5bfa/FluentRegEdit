@@ -23,6 +23,10 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
+            <converters:BoolToGlyphConverter
+                x:Key="BoolToGlyphConverter"
+                CollapsedGlyph="&#xE76C;"
+                ExpandedGlyph="&#xE70D;" />
 
             <Thickness x:Key="TreeViewItemPresenterPadding">0,0,0,0</Thickness>
 
@@ -159,7 +163,8 @@
 
                                     <StackPanel
                                         Grid.Column="1"
-                                        Margin="6,-12,0,-12"
+                                        Margin="2,-18,0,-18"
+                                        Spacing="4"
                                         Visibility="{x:Bind HasUnrealizedChildren, Converter={StaticResource ObjectToBoolConverter}}">
                                         <Border
                                             Width="1"
@@ -168,11 +173,15 @@
                                             VerticalAlignment="Top"
                                             Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-                                        <FontIcon
-                                            x:Name="ExpandCollapseGlyphFontIcon"
-                                            FontSize="12"
-                                            Glyph="&#xE70D;"
-                                            Tapped="ExpandCollapseGlyphFontIcon_Tapped" />
+                                        <Button
+                                            x:Name="ExpandCollapseButton"
+                                            Width="20"
+                                            Padding="2,4"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Click="ExpandCollapseButton_Click">
+                                            <FontIcon FontSize="12" Glyph="{x:Bind IsExpanded, Converter={StaticResource BoolToGlyphConverter}, Mode=OneWay}" />
+                                        </Button>
 
                                         <Border
                                             Width="1"

@@ -37,6 +37,7 @@ namespace RegistryValley.App.Views
         {
             EnsureCurrentPageIsValuesViewer();
 
+            // Load selected key's values
             if (CustomMainTreeView.SelectedItem != null
                 && CustomMainTreeView.SelectedItem is KeyItem item
                 && ValuesViewerViewModel.SelectedKeyItem != item)
@@ -45,17 +46,27 @@ namespace RegistryValley.App.Views
             }
         }
 
-        private void ExpandCollapseGlyphFontIcon_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        private void ExpandCollapseButton_Click(object sender, RoutedEventArgs e)
         {
-            var item = (KeyItem)((FontIcon)sender).DataContext;
+            var item = (KeyItem)((Button)sender).DataContext;
+            int index = (CustomMainTreeView.ItemsSource as ReadOnlyObservableCollection<KeyItem>).IndexOf(item);
 
-            if (item.IsExpanded)
+            var keyItemNodeTree = CustomMainTreeView.NodeItemSource as ReadOnlyObservableCollection<KeyItem>;
+            var flattenedKeyItemNodeTree = GetFlattenNodes(keyItemNodeTree);
+
+            var itemFromFlattendTree = flattenedKeyItemNodeTree.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
+
+            if (!item.IsExpanded)
             {
-                RemoveItems(item);
+                item.IsExpanded = true;
+                itemFromFlattendTree.IsExpanded = true;
+                ExpandChildren(item, index, itemFromFlattendTree);
             }
             else
             {
-                InsertItems(item);
+                item.IsExpanded = false;
+                itemFromFlattendTree.IsExpanded = false;
+                CollapseChildren(item, index, itemFromFlattendTree);
             }
         }
         #endregion
@@ -172,6 +183,7 @@ namespace RegistryValley.App.Views
         }
         #endregion
 
+        #region Settings
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             if (ValuesViewerViewModel.SelectedKeyItem != null)
@@ -194,71 +206,57 @@ namespace RegistryValley.App.Views
                 ContentFrame.Navigate(typeof(ValuesViewerPage));
             }
         }
+        #endregion
 
-        private void ExpandChildItems(KeyItem item)
+        private void GetChildItems(KeyItem item)
         {
-            if (item.RootHive != HKEY.NULL)
-            {
-                item.Children.Clear();
+            if (item.RootHive == HKEY.NULL)
+                return;
 
-                var children = ViewModel.EnumerateRegistryKeys(item.RootHive, item.Path, item);
-                if (children != null)
+            item.Children.Clear();
+
+            var children = ViewModel.EnumerateRegistryKeys(item.RootHive, item.Path, item);
+            if (children != null)
+            {
+                foreach (var child in children)
+                    item.Children.Add(child);
+            }
+            else
+            {
+                // Error handling
+                var result = Kernel32.GetLastError();
+                if (result.Failed)
                 {
-                    foreach (var child in children)
-                        item.Children.Add(child);
-                }
-                else
-                {
-                    var result = Kernel32.GetLastError();
-                    if (result.Failed)
-                    {
-                        ValuesViewerViewModel.StatusBarMessage = result.FormatMessage();
-                    }
+                    ValuesViewerViewModel.StatusBarMessage = result.FormatMessage();
                 }
             }
         }
 
-        private void CollapseChildItems(KeyItem item)
+        private void RemoveChildItems(KeyItem item)
         {
             item.Children.Clear();
             item.HasUnrealizedChildren = true;
         }
 
-        private void InsertItems(KeyItem item)
+        private void ExpandChildren(KeyItem item, int index, KeyItem itemFromFlattendTree)
         {
-            int index = (CustomMainTreeView.ItemsSource as ReadOnlyObservableCollection<KeyItem>).IndexOf(item) + 1;
+            itemFromFlattendTree.IsExpanded = true;
+            GetChildItems(itemFromFlattendTree);
 
-            var node = CustomMainTreeView.NodeItemSource as ReadOnlyObservableCollection<KeyItem>;
-            var flattenKeyItems = GetFlattenNodes(node);
-
-            var flattenNodeItem = flattenKeyItems.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
-
-            item.IsExpanded = true;
-            flattenNodeItem.IsExpanded = true;
-            ExpandChildItems(flattenNodeItem);
-
-            foreach (var child in flattenNodeItem.Children)
+            index++;
+            foreach (var child in itemFromFlattendTree.Children)
             {
                 ViewModel.Insert(index, child);
                 index++;
             }
         }
 
-        private void RemoveItems(KeyItem item)
+        private void CollapseChildren(KeyItem item, int index, KeyItem itemFromFlattendTree)
         {
-            int index = (CustomMainTreeView.ItemsSource as ReadOnlyObservableCollection<KeyItem>).IndexOf(item) + 1;
+            itemFromFlattendTree.IsExpanded = false;
+            RemoveChildItems(itemFromFlattendTree);
 
-            var node = CustomMainTreeView.NodeItemSource as ReadOnlyObservableCollection<KeyItem>;
-            var flattenKeyItems = GetFlattenNodes(node);
-
-            var flattenNodeItem = flattenKeyItems.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
-            var removeCount = flattenNodeItem.Children.Count;
-
-            item.IsExpanded = false;
-            flattenNodeItem.IsExpanded = false;
-            CollapseChildItems(flattenNodeItem);
-
-            ViewModel.RemoveRange(index, removeCount);
+            ViewModel.RemoveAll(item.Depth, index);
         }
 
         public IEnumerable<KeyItem> GetFlattenNodes(IEnumerable<KeyItem> masterList)

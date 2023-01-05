@@ -2,7 +2,7 @@
 
 namespace RegistryValley.App.Converters
 {
-    public class GlyphConverter : IValueConverter
+    public class BoolToGlyphConverter : IValueConverter
     {
         public string ExpandedGlyph { get; set; }
         public string CollapsedGlyph { get; set; }

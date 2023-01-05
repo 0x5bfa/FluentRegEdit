@@ -75,6 +75,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Images\GitHubLogo.svg" />
     <None Remove="UserControls\BranchDisplay.xaml" />
   </ItemGroup>
 
