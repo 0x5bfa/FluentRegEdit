@@ -96,9 +96,6 @@
             }
         }
 
-        private bool _isSelected;
-        public bool IsSelected { get => _isSelected; set => SetProperty(ref _isSelected, value); }
-
         private bool _isExpanded;
         public bool IsExpanded { get => _isExpanded; set => SetProperty(ref _isExpanded, value); }
 
@@ -108,14 +105,17 @@
         private string _image;
         public string Image { get => _image; set => SetProperty(ref _image, value); }
 
-        private bool _hasUnrealizedChildren;
-        public bool HasUnrealizedChildren { get => _hasUnrealizedChildren; set => SetProperty(ref _hasUnrealizedChildren, value); }
+        private bool _hasChildren;
+        public bool HasChildren { get => _hasChildren; set => SetProperty(ref _hasChildren, value); }
 
         private bool _isDeletable;
         public bool IsDeletable { get => _isDeletable; set => SetProperty(ref _isDeletable, value); }
 
         private bool _isRenamable;
         public bool IsRenamable { get => _isRenamable; set => SetProperty(ref _isRenamable, value); }
+
+        private bool _isRenaming;
+        public bool IsRenaming { get => _isRenaming; set => SetProperty(ref _isRenaming, value); }
 
         private bool _selectedRootComputer;
         public bool SelectedRootComputer { get => _selectedRootComputer; set => SetProperty(ref _selectedRootComputer, value); }

@@ -79,7 +79,6 @@
                         CanDrag="False"
                         CanDragItems="False"
                         CanReorderItems="False"
-                        IsItemClickEnabled="True"
                         ItemsSource="{x:Bind ViewModel.FlatKeyItems, Mode=OneWay}"
                         NodeItemSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -97,75 +96,57 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
                                     <Grid.ContextFlyout>
-                                        <MenuFlyout x:Name="KeyTreeViewItemMenuFlyout" Opened="KeyTreeViewItemMenuFlyout_Opened">
+                                        <MenuFlyout
+                                            x:Name="KeyTreeViewItemMenuFlyout"
+                                            Opened="KeyTreeViewItemMenuFlyout_Opened"
+                                            Opening="KeyTreeViewItemMenuFlyout_Opening">
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutExpand"
                                                 x:Load="{x:Bind IsExpanded, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
                                                 Click="KeyTreeViewItemMenuFlyoutExpand_Click"
-                                                IsEnabled="{x:Bind HasUnrealizedChildren}"
+                                                IsEnabled="{x:Bind HasChildren}"
+                                                Tag="Expand"
                                                 Text="Expand" />
                                             <MenuFlyoutItem
                                                 x:Name="KeyTreeViewItemMenuFlyoutCollapse"
                                                 x:Load="{x:Bind IsExpanded, Mode=OneWay}"
                                                 Click="KeyTreeViewItemMenuFlyoutCollapse_Click"
+                                                Tag="Collapse"
                                                 Text="Collapse" />
-                                            <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutNew"
-                                                x:Load="{x:Bind SelectedRootComputer, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
-                                                Click="KeyTreeViewItemMenuFlyoutNew_Click"
-                                                Text="New" />
-                                            <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutFind"
-                                                x:Load="{x:Bind SelectedRootComputer, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
-                                                IsEnabled="False"
-                                                Text="Find" />
+                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutNew_Click" Text="New" />
+                                            <MenuFlyoutItem IsEnabled="False" Text="Find" />
                                             <MenuFlyoutSeparator />
                                             <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutDelete"
-                                                x:Load="{x:Bind SelectedRootComputer, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
                                                 Click="KeyTreeViewItemMenuFlyoutDelete_Click"
                                                 IsEnabled="{x:Bind IsDeletable}"
                                                 Text="Delete" />
                                             <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutRename"
-                                                x:Load="{x:Bind SelectedRootComputer, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
                                                 Click="KeyTreeViewItemMenuFlyoutRename_Click"
                                                 IsEnabled="{x:Bind IsRenamable}"
                                                 Text="Rename" />
                                             <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutExport"
-                                                Click="KeyTreeViewItemMenuFlyoutExport_Click"
-                                                Text="Export" />
-                                            <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutPermissions"
-                                                x:Load="{x:Bind SelectedRootComputer, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
-                                                Click="KeyTreeViewItemMenuFlyoutPermissions_Click"
-                                                Text="Permissions" />
+                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutExport_Click" Text="Export" />
+                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutPermissions_Click" Text="Permissions" />
                                             <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutCopyKeyName"
-                                                x:Load="{x:Bind SelectedRootComputer, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert}"
-                                                Click="KeyTreeViewItemMenuFlyoutCopyKeyName_Click"
-                                                Text="Copy key name" />
+                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutCopyKeyName_Click" Text="Copy key name" />
                                         </MenuFlyout>
                                     </Grid.ContextFlyout>
 
                                     <uc:BranchDisplay
                                         Margin="0,-10"
-                                        HasChildren="{x:Bind HasUnrealizedChildren}"
+                                        HasChildren="{x:Bind HasChildren}"
                                         NumberOfBranch="{x:Bind Depth}" />
 
                                     <StackPanel
+                                        x:Name="ExpandCollapseButtonStackPanel"
                                         Grid.Column="1"
                                         Margin="2,-18,0,-18"
                                         Spacing="4"
-                                        Visibility="{x:Bind HasUnrealizedChildren, Converter={StaticResource ObjectToBoolConverter}}">
+                                        Visibility="{x:Bind HasChildren, Converter={StaticResource ObjectToBoolConverter}}">
                                         <Border
                                             Width="1"
                                             Height="20"
@@ -192,6 +173,7 @@
                                     </StackPanel>
 
                                     <Image
+                                        x:Name="KeyItemImage"
                                         Grid.Column="2"
                                         Width="18"
                                         Height="18"
@@ -200,14 +182,29 @@
                                         Source="{x:Bind Image}" />
 
                                     <TextBlock
+                                        x:Name="KeyItemName"
                                         Grid.Column="3"
                                         Margin="6,0,0,0"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
+                                        x:Load="{x:Bind IsRenaming, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
+                                        MaxLines="1"
                                         Style="{ThemeResource BodyTextBlockStyle}"
                                         Text="{x:Bind Name, Mode=OneWay}"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="NoWrap" />
+
+                                    <TextBox
+                                        x:Name="KeyItemNameRenamingTextBox"
+                                        Grid.Column="3"
+                                        Padding="6,6"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        x:Load="{x:Bind IsRenaming, Mode=OneWay}"
+                                        KeyDown="KeyItemNameRenamingTextBox_KeyDown"
+                                        Loaded="KeyItemNameRenamingTextBox_Loaded"
+                                        LostFocus="KeyItemNameRenamingTextBox_LostFocus"
+                                        Text="{x:Bind Name, Mode=OneWay}" />
 
                                 </Grid>
 

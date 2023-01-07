@@ -39,11 +39,10 @@ namespace RegistryValley.App.ViewModels
                 Name = "Computer",
                 RootHive = HKEY.NULL,
                 IsExpanded = true,
-                IsSelected = true,
                 Path = "",
                 IsDeletable = false,
                 IsRenamable = false,
-                HasUnrealizedChildren = true,
+                HasChildren = true,
                 SelectedRootComputer = true,
                 Image = "ms-appx:///Assets/Images/Computer.png",
                 Depth = 1,
@@ -56,7 +55,7 @@ namespace RegistryValley.App.ViewModels
                         Path = "",
                         IsDeletable = false,
                         IsRenamable = false,
-                        HasUnrealizedChildren = true,
+                        HasChildren = true,
                         Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -67,7 +66,7 @@ namespace RegistryValley.App.ViewModels
                         Path = "",
                         IsDeletable = false,
                         IsRenamable = false,
-                        HasUnrealizedChildren = true,
+                        HasChildren = true,
                         Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -78,7 +77,7 @@ namespace RegistryValley.App.ViewModels
                         Path = "",
                         IsDeletable = false,
                         IsRenamable = false,
-                        HasUnrealizedChildren = true,
+                        HasChildren = true,
                         Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -89,7 +88,7 @@ namespace RegistryValley.App.ViewModels
                         Path = "",
                         IsDeletable = false,
                         IsRenamable = false,
-                        HasUnrealizedChildren = true,
+                        HasChildren = true,
                         Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     },
@@ -100,7 +99,7 @@ namespace RegistryValley.App.ViewModels
                         Path = "",
                         IsDeletable = false,
                         IsRenamable = false,
-                        HasUnrealizedChildren = true,
+                        HasChildren = true,
                         Depth = 2,
                         Image = "ms-appx:///Assets/Images/Folder.png"
                     }
@@ -112,11 +111,10 @@ namespace RegistryValley.App.ViewModels
                 Name = "Computer",
                 RootHive = HKEY.NULL,
                 IsExpanded = true,
-                IsSelected = true,
                 Path = "",
                 IsDeletable = false,
                 IsRenamable = false,
-                HasUnrealizedChildren = true,
+                HasChildren = true,
                 SelectedRootComputer = true,
                 Depth = 1,
                 Image = "ms-appx:///Assets/Images/Computer.png",
@@ -128,7 +126,7 @@ namespace RegistryValley.App.ViewModels
                 Path = "",
                 IsDeletable = false,
                 IsRenamable = false,
-                HasUnrealizedChildren = true,
+                HasChildren = true,
                 Depth = 2,
                 Image = "ms-appx:///Assets/Images/Folder.png"
             });
@@ -139,7 +137,7 @@ namespace RegistryValley.App.ViewModels
                 Path = "",
                 IsDeletable = false,
                 IsRenamable = false,
-                HasUnrealizedChildren = true,
+                HasChildren = true,
                 Depth = 2,
                 Image = "ms-appx:///Assets/Images/Folder.png"
             });
@@ -150,7 +148,7 @@ namespace RegistryValley.App.ViewModels
                 Path = "",
                 IsDeletable = false,
                 IsRenamable = false,
-                HasUnrealizedChildren = true,
+                HasChildren = true,
                 Depth = 2,
                 Image = "ms-appx:///Assets/Images/Folder.png"
             });
@@ -161,7 +159,7 @@ namespace RegistryValley.App.ViewModels
                 Path = "",
                 IsDeletable = false,
                 IsRenamable = false,
-                HasUnrealizedChildren = true,
+                HasChildren = true,
                 Depth = 2,
                 Image = "ms-appx:///Assets/Images/Folder.png"
             });
@@ -172,7 +170,7 @@ namespace RegistryValley.App.ViewModels
                 Path = "",
                 IsDeletable = false,
                 IsRenamable = false,
-                HasUnrealizedChildren = true,
+                HasChildren = true,
                 Depth = 2,
                 Image = "ms-appx:///Assets/Images/Folder.png"
             });
@@ -230,7 +228,7 @@ namespace RegistryValley.App.ViewModels
                     Path = subKeyPath,
                     IsDeletable = true,
                     IsRenamable = true,
-                    HasUnrealizedChildren = hasChildren,
+                    HasChildren = hasChildren,
                     Image = "ms-appx:///Assets/Images/Folder.png",
                     Depth = parent.Depth + 1,
                     Parent = parent,
@@ -272,15 +270,12 @@ namespace RegistryValley.App.ViewModels
         #region Deleting methods
         private void DeleteSelectedKey(KeyItem key)
         {
-            // Run powershell
-            bool result = ShellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.PathForPwsh}' -Force");
+            bool result = ShellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.PathForPwsh}' -Recurse");
             if (!result)
                 return;
 
-            // Remove the key from parent node
             result = key.Parent.Children.Remove(key);
-            if (!result)
-                return;
+            result = _flatKeyItems.Remove(key);
         }
         #endregion
 
