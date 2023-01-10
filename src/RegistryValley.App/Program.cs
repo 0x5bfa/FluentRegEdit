@@ -35,22 +35,22 @@ namespace RegistryValley.App
                 currentInstance.Activated += OnActivated;
             }
 
-            //if (!IsAdministrator())
-            //{
-            //    try
-            //    {
-            //        using (Process elevatedProcess = new())
-            //        {
-            //            elevatedProcess.StartInfo.Verb = "RunAs";
-            //            elevatedProcess.StartInfo.UseShellExecute = true;
-            //            elevatedProcess.StartInfo.FileName = Environment.ProcessPath;
-            //            elevatedProcess.Start();
-            //        }
-            //    }
-            //    catch (Win32Exception)
-            //    {
-            //    }
-            //}
+            if (!IsAdministrator())
+            {
+                try
+                {
+                    using (Process elevatedProcess = new())
+                    {
+                        elevatedProcess.StartInfo.Verb = "RunAs";
+                        elevatedProcess.StartInfo.UseShellExecute = true;
+                        elevatedProcess.StartInfo.FileName = Environment.ProcessPath;
+                        elevatedProcess.Start();
+                    }
+                }
+                catch (Win32Exception)
+                {
+                }
+            }
 
             Application.Start((p) =>
             {

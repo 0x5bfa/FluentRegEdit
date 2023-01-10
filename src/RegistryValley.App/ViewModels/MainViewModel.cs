@@ -1,6 +1,7 @@
 ﻿using RegistryValley.Core.Services;
 using RegistryValley.App.Models;
 using static RegistryValley.Core.Helpers.RegistryServices;
+using System.Management.Automation;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -15,6 +16,7 @@ namespace RegistryValley.App.ViewModels
             FlatKeyItems = new(_flatKeyItems);
 
             DeleteKeyCommand = new RelayCommand<KeyItem>(DeleteSelectedKey);
+            RenameKeyCommand = new RelayCommand<KeyItem>(RenameSelectedKey);
 
             InitializeHiveTree();
         }
@@ -26,10 +28,11 @@ namespace RegistryValley.App.ViewModels
         private readonly ObservableCollection<KeyItem> _flatKeyItems;
         public ReadOnlyObservableCollection<KeyItem> FlatKeyItems { get; }
 
-        private bool _loading;
-        public bool Loading { get => _loading; set => SetProperty(ref _loading, value); }
+        private string _lastRenamingName;
+        public string LastRenamedNewName { get => _lastRenamingName; set => SetProperty(ref _lastRenamingName, value); }
 
         public IRelayCommand DeleteKeyCommand { get; }
+        public IRelayCommand RenameKeyCommand { get; }
         #endregion
 
         private void InitializeHiveTree()
@@ -183,18 +186,21 @@ namespace RegistryValley.App.ViewModels
             List<KeyItem> keys = new();
             Win32Error result;
 
-            // Win32API
-            result = RVRegOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
+            // Calling Win32API
+            result = RegOpenKeyEx(hRootKey, subRoot, 0, REGSAM.KEY_READ, out var phKey);
             if (result.Failed)
             {
                 Kernel32.SetLastError((uint)result);
+                result.ThrowIfFailed();
                 return null;
             }
 
-            // Win32API
+            // Calling Win32API
             result = RegQueryInfoKey(phKey, null, ref NullRef<uint>(), default, out uint cSubKeys, out uint cbMaxSubKeyLen, out _, out _, out _, out _, out _, out _);
             if (result.Failed)
             {
+                Kernel32.SetLastError((uint)result);
+                result.ThrowIfFailed();
                 return null;
             }
 
@@ -206,18 +212,23 @@ namespace RegistryValley.App.ViewModels
                 cchName = cbMaxSubKeyLen + 1;
                 szName = new((int)cchName, (int)cchName);
 
-                // Win32API
+                // Calling Win32API
                 result = RegEnumKeyEx(phKey, dwIndex, szName, ref cchName, default, null, ref NullRef<uint>(), out _);
                 if (result.Failed)
                 {
+                    Kernel32.SetLastError((uint)result);
+                    result.ThrowIfFailed();
                     return null;
                 }
 
                 var subKeyPath = subRoot == "" ? $"{szName}" : $"{subRoot}\\{szName}";
 
+                // Calling Win32API
                 result = HasSubKeys(hRootKey, subKeyPath, out var hasChildren);
                 if (result.Failed && result != Win32Error.ERROR_ACCESS_DENIED)
                 {
+                    Kernel32.SetLastError((uint)result);
+                    result.ThrowIfFailed();
                     return null;
                 }
 
@@ -243,15 +254,14 @@ namespace RegistryValley.App.ViewModels
             Win32Error result;
             hasChildren = false;
 
-            // Win32API
-            result = RVRegOpenKey(hRootKey, subRoot, REGSAM.KEY_READ, out var phKey);
+            // Calling Win32API
+            result = RegOpenKeyEx(hRootKey, subRoot, 0, REGSAM.KEY_READ, out var phKey);
             if (result.Failed)
             {
-                Kernel32.SetLastError((uint)result);
                 return result;
             }
 
-            // Win32API
+            // Calling Win32API
             result = RegQueryInfoKey(phKey, null, ref NullRef<uint>(), default, out uint cSubKeys, out _, out _, out _, out _, out _, out _, out _);
             if (result.Failed)
             {
@@ -270,16 +280,26 @@ namespace RegistryValley.App.ViewModels
         #region Deleting methods
         private void DeleteSelectedKey(KeyItem key)
         {
-            bool result = ShellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.PathForPwsh}' -Recurse");
-            if (!result)
-                return;
+            var result = ShellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.PathForPwsh}' -Recurse");
 
-            result = key.Parent.Children.Remove(key);
-            result = _flatKeyItems.Remove(key);
+            key.Parent.Children.Remove(key);
+            _flatKeyItems.Remove(key);
         }
         #endregion
 
         #region Renaming methods
+        private void RenameSelectedKey(KeyItem key)
+        {
+            key.IsRenaming = false;
+            key.Name = LastRenamedNewName;
+
+            var pathItems = key.PathForPwsh.Split('\\').ToList();
+            pathItems.RemoveAt(pathItems.Count - 1);
+            var parentPath = string.Join('\\', pathItems);
+
+            var command = @$"-command if (!(Test-Path '{key.PathForPwsh}')) {{ New-Item -Path '{parentPath}' -Name '{key.Name}' -Force }} else {{ Rename-Item '{key.PathForPwsh}' -NewName '{LastRenamedNewName}' }}";
+            var result = ShellServices.RunPowershellCommand(runAs: true, command);
+        }
         #endregion
 
         #region Flat Collection Handling methods

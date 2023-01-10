@@ -197,7 +197,7 @@
                                     <TextBox
                                         x:Name="KeyItemNameRenamingTextBox"
                                         Grid.Column="3"
-                                        Padding="6,6"
+                                        Padding="6"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
                                         x:Load="{x:Bind IsRenaming, Mode=OneWay}"

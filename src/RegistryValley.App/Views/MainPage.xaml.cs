@@ -110,17 +110,35 @@ namespace RegistryValley.App.Views
             CollapseChildren(item);
         }
 
-        private async void KeyTreeViewItemMenuFlyoutNew_Click(object sender, RoutedEventArgs e)
+        private void KeyTreeViewItemMenuFlyoutNew_Click(object sender, RoutedEventArgs e)
         {
-            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
+            var item = (KeyItem)CustomMainTreeView.SelectedItem;
+            var itemIndex = CustomMainTreeView.SelectedIndex + 1;
 
-            var dialog = new KeyAddingDialog()
+            if (!item.IsExpanded)
+                ExpandChildren(item);
+
+            item.HasChildren = true;
+
+            // TODO: Should check if this name is already exist.
+            string keyName = "New Key #1";
+
+            var defaultNewKeyItem = new KeyItem()
             {
-                KeyItem = item,
-                XamlRoot = Content.XamlRoot,
+                Name = keyName,
+                RootHive = item.RootHive,
+                Path = item.Path == "" ? $"{keyName}" : $"{item.Path}\\{keyName}",
+                IsDeletable = true,
+                IsRenamable = true,
+                IsRenaming = true,
+                HasChildren = false,
+                Image = "ms-appx:///Assets/Images/Folder.png",
+                Depth = item.Depth + 1,
+                Parent = item,
             };
 
-            var result = await dialog.ShowAsync();
+            ViewModel.Insert(itemIndex, defaultNewKeyItem);
+            CustomMainTreeView.SelectedIndex++;
         }
 
         private async void KeyTreeViewItemMenuFlyoutDelete_Click(object sender, RoutedEventArgs e)
@@ -136,7 +154,6 @@ namespace RegistryValley.App.Views
                 XamlRoot = Content.XamlRoot,
             };
 
-            // Make sure user want to
             var result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Secondary)
                 return;
@@ -144,15 +161,11 @@ namespace RegistryValley.App.Views
             var command = ViewModel.DeleteKeyCommand;
             if (command.CanExecute(item))
                 command.Execute(item);
-
-            // TODO: Get command running status before getting result
-            //var result = command.ExecutionTask.GetResultOrDefault();
         }
 
         private void KeyTreeViewItemMenuFlyoutRename_Click(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)CustomMainTreeView.SelectedItem;
-
             item.IsRenaming = true;
         }
 
@@ -212,26 +225,47 @@ namespace RegistryValley.App.Views
         }
         #endregion
 
+        #region TextBox event for renaming
         private void KeyItemNameRenamingTextBox_Loaded(object sender, RoutedEventArgs e)
         {
             var textBox = (TextBox)sender;
             textBox.Focus(FocusState.Programmatic);
+            textBox.SelectAll();
         }
 
         private void KeyItemNameRenamingTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            var textBox = (TextBox)sender;
             var item = (KeyItem)CustomMainTreeView.SelectedItem;
+
+            if (item.Name != textBox.Text)
+            {
+                ViewModel.LastRenamedNewName = textBox.Text;
+
+                var command = ViewModel.RenameKeyCommand;
+                if (command.CanExecute(item))
+                    command.Execute(item);
+            } 
+
             item.IsRenaming = false;
         }
 
         private void KeyItemNameRenamingTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
+            var textBox = (TextBox)sender;
+
+            var item = (KeyItem)CustomMainTreeView.SelectedItem;
+
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
-                // TODO: Rename key
+                ViewModel.LastRenamedNewName = textBox.Text;
 
+                var command = ViewModel.RenameKeyCommand;
+                if (command.CanExecute(item))
+                    command.Execute(item);
             }
         }
+        #endregion
 
         private void GetChildItems(KeyItem item)
         {

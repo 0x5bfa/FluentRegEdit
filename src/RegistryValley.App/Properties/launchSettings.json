@@ -1,7 +1,9 @@
 {
   "profiles": {
     "RegistryValley": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "nativeDebugging": true,
+      "jsWebView2Debugging": false
     }
   }
 }

@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using Vanara.Windows.Shell;
 
 namespace RegistryValley.Core.Services
 {
     public static class ShellServices
     {
-        public static bool RunPowershellCommand(bool runAs, string command)
+        public static string RunPowershellCommand(bool runAs, string command)
         {
             try
             {
@@ -24,14 +25,16 @@ namespace RegistryValley.Core.Services
                 process.Start();
 
                 if (process.WaitForExit(30 * 1000))
-                    return process.ExitCode == 0;
+                {
+                    return null;
+                }
 
-                return false;
+                return null;
             }
             catch (Win32Exception)
             {
                 // If user cancels UAC
-                return false;
+                return null;
             }
         }
 
@@ -44,12 +47,11 @@ namespace RegistryValley.Core.Services
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 process.StartInfo.Arguments = command;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
 
                 if (runAs)
-                {
-                    process.StartInfo.UseShellExecute = true;
-                    process.StartInfo.Verb = "runas";
-                }
+                    process.StartInfo.Verb = "RunAs";
 
                 process.Start();
 
