@@ -28,8 +28,9 @@ namespace RegistryValley.App.ViewModels
         private readonly ObservableCollection<KeyItem> _flatKeyItems;
         public ReadOnlyObservableCollection<KeyItem> FlatKeyItems { get; }
 
-        private string _lastRenamingName;
-        public string LastRenamedNewName { get => _lastRenamingName; set => SetProperty(ref _lastRenamingName, value); }
+        public string LastRenamedNewName { get; set; }
+
+        public bool CreatingNewKey { get; set; }
 
         public IRelayCommand DeleteKeyCommand { get; }
         public IRelayCommand RenameKeyCommand { get; }
@@ -284,6 +285,9 @@ namespace RegistryValley.App.ViewModels
 
             key.Parent.Children.Remove(key);
             _flatKeyItems.Remove(key);
+
+            if (key.Parent.Children.Count == 0)
+                key.Parent.HasChildren = false;
         }
         #endregion
 

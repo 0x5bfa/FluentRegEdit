@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using Vanara.Windows.Shell;
 
 namespace RegistryValley.Core.Services
 {

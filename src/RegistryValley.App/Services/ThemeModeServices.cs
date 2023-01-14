@@ -17,7 +17,7 @@ namespace RegistryValley.App.Services
         private static AppWindowTitleBar titleBar;
 
         // Keep reference so it does not get optimized/garbage collected
-        public static UISettings UISettings;
+        private static UISettings UISettings;
 
         public static ElementTheme RootTheme
         {

@@ -77,7 +77,7 @@
                         <ToggleSwitch
                             FlowDirection="RightToLeft"
                             IsEnabled="False"
-                            IsOn="True" />
+                            IsOn="{x:Bind ViewModel.RunAsAdminOnStartup, Mode=TwoWay}" />
                     </StackPanel>
                 </settingsui:SettingsBlockControl>
 

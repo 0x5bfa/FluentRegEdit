@@ -108,7 +108,7 @@
                                                 x:Name="KeyTreeViewItemMenuFlyoutExpand"
                                                 x:Load="{x:Bind IsExpanded, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
                                                 Click="KeyTreeViewItemMenuFlyoutExpand_Click"
-                                                IsEnabled="{x:Bind HasChildren}"
+                                                IsEnabled="{x:Bind HasChildren, Mode=OneWay}"
                                                 Tag="Expand"
                                                 Text="Expand" />
                                             <MenuFlyoutItem
@@ -138,7 +138,7 @@
 
                                     <uc:BranchDisplay
                                         Margin="0,-10"
-                                        HasChildren="{x:Bind HasChildren}"
+                                        HasChildren="{x:Bind HasChildren, Mode=OneWay}"
                                         NumberOfBranch="{x:Bind Depth}" />
 
                                     <StackPanel
@@ -146,7 +146,7 @@
                                         Grid.Column="1"
                                         Margin="2,-18,0,-18"
                                         Spacing="4"
-                                        Visibility="{x:Bind HasChildren, Converter={StaticResource ObjectToBoolConverter}}">
+                                        Visibility="{x:Bind HasChildren, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}">
                                         <Border
                                             Width="1"
                                             Height="20"
@@ -177,7 +177,7 @@
                                         Grid.Column="2"
                                         Width="18"
                                         Height="18"
-                                        Margin="6,0,0,0"
+                                        Margin="3,0,0,0"
                                         HorizontalAlignment="Left"
                                         Source="{x:Bind Image}" />
 

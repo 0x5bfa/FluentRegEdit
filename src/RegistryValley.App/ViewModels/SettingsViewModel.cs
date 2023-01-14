@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using RegistryValley.App.Services;
 
 namespace RegistryValley.App.ViewModels
@@ -7,6 +8,8 @@ namespace RegistryValley.App.ViewModels
     {
         public SettingsViewModel()
         {
+            _runAsAdminOnStartup = UserSettingsServices.RunAsAdminOnStartup;
+
             ColorModes = new List<string>()
             {
                 "Default",
@@ -16,9 +19,11 @@ namespace RegistryValley.App.ViewModels
             .AsReadOnly();
         }
 
+        private UserSettingsServices UserSettingsServices { get; } = App.Current.Services.GetRequiredService<UserSettingsServices>();
+
         public ReadOnlyCollection<string> ColorModes { get; set; }
 
-        private int _selectedColorModeIndex;
+        private int _selectedColorModeIndex = (int)Enum.Parse(typeof(ElementTheme), ThemeModeServices.RootTheme.ToString());
         public int SelectedColorModeIndex
         {
             get => _selectedColorModeIndex;
@@ -27,6 +32,19 @@ namespace RegistryValley.App.ViewModels
                 if (SetProperty(ref _selectedColorModeIndex, value))
                 {
                     ThemeModeServices.RootTheme = (ElementTheme)value;
+                }
+            }
+        }
+
+        private bool _runAsAdminOnStartup;
+        public bool RunAsAdminOnStartup
+        {
+            get => _runAsAdminOnStartup;
+            set
+            {
+                if (SetProperty(ref _runAsAdminOnStartup, value))
+                {
+                    UserSettingsServices.RunAsAdminOnStartup = value;
                 }
             }
         }

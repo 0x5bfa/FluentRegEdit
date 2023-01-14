@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using RegistryValley.App.Dialogs;
+using Microsoft.UI.Xaml.Navigation;
 using RegistryValley.App.Extensions;
 using RegistryValley.App.Models;
+using RegistryValley.App.Services;
 using RegistryValley.App.ViewModels;
 using RegistryValley.Core.Services;
 using WinRT.Interop;
@@ -30,6 +31,11 @@ namespace RegistryValley.App.Views
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             ContentFrame.Navigate(typeof(ValuesViewerPage));
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            ThemeModeServices.Initialize();
         }
 
         #region TreeView event methods
@@ -137,6 +143,7 @@ namespace RegistryValley.App.Views
                 Parent = item,
             };
 
+            ViewModel.CreatingNewKey = true;
             ViewModel.Insert(itemIndex, defaultNewKeyItem);
             CustomMainTreeView.SelectedIndex++;
         }
@@ -238,26 +245,27 @@ namespace RegistryValley.App.Views
             var textBox = (TextBox)sender;
             var item = (KeyItem)CustomMainTreeView.SelectedItem;
 
-            if (item.Name != textBox.Text)
+            if (item.Name != textBox.Text || ViewModel.CreatingNewKey)
             {
+                ViewModel.CreatingNewKey = false;
                 ViewModel.LastRenamedNewName = textBox.Text;
 
                 var command = ViewModel.RenameKeyCommand;
                 if (command.CanExecute(item))
                     command.Execute(item);
-            } 
 
-            item.IsRenaming = false;
+                item.IsRenaming = false;
+            }
         }
 
         private void KeyItemNameRenamingTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
-            var textBox = (TextBox)sender;
-
-            var item = (KeyItem)CustomMainTreeView.SelectedItem;
-
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
+                var textBox = (TextBox)sender;
+                var item = (KeyItem)CustomMainTreeView.SelectedItem;
+
+                ViewModel.CreatingNewKey = false;
                 ViewModel.LastRenamedNewName = textBox.Text;
 
                 var command = ViewModel.RenameKeyCommand;
