@@ -13,6 +13,8 @@ namespace RegistryValley.App.ViewModels
     {
         public SettingsViewModel()
         {
+            UserSettingsServices = App.Current.Services.GetRequiredService<UserSettingsServices>();
+
             _runAsAdminOnStartup = UserSettingsServices.RunAsAdminOnStartup;
 
             ColorModes = new List<string>()
@@ -24,9 +26,13 @@ namespace RegistryValley.App.ViewModels
             .AsReadOnly();
 
             AppThemeResources = AppThemeResourceFactory.AppThemeResources;
+
+            SelectedAppThemeResources = AppThemeResources
+                .Where(p => p.BackgroundColor == AppThemeBackgroundColor)
+                .FirstOrDefault() ?? AppThemeResources.FirstOrDefault();
         }
 
-        private UserSettingsServices UserSettingsServices { get; } = App.Current.Services.GetRequiredService<UserSettingsServices>();
+        private UserSettingsServices UserSettingsServices { get; }
 
         public ReadOnlyCollection<string> ColorModes { get; set; }
 

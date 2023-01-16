@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.WinUI.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using RegistryValley.App.Extensions;
+using RegistryValley.App.Helpers;
 using RegistryValley.App.Models;
 using RegistryValley.App.Services;
 using RegistryValley.App.ViewModels;
@@ -21,12 +23,17 @@ namespace RegistryValley.App.Views
             var provider = App.Current.Services;
             ViewModel = provider.GetRequiredService<MainViewModel>();
             ValuesViewerViewModel = provider.GetRequiredService<ValuesViewerViewModel>();
+            UserSettingsServices = App.Current.Services.GetRequiredService<UserSettingsServices>();
+
+            LoadAppResources();
         }
 
         #region Fields and Properties
         public MainViewModel ViewModel { get; }
 
         public ValuesViewerViewModel ValuesViewerViewModel { get; }
+
+        private UserSettingsServices UserSettingsServices { get; }
         #endregion
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -41,6 +48,15 @@ namespace RegistryValley.App.Views
             using var identity = WindowsIdentity.GetCurrent();
             var principal = new WindowsPrincipal(identity);
             var isadmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+        private void LoadAppResources()
+        {
+            var appThemeBackgroundColor = ColorHelper.ToColor(UserSettingsServices.AppThemeBackgroundColor);
+
+            AppThemeResourcesHelpers.SetAppThemeBackgroundColor(appThemeBackgroundColor);
+
+            AppThemeResourcesHelpers.ApplyResources();
         }
 
         #region TreeView event methods

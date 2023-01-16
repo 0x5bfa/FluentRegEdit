@@ -17,7 +17,7 @@
 
             <DataTemplate x:Key="AppThemeResourcesItemTemplate" x:DataType="models:AppThemeResourceItem">
                 <Grid
-                    Width="116"
+                    Width="108"
                     Height="88"
                     BorderBrush="{ThemeResource ControlElevationBorderBrush}"
                     BorderThickness="1"
@@ -26,6 +26,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="6*" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="3*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -34,25 +35,49 @@
                     </Grid.ColumnDefinitions>
 
                     <Border
+                        x:Name="DefaultAppThemeBackground"
+                        Grid.RowSpan="2"
+                        Grid.ColumnSpan="2"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        CornerRadius="4,4,0,0" />
+
+                    <Border
+                        x:Name="AppThemeBackgroundLayer1"
                         Grid.RowSpan="2"
                         Grid.ColumnSpan="2"
                         Background="{x:Bind BackgroundColor, Converter={StaticResource ColorToSolidColorBrushConverter}, Mode=OneWay}"
                         CornerRadius="4,4,0,0" />
 
                     <Border
+                        x:Name="AppThemeBackgroundLayer2"
+                        Grid.RowSpan="2"
+                        Grid.ColumnSpan="2"
+                        Background="{x:Bind BackgroundColor, Converter={StaticResource ColorToSolidColorBrushConverter}, Mode=OneWay}"
+                        CornerRadius="4,4,0,0" />
+
+                    <Border
+                        x:Name="AppThemeLayerFillColorBackground"
                         Grid.Row="1"
                         Grid.Column="1"
-                        Background="{ThemeResource LayerOnMicaBaseAltFillColorDefault}"
-                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1,1,0,0"
                         CornerRadius="4,0,0,0" />
 
-                    <TextBlock
+                    <Border
                         Grid.Row="2"
+                        Grid.ColumnSpan="2"
+                        Height="1"
+                        Background="{ThemeResource ControlElevationBorderBrush}" />
+
+                    <TextBlock
+                        x:Name="AppThemeBackgroundNameTextBlock"
+                        Grid.Row="3"
                         Grid.ColumnSpan="2"
                         Margin="8,0"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
+                        Style="{StaticResource BodyTextBlockStyle}"
                         Text="{x:Bind Name, Mode=OneWay}"
                         TextTrimming="CharacterEllipsis" />
 
@@ -95,9 +120,6 @@
                     <settingsui:SettingsBlockControl.Icon>
                         <FontIcon Glyph="&#xE771;" />
                     </settingsui:SettingsBlockControl.Icon>
-                    <!--<StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                        <ComboBox Width="96" />
-                    </StackPanel>-->
                     <settingsui:SettingsBlockControl.ExpandableContent>
                         <GridView
                             Padding="16"
