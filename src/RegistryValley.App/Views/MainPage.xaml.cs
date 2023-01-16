@@ -7,6 +7,7 @@ using RegistryValley.App.Models;
 using RegistryValley.App.Services;
 using RegistryValley.App.ViewModels;
 using RegistryValley.Core.Services;
+using System.Security.Principal;
 using WinRT.Interop;
 
 namespace RegistryValley.App.Views
@@ -36,6 +37,10 @@ namespace RegistryValley.App.Views
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             ThemeModeServices.Initialize();
+
+            using var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            var isadmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         #region TreeView event methods
@@ -76,6 +81,7 @@ namespace RegistryValley.App.Views
 
             if (item.SelectedRootComputer && flyout.Items.Count > 5)
             {
+                // TODO: More reliable way
                 flyout.Items.RemoveAt(1);
                 flyout.Items.RemoveAt(1);
                 flyout.Items.RemoveAt(1);

@@ -3,24 +3,12 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.AppLifecycle;
 using RegistryValley.App.Services;
-using System;
-using System.Collections.Generic;
+using RegistryValley.App.Views;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using WinRT.Interop;
 using WinUIEx;
 
 namespace RegistryValley.App
@@ -33,56 +21,59 @@ namespace RegistryValley.App
 
             PersistenceId = "RegistryValleyMainWindow";
 
+            Activated += MainWindow_Activated;
+
             EnsureEarlyWindow();
         }
 
+        private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+        {
+            InitializeApplication();
+        }
+
+        private UserSettingsServices UserSettingsServices { get; } = App.Current.Services.GetRequiredService<UserSettingsServices>();
+
         private void EnsureEarlyWindow()
         {
-            // Set title
             AppWindow.Title = "RegistryValley";
-
-            // Set icon
             AppWindow.SetIcon(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, "Assets/AppTiles/StoreLogo.png"));
-
-            // Extend title bar
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-
-            // Set window buttons background to transparent
             AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-            // Set min size
-            base.MinHeight = 328;
-            base.MinWidth = 516;
+            MinHeight = 328;
+            MinWidth = 516;
         }
 
-        public async Task InitializeApplication(object activatedEventArgs)
+        public void InitializeApplication()
         {
             var rootFrame = EnsureWindowIsInitialized();
-            Type pageType = typeof(Views.MainPage);
+            Type pageType = UserSettingsServices.SetupCompleted ? typeof(MainPage) : typeof(SetupPage);
 
             if (rootFrame.Content == null)
             {
-                rootFrame.Navigate(typeof(Views.MainPage), null, new SuppressNavigationTransitionInfo());
-                pageType = typeof(Views.MainPage);
+                rootFrame.Navigate(pageType, null, new SuppressNavigationTransitionInfo());
             }
 
-            ((Views.MainPage)rootFrame.Content).Loaded += (s, e)
-                => DispatcherQueue.TryEnqueue(() => Activate());
+            if (UserSettingsServices.SetupCompleted)
+            {
+                ((MainPage)rootFrame.Content).Loaded += (s, e)
+                    => DispatcherQueue.TryEnqueue(() => Activate());
+            }
+            else
+            {
+                ((SetupPage)rootFrame.Content).Loaded += (s, e)
+                    => DispatcherQueue.TryEnqueue(() => Activate());
+            }
         }
 
         private Frame EnsureWindowIsInitialized()
         {
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active
             if (!(App.Window.Content is Frame rootFrame))
             {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
-                rootFrame.CacheSize = 1;
+                rootFrame = new() { CacheSize = 1 };
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
-                // Place the frame in the current Window
                 App.Window.Content = rootFrame;
             }
 
