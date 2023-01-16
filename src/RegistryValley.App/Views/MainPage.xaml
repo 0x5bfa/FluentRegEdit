@@ -11,6 +11,7 @@
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
     xmlns:uctree="using:RegistryValley.App.UserControls.TreeView"
+    Background="{ThemeResource AppThemeBackgroundBrush}"
     DataContext="{x:Bind ViewModel, Mode=OneWay}"
     Loaded="Page_Loaded"
     mc:Ignorable="d">

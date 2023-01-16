@@ -15,6 +15,10 @@ namespace RegistryValley.App
 {
     public sealed partial class MainWindow : WindowEx
     {
+        private bool AlreadyInitialized { get; set; }
+
+        private UserSettingsServices UserSettingsServices { get; } = App.Current.Services.GetRequiredService<UserSettingsServices>();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -28,10 +32,9 @@ namespace RegistryValley.App
 
         private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
-            InitializeApplication();
+            if (!AlreadyInitialized)
+                InitializeApplication();
         }
-
-        private UserSettingsServices UserSettingsServices { get; } = App.Current.Services.GetRequiredService<UserSettingsServices>();
 
         private void EnsureEarlyWindow()
         {
@@ -65,6 +68,8 @@ namespace RegistryValley.App
                 ((SetupPage)rootFrame.Content).Loaded += (s, e)
                     => DispatcherQueue.TryEnqueue(() => Activate());
             }
+
+            AlreadyInitialized = true;
         }
 
         private Frame EnsureWindowIsInitialized()

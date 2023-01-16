@@ -19,5 +19,11 @@
             get => Get(false);
             set => Set(value);
         }
+
+        public string AppThemeBackgroundColor
+        {
+            get => Get("#00000000");
+            set => Set(value);
+        }
     }
 }

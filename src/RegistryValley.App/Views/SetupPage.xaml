@@ -25,24 +25,24 @@
                 Style="{StaticResource TitleTextBlockStyle}"
                 Text="Welcome to" />
 
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                 <Image
                     Width="Auto"
-                    MaxHeight="92"
+                    MaxHeight="72"
                     HorizontalAlignment="Center"
                     Source="ms-appx:///Assets/Branding/AppLogo.png" />
                 <TextBlock
                     VerticalAlignment="Center"
-                    FontSize="56"
+                    FontSize="40"
                     Style="{StaticResource BodyStrongTextBlockStyle}"
                     Text="Registry Valley" />
             </StackPanel>
 
             <TextBlock
-                Width="420"
+                Width="480"
                 HorizontalAlignment="Center"
                 Style="{StaticResource BodyTextBlockStyle}"
-                Text="We're glad you're here. Need a few simple setup to launch the app and you're good to go! (Until that, the app never access any personal data)"
+                Text="We're glad you're here. Need a few simple setup to launch the app and you're good to go! (Until that, the app don't access any personal data)"
                 TextAlignment="Center" />
 
             <Button

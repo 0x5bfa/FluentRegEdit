@@ -255,9 +255,6 @@
     <None Remove="C:\Users\onein\.nuget\packages\microsoft.powershell.sdk\7.4.0-preview.1\contentFiles\any\any\runtimes\win\lib\net7.0\Modules\Microsoft.WSMan.Management\WSMan.format.ps1xml" />
     <None Remove="C:\Users\onein\.nuget\packages\microsoft.powershell.sdk\7.4.0-preview.1\contentFiles\any\any\runtimes\win\lib\net7.0\Modules\PSDiagnostics\PSDiagnostics.psd1" />
     <None Remove="C:\Users\onein\.nuget\packages\microsoft.powershell.sdk\7.4.0-preview.1\contentFiles\any\any\runtimes\win\lib\net7.0\Modules\PSDiagnostics\PSDiagnostics.psm1" />
-    <None Remove="Views\SetupPage.xaml" />
-    <None Remove="Views\Setups\ConfigurationsPage.xaml" />
-    <None Remove="Views\Setups\TermsPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -281,30 +278,12 @@
     <PackageReference Include="System.Runtime.InteropServices.WindowsRuntime" Version="4.3.0" />
     <PackageReference Include="Vanara.PInvoke.Security" Version="3.4.11" />
     <PackageReference Include="Vanara.Windows.Shell" Version="3.4.11" />
-    <PackageReference Include="WinUIEx" Version="1.8.0" />
+    <PackageReference Include="WinUIEx" Version="2.0.0" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RegistryValley.Core\RegistryValley.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Views\Setups\ConfigurationsPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Views\SetupPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Views\Setups\TermsPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 
 </Project>

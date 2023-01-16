@@ -1,6 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.WinUI.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using RegistryValley.App.Data;
+using RegistryValley.App.Helpers;
+using RegistryValley.App.Models;
 using RegistryValley.App.Services;
+using Windows.UI;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -17,11 +22,15 @@ namespace RegistryValley.App.ViewModels
                 "Dark",
             }
             .AsReadOnly();
+
+            AppThemeResources = AppThemeResourceFactory.AppThemeResources;
         }
 
         private UserSettingsServices UserSettingsServices { get; } = App.Current.Services.GetRequiredService<UserSettingsServices>();
 
         public ReadOnlyCollection<string> ColorModes { get; set; }
+
+        public ObservableCollection<AppThemeResourceItem> AppThemeResources { get; }
 
         private int _selectedColorModeIndex = (int)Enum.Parse(typeof(ElementTheme), ThemeModeServices.RootTheme.ToString());
         public int SelectedColorModeIndex
@@ -32,6 +41,34 @@ namespace RegistryValley.App.ViewModels
                 if (SetProperty(ref _selectedColorModeIndex, value))
                 {
                     ThemeModeServices.RootTheme = (ElementTheme)value;
+                }
+            }
+        }
+
+        private AppThemeResourceItem selectedAppThemeResources;
+        public AppThemeResourceItem SelectedAppThemeResources
+        {
+            get => selectedAppThemeResources;
+            set
+            {
+                if (SetProperty(ref selectedAppThemeResources, value))
+                {
+                    AppThemeBackgroundColor = SelectedAppThemeResources.BackgroundColor;
+                }
+            }
+        }
+
+        public Color AppThemeBackgroundColor
+        {
+            get => ColorHelper.ToColor(UserSettingsServices.AppThemeBackgroundColor);
+            set
+            {
+                if (value != ColorHelper.ToColor(UserSettingsServices.AppThemeBackgroundColor))
+                {
+                    UserSettingsServices.AppThemeBackgroundColor = value.ToString();
+
+                    AppThemeResourcesHelpers.SetAppThemeBackgroundColor(AppThemeBackgroundColor);
+                    AppThemeResourcesHelpers.ApplyResources();
                 }
             }
         }
