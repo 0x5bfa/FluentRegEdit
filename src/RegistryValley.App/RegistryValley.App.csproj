@@ -282,8 +282,4 @@
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\RegistryValley.Core\RegistryValley.Core.csproj" />
-  </ItemGroup>
-
 </Project>

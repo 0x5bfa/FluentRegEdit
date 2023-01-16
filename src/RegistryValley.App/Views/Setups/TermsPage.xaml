@@ -51,7 +51,7 @@
                 <TextBlock
                     VerticalAlignment="Center"
                     Style="{StaticResource TitleTextBlockStyle}"
-                    Text="License &amp; Terms" />
+                    Text="Notice" />
 
             </StackPanel>
 

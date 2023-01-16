@@ -8,7 +8,6 @@ using RegistryValley.App.Models;
 using RegistryValley.App.Services;
 using RegistryValley.App.ViewModels;
 using RegistryValley.App.Views.Setups;
-using RegistryValley.Core.Services;
 using WinRT.Interop;
 
 namespace RegistryValley.App.Views

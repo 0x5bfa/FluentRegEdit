@@ -1,9 +1,9 @@
-﻿using RegistryValley.Core.Extensions;
-using CommunityToolkit.WinUI;
+﻿using CommunityToolkit.WinUI;
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using RegistryValley.App.Extensions;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.ViewManagement;

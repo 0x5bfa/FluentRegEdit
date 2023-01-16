@@ -85,6 +85,14 @@ namespace RegistryValley.App
             return rootFrame;
         }
 
+        public void NavigateFrameTo(Type sourcePageType)
+        {
+            if (App.Window.Content is Frame rootFrame)
+            {
+                rootFrame.Navigate(sourcePageType);
+            }
+        }
+
         private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);

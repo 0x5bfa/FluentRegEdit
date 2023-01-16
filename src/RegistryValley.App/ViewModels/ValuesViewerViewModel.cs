@@ -1,9 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using RegistryValley.App.Models;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using Vanara.InteropServices;
-using static RegistryValley.Core.Helpers.RegistryServices;
 
 namespace RegistryValley.App.ViewModels
 {

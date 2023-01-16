@@ -1,7 +1,6 @@
 ﻿using RegistryValley.App.Models;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
-using static RegistryValley.Core.Helpers.RegistryServices;
 
 namespace RegistryValley.App.ViewModels.Properties
 {

@@ -8,7 +8,6 @@ using RegistryValley.App.Helpers;
 using RegistryValley.App.Models;
 using RegistryValley.App.Services;
 using RegistryValley.App.ViewModels;
-using RegistryValley.Core.Services;
 using System.Security.Principal;
 using WinRT.Interop;
 

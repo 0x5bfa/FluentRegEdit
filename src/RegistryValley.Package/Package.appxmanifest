@@ -32,7 +32,7 @@
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="Registry Editor Valley"
-        Description="A powerful yet fluent registry editor fow Windows 10/11 with WinUI3"
+        Description="A powerful yet fluent registry editor for Windows 10/11 with WinUI3"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\AppTiles\Square150x150Logo.png"
         Square44x44Logo="Assets\AppTiles\Square44x44Logo.png">

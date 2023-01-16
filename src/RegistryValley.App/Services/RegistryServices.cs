@@ -1,8 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using Vanara.PInvoke;
-using static Vanara.PInvoke.AdvApi32;
 
-namespace RegistryValley.Core.Helpers
+namespace RegistryValley.App.Services
 {
     public static class RegistryServices
     {

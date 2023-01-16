@@ -18,5 +18,10 @@ namespace RegistryValley.App.Views
         }
 
         public SettingsViewModel ViewModel { get; }
+
+        private void ResetAppButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.Window.NavigateFrameTo(typeof(SetupPage));
+        }
     }
 }

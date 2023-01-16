@@ -13,7 +13,11 @@ global using global::CommunityToolkit.Mvvm.DependencyInjection;
 global using global::CommunityToolkit.Mvvm.Input;
 global using global::CommunityToolkit.Mvvm.Messaging;
 global using global::Humanizer;
+global using global::Microsoft.Extensions.DependencyInjection;
 
-// Vanara
-global using static global::Vanara.PInvoke.AdvApi32;
+// Vanara usings
 global using global::Vanara.PInvoke;
+global using static global::Vanara.PInvoke.AdvApi32;
+
+// Local usings
+global using static global::RegistryValley.App.Services.RegistryServices;

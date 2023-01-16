@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 
-namespace RegistryValley.Core.Services
+namespace RegistryValley.App.Services
 {
     public static class ShellServices
     {

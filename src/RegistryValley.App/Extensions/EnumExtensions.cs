@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace RegistryValley.Core.Extensions
+namespace RegistryValley.App.Extensions
 {
     public static class EnumExtensions
     {

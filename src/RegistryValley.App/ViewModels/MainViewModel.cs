@@ -1,7 +1,5 @@
-﻿using RegistryValley.Core.Services;
+﻿using RegistryValley.App.Services;
 using RegistryValley.App.Models;
-using static RegistryValley.Core.Helpers.RegistryServices;
-using System.Management.Automation;
 
 namespace RegistryValley.App.ViewModels
 {

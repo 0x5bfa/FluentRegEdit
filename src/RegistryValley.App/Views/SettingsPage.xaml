@@ -17,7 +17,7 @@
 
             <DataTemplate x:Key="AppThemeResourcesItemTemplate" x:DataType="models:AppThemeResourceItem">
                 <Grid
-                    Width="108"
+                    Width="96"
                     Height="88"
                     BorderBrush="{ThemeResource ControlElevationBorderBrush}"
                     BorderThickness="1"
@@ -74,7 +74,7 @@
                         x:Name="AppThemeBackgroundNameTextBlock"
                         Grid.Row="3"
                         Grid.ColumnSpan="2"
-                        Margin="8,0"
+                        Margin="4,0"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Style="{StaticResource BodyTextBlockStyle}"
@@ -259,6 +259,20 @@
                             <TextBlock Text="onein528" />
                         </StackPanel>
                     </HyperlinkButton>
+                </settingsui:SettingsBlockControl>
+
+                <TextBlock
+                    Margin="0,20,0,0"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="Reset" />
+                <settingsui:SettingsBlockControl Title="Reset app" IsClickable="False">
+                    <settingsui:SettingsBlockControl.Icon>
+                        <FontIcon Glyph="&#xE771;" />
+                    </settingsui:SettingsBlockControl.Icon>
+                    <Button
+                        x:Name="ResetAppButton"
+                        Click="ResetAppButton_Click"
+                        Content="Reset" />
                 </settingsui:SettingsBlockControl>
 
             </StackPanel>
