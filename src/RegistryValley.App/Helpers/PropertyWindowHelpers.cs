@@ -37,7 +37,7 @@ namespace RegistryValley.App.Helpers
             appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
             appWindow.Resize(new SizeInt32(460, 550));
-            appWindow.SetIcon("");
+            appWindow.SetIcon(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, Constants.AssetPaths.Logo));
 
             if (frame.Content is MainPropertyPage properties)
             {

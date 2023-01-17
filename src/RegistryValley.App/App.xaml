@@ -6,8 +6,9 @@
     <Application.Resources>
         <ResourceDictionary>
 
-            <!--  Default list view item height  -->
-            <x:Double x:Key="ListItemHeight">36</x:Double>
+            <!--  Compact layout  -->
+            <x:Double x:Key="AppListViewItemHeight">36</x:Double>
+            <x:Double x:Key="AppHalfBranchLineHeight">8</x:Double>
 
             <!--  Fix caption buttons background  -->
             <SolidColorBrush x:Key="WindowCaptionBackground" Color="Transparent" />

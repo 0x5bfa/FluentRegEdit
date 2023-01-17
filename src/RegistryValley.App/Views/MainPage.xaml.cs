@@ -1,15 +1,11 @@
 ﻿using CommunityToolkit.WinUI.Helpers;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
 using RegistryValley.App.Extensions;
 using RegistryValley.App.Helpers;
 using RegistryValley.App.Models;
 using RegistryValley.App.Services;
 using RegistryValley.App.ViewModels;
-using System.Security.Principal;
-using WinRT.Interop;
 
 namespace RegistryValley.App.Views
 {
@@ -25,214 +21,30 @@ namespace RegistryValley.App.Views
             UserSettingsServices = App.Current.Services.GetRequiredService<UserSettingsServices>();
 
             LoadAppResources();
+
+            ContentFrame.Navigate(typeof(ValuesViewerPage));
         }
 
         #region Fields and Properties
         public MainViewModel ViewModel { get; }
-
         public ValuesViewerViewModel ValuesViewerViewModel { get; }
-
         private UserSettingsServices UserSettingsServices { get; }
         #endregion
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            ContentFrame.Navigate(typeof(ValuesViewerPage));
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            ThemeModeServices.Initialize();
-
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            var isadmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
 
         private void LoadAppResources()
         {
             var appThemeBackgroundColor = ColorHelper.ToColor(UserSettingsServices.AppThemeBackgroundColor);
-
             AppThemeResourcesHelpers.SetAppThemeBackgroundColor(appThemeBackgroundColor);
-
+            var useCompactSpacing = UserSettingsServices.UseCompactLayout;
+            AppThemeResourcesHelpers.SetCompactSpacing(useCompactSpacing);
             AppThemeResourcesHelpers.ApplyResources();
+
+            ThemeModeServices.Initialize();
         }
 
-        #region TreeView event methods
-        private void CustomMainTreeView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            EnsureCurrentPageIsValuesViewer();
-
-            // Load selected key's values
-            if (CustomMainTreeView.SelectedItem != null
-                && CustomMainTreeView.SelectedItem is KeyItem item
-                && ValuesViewerViewModel.SelectedKeyItem != item)
-            {
-                ValuesViewerViewModel.SelectedKeyItem = item;
-            }
-        }
-
-        private void ExpandCollapseButton_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)((Button)sender).DataContext;
-
-            if (!item.IsExpanded)
-            {
-                ExpandChildren(item);
-            }
-            else
-            {
-                CollapseChildren(item);
-            }
-        }
-        #endregion
-
-        #region MenuFlyout event methods
-        private void KeyTreeViewItemMenuFlyout_Opening(object sender, object e)
-        {
-            var flyout = (MenuFlyout)sender;
-            var target = (Grid)flyout.Target;
-            var item = (KeyItem)target.DataContext;
-
-            if (item.SelectedRootComputer && flyout.Items.Count > 5)
-            {
-                // TODO: More reliable way
-                flyout.Items.RemoveAt(1);
-                flyout.Items.RemoveAt(1);
-                flyout.Items.RemoveAt(1);
-                flyout.Items.RemoveAt(1);
-                flyout.Items.RemoveAt(1);
-                flyout.Items.RemoveAt(3);
-                flyout.Items.RemoveAt(3);
-                flyout.Items.RemoveAt(3);
-                return;
-            }
-        }
-
-        private void KeyTreeViewItemMenuFlyout_Opened(object sender, object e)
-        {
-            EnsureCurrentPageIsValuesViewer();
-
-            var flyout = (MenuFlyout)sender;
-            var target = (Grid)flyout.Target;
-            var item = (KeyItem)target.DataContext;
-
-            SelectItem(item);
-
-            if (ValuesViewerViewModel.SelectedKeyItem != item)
-                ValuesViewerViewModel.SelectedKeyItem = item;
-        }
-
-        private void KeyTreeViewItemMenuFlyoutExpand_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-
-            ExpandChildren(item);
-        }
-
-        private void KeyTreeViewItemMenuFlyoutCollapse_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-
-            CollapseChildren(item);
-        }
-
-        private void KeyTreeViewItemMenuFlyoutNew_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)CustomMainTreeView.SelectedItem;
-            var itemIndex = CustomMainTreeView.SelectedIndex + 1;
-
-            if (!item.IsExpanded)
-                ExpandChildren(item);
-
-            item.HasChildren = true;
-
-            // TODO: Should check if this name is already exist.
-            string keyName = "New Key #1";
-
-            var defaultNewKeyItem = new KeyItem()
-            {
-                Name = keyName,
-                RootHive = item.RootHive,
-                Path = item.Path == "" ? $"{keyName}" : $"{item.Path}\\{keyName}",
-                IsDeletable = true,
-                IsRenamable = true,
-                IsRenaming = true,
-                HasChildren = false,
-                Image = "ms-appx:///Assets/Images/Folder.png",
-                Depth = item.Depth + 1,
-                Parent = item,
-            };
-
-            ViewModel.CreatingNewKey = true;
-            ViewModel.Insert(itemIndex, defaultNewKeyItem);
-            CustomMainTreeView.SelectedIndex++;
-        }
-
-        private async void KeyTreeViewItemMenuFlyoutDelete_Click(object sender, RoutedEventArgs e)
-        {
-            var item = ((KeyItem)((MenuFlyoutItem)sender).DataContext);
-
-            ContentDialog dialog = new()
-            {
-                Title = "Confirm key deletion",
-                Content = "Are you sure you want permanently\ndelete this key and all of its subkeys?",
-                PrimaryButtonText = "Yes",
-                SecondaryButtonText = "No",
-                XamlRoot = Content.XamlRoot,
-            };
-
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Secondary)
-                return;
-
-            var command = ViewModel.DeleteKeyCommand;
-            if (command.CanExecute(item))
-                command.Execute(item);
-        }
-
-        private void KeyTreeViewItemMenuFlyoutRename_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)CustomMainTreeView.SelectedItem;
-            item.IsRenaming = true;
-        }
-
-        private async void KeyTreeViewItemMenuFlyoutExport_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-
-            var picker = new Windows.Storage.Pickers.FileSavePicker();
-            picker.FileTypeChoices.Add("Registration Entries", new List<string>() { ".reg" });
-
-            InitializeWithWindow.Initialize(picker, App.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
-
-            if (file != null)
-                ShellServices.RunCmdPromptCommand(runAs: true, $"/c REG EXPORT {item.PathForCmd} {file.Path}");
-        }
-
-        private void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-
-            Helpers.PropertyWindowHelpers.CreatePropertyWindow(item);
-        }
-
-        private void KeyTreeViewItemMenuFlyoutCopyKeyName_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-
-            var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
-            dp.SetText(item.PathForPwsh);
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
-        }
-        #endregion
-
-        #region Settings
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            CustomMainTreeView.SelectedIndex = -1;
+            CustomMainTreeView.UnselectItem();
 
             SettingsButtonClickedIndicator.Visibility = Visibility.Visible;
             SettingsButtonClickedBackground.Visibility = Visibility.Visible;
@@ -248,148 +60,60 @@ namespace RegistryValley.App.Views
             {
                 SettingsButtonClickedIndicator.Visibility = Visibility.Collapsed;
                 SettingsButtonClickedBackground.Visibility = Visibility.Collapsed;
+
                 ContentFrame.Navigate(typeof(ValuesViewerPage));
             }
         }
-        #endregion
 
-        #region TextBox event for renaming
-        private void KeyItemNameRenamingTextBox_Loaded(object sender, RoutedEventArgs e)
+        #region CustomMainTreeView Events
+        private void CustomMainTreeView_BaseSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var textBox = (TextBox)sender;
-            textBox.Focus(FocusState.Programmatic);
-            textBox.SelectAll();
-        }
+            EnsureCurrentPageIsValuesViewer();
 
-        private void KeyItemNameRenamingTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            var textBox = (TextBox)sender;
-            var item = (KeyItem)CustomMainTreeView.SelectedItem;
+            var selectedItem = CustomMainTreeView.GetSelectedItem();
 
-            if (item.Name != textBox.Text || ViewModel.CreatingNewKey)
+            // Load selected key's values
+            if (selectedItem != null && ValuesViewerViewModel.SelectedKeyItem != selectedItem)
             {
-                ViewModel.CreatingNewKey = false;
-                ViewModel.LastRenamedNewName = textBox.Text;
-
-                var command = ViewModel.RenameKeyCommand;
-                if (command.CanExecute(item))
-                    command.Execute(item);
-            }
-
-            item.IsRenaming = false;
-        }
-
-        private void KeyItemNameRenamingTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                var textBox = (TextBox)sender;
-                var item = (KeyItem)CustomMainTreeView.SelectedItem;
-
-                if (item.Name != textBox.Text)
-                {
-                    ViewModel.CreatingNewKey = false;
-                    ViewModel.LastRenamedNewName = textBox.Text;
-
-                    var command = ViewModel.RenameKeyCommand;
-                    if (command.CanExecute(item))
-                        command.Execute(item);
-                }
-
-                item.IsRenaming = false;
+                ValuesViewerViewModel.SelectedKeyItem = selectedItem;
             }
         }
-        #endregion
 
-        private void GetChildItems(KeyItem item)
+        private async void CustomMainTreeView_KeyDeleting(object sender, RoutedEventArgs e)
         {
-            if (item.RootHive == HKEY.NULL)
+            ContentDialog dialog = new()
+            {
+                Title = "Confirm key deletion",
+                Content = "Are you sure you want permanently\ndelete this key and all of its subkeys?",
+                PrimaryButtonText = "Yes",
+                SecondaryButtonText = "No",
+                XamlRoot = Content.XamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Secondary)
                 return;
 
-            item.Children.Clear();
+            var item = CustomMainTreeView.GetSelectedItem();
 
-            var children = ViewModel.EnumerateRegistryKeys(item.RootHive, item.Path, item);
-            if (children != null)
-            {
-                foreach (var child in children)
-                    item.Children.Add(child);
-            }
-            else
-            {
-                // Error handling
-                var result = Kernel32.GetLastError();
-                if (result.Failed)
-                {
-                    ValuesViewerViewModel.StatusBarMessage = result.FormatMessage();
-                }
-            }
+            ViewModel.DeleteSelectedKey(item);
+            CustomMainTreeView.RemoveItem(item);
         }
 
-        private void RemoveChildItems(KeyItem item)
+        private void CustomMainTreeView_KeyRenaming(object sender, RoutedEventArgs e)
         {
-            item.Children.Clear();
-            item.HasChildren = true;
+            ViewModel.RenameSelectedKey(CustomMainTreeView.GetSelectedItem(), (string)sender);
         }
 
-        private void ExpandChildren(KeyItem item)
+        private async void CustomMainTreeView_KeyExporting(object sender, RoutedEventArgs e)
         {
-            item.IsExpanded = true;
-            int index = ((ReadOnlyObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource).IndexOf(item);
-
-            var keyItemNodeTree = (ReadOnlyObservableCollection<KeyItem>)CustomMainTreeView.NodeItemSource;
-            var flattenedKeyItemNodeTree = GetFlattenNodes(keyItemNodeTree);
-
-            var itemFromFlattenedTree = flattenedKeyItemNodeTree.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
-
-            itemFromFlattenedTree.IsExpanded = true;
-
-            if (item.Depth != 1)
-                GetChildItems(itemFromFlattenedTree);
-
-            index++;
-            foreach (var child in itemFromFlattenedTree.Children)
-            {
-                ViewModel.Insert(index, child);
-                index++;
-            }
+            await ViewModel.ExportSelectedKeyTree(CustomMainTreeView.GetSelectedItem());
         }
 
-        private void CollapseChildren(KeyItem item)
+        private void CustomMainTreeView_KeyPropertyWindowOpening(object sender, RoutedEventArgs e)
         {
-            item.IsExpanded = false;
-            int index = ((ReadOnlyObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource).IndexOf(item);
-
-            var keyItemNodeTree = (ReadOnlyObservableCollection<KeyItem>)CustomMainTreeView.NodeItemSource;
-            var flattenedKeyItemNodeTree = GetFlattenNodes(keyItemNodeTree);
-
-            var itemFromFlattenedTree = flattenedKeyItemNodeTree.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
-
-            itemFromFlattenedTree.IsExpanded = false;
-
-            if (item.Depth != 1)
-                RemoveChildItems(itemFromFlattenedTree);
-
-            ViewModel.RemoveAll(item.Depth, index);
+            PropertyWindowHelpers.CreatePropertyWindow(CustomMainTreeView.GetSelectedItem());
         }
-
-        private void SelectItem(KeyItem item)
-        {
-            int index = ((ReadOnlyObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource).IndexOf(item);
-
-            CustomMainTreeView.SelectedIndex = index;
-        }
-
-        public IEnumerable<KeyItem> GetFlattenNodes(IEnumerable<KeyItem> masterList)
-        {
-            foreach (var node in masterList)
-            {
-                yield return node;
-
-                foreach (var children in GetFlattenNodes(node.Children))
-                {
-                    yield return children;
-                }
-            }
-        }
+        #endregion
     }
 }

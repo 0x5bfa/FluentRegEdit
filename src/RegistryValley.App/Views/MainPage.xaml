@@ -10,10 +10,8 @@
     xmlns:models="using:RegistryValley.App.Models"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
-    xmlns:uctree="using:RegistryValley.App.UserControls.TreeView"
     Background="{ThemeResource AppThemeBackgroundBrush}"
     DataContext="{x:Bind ViewModel, Mode=OneWay}"
-    Loaded="Page_Loaded"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -47,14 +45,13 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="44" />
+            <RowDefinition Height="36" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <uc:TitleBarControl Grid.Row="1" Margin="0,-3,0,0" />
+        <uc:TitleBarControl />
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" MinWidth="144" />
                 <ColumnDefinition Width="6" />
@@ -73,146 +70,15 @@
                     Padding="0,0,0,4"
                     HorizontalScrollBarVisibility="Auto"
                     HorizontalScrollMode="Auto">
-                    <uctree:TreeView
+                    <uc:TreeView
                         x:Name="CustomMainTreeView"
                         MinWidth="256"
                         Margin="0,0,0,24"
-                        CanDrag="False"
-                        CanDragItems="False"
-                        CanReorderItems="False"
-                        ItemsSource="{x:Bind ViewModel.FlatKeyItems, Mode=OneWay}"
-                        NodeItemSource="{x:Bind ViewModel.KeyItems, Mode=OneWay}"
-                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                        ScrollViewer.HorizontalScrollMode="Disabled"
-                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                        ScrollViewer.VerticalScrollMode="Disabled"
-                        SelectionChanged="CustomMainTreeView_SelectionChanged"
-                        SelectionMode="Single">
-
-                        <uctree:TreeView.ItemTemplate>
-                            <DataTemplate x:DataType="models:KeyItem">
-
-                                <Grid Height="32" Margin="-4,0,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <Grid.ContextFlyout>
-                                        <MenuFlyout
-                                            x:Name="KeyTreeViewItemMenuFlyout"
-                                            Opened="KeyTreeViewItemMenuFlyout_Opened"
-                                            Opening="KeyTreeViewItemMenuFlyout_Opening">
-                                            <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutExpand"
-                                                x:Load="{x:Bind IsExpanded, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
-                                                Click="KeyTreeViewItemMenuFlyoutExpand_Click"
-                                                IsEnabled="{x:Bind HasChildren, Mode=OneWay}"
-                                                Tag="Expand"
-                                                Text="Expand" />
-                                            <MenuFlyoutItem
-                                                x:Name="KeyTreeViewItemMenuFlyoutCollapse"
-                                                x:Load="{x:Bind IsExpanded, Mode=OneWay}"
-                                                Click="KeyTreeViewItemMenuFlyoutCollapse_Click"
-                                                Tag="Collapse"
-                                                Text="Collapse" />
-                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutNew_Click" Text="New" />
-                                            <MenuFlyoutItem IsEnabled="False" Text="Find" />
-                                            <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem
-                                                Click="KeyTreeViewItemMenuFlyoutDelete_Click"
-                                                IsEnabled="{x:Bind IsDeletable}"
-                                                Text="Delete" />
-                                            <MenuFlyoutItem
-                                                Click="KeyTreeViewItemMenuFlyoutRename_Click"
-                                                IsEnabled="{x:Bind IsRenamable}"
-                                                Text="Rename" />
-                                            <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutExport_Click" Text="Export" />
-                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutPermissions_Click" Text="Permissions" />
-                                            <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem Click="KeyTreeViewItemMenuFlyoutCopyKeyName_Click" Text="Copy key name" />
-                                        </MenuFlyout>
-                                    </Grid.ContextFlyout>
-
-                                    <uc:BranchDisplay
-                                        Margin="0,-10"
-                                        HasChildren="{x:Bind HasChildren, Mode=OneWay}"
-                                        NumberOfBranch="{x:Bind Depth}" />
-
-                                    <StackPanel
-                                        x:Name="ExpandCollapseButtonStackPanel"
-                                        Grid.Column="1"
-                                        Margin="2,-18,0,-18"
-                                        Spacing="4"
-                                        Visibility="{x:Bind HasChildren, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}">
-                                        <Border
-                                            Width="1"
-                                            Height="20"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Top"
-                                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
-
-                                        <Button
-                                            x:Name="ExpandCollapseButton"
-                                            Width="20"
-                                            Padding="2,4"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Click="ExpandCollapseButton_Click">
-                                            <FontIcon FontSize="12" Glyph="{x:Bind IsExpanded, Converter={StaticResource BoolToGlyphConverter}, Mode=OneWay}" />
-                                        </Button>
-
-                                        <Border
-                                            Width="1"
-                                            Height="20"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Top"
-                                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                                    </StackPanel>
-
-                                    <Image
-                                        x:Name="KeyItemImage"
-                                        Grid.Column="2"
-                                        Width="18"
-                                        Height="18"
-                                        Margin="3,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        Source="{x:Bind Image}" />
-
-                                    <TextBlock
-                                        x:Name="KeyItemName"
-                                        Grid.Column="3"
-                                        Margin="6,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        x:Load="{x:Bind IsRenaming, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
-                                        MaxLines="1"
-                                        Style="{ThemeResource BodyTextBlockStyle}"
-                                        Text="{x:Bind Name, Mode=OneWay}"
-                                        TextTrimming="CharacterEllipsis"
-                                        TextWrapping="NoWrap" />
-
-                                    <TextBox
-                                        x:Name="KeyItemNameRenamingTextBox"
-                                        Grid.Column="3"
-                                        Padding="6"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Center"
-                                        x:Load="{x:Bind IsRenaming, Mode=OneWay}"
-                                        KeyDown="KeyItemNameRenamingTextBox_KeyDown"
-                                        Loaded="KeyItemNameRenamingTextBox_Loaded"
-                                        LostFocus="KeyItemNameRenamingTextBox_LostFocus"
-                                        Text="{x:Bind Name, Mode=OneWay}" />
-
-                                </Grid>
-
-                            </DataTemplate>
-                        </uctree:TreeView.ItemTemplate>
-
-                    </uctree:TreeView>
+                        BaseSelectionChanged="CustomMainTreeView_BaseSelectionChanged"
+                        KeyDeleting="CustomMainTreeView_KeyDeleting"
+                        KeyExporting="CustomMainTreeView_KeyExporting"
+                        KeyPropertyWindowOpening="CustomMainTreeView_KeyPropertyWindowOpening"
+                        KeyRenaming="CustomMainTreeView_KeyRenaming" />
                 </ScrollViewer>
 
                 <Border

@@ -31,11 +31,13 @@ namespace RegistryValley.App.Helpers
         {
             if (useCompactSpacing)
             {
-                Application.Current.Resources["ListItemHeight"] = 24;
+                Application.Current.Resources["AppListViewItemHeight"] = 28;
+                Application.Current.Resources["AppHalfBranchLineHeight"] = 4;
             }
             else
             {
-                Application.Current.Resources["ListItemHeight"] = 36;
+                Application.Current.Resources["AppListViewItemHeight"] = 36;
+                Application.Current.Resources["AppHalfBranchLineHeight"] = 8;
             }
         }
     }

@@ -16,6 +16,7 @@ namespace RegistryValley.App.ViewModels
             UserSettingsServices = App.Current.Services.GetRequiredService<UserSettingsServices>();
 
             _runAsAdminOnStartup = UserSettingsServices.RunAsAdminOnStartup;
+            _useCompactLayout = UserSettingsServices.UseCompactLayout;
 
             ColorModes = new List<string>()
             {
@@ -88,6 +89,22 @@ namespace RegistryValley.App.ViewModels
                 if (SetProperty(ref _runAsAdminOnStartup, value))
                 {
                     UserSettingsServices.RunAsAdminOnStartup = value;
+                }
+            }
+        }
+
+        private bool _useCompactLayout;
+        public bool UseCompactLayout
+        {
+            get => _useCompactLayout;
+            set
+            {
+                if (SetProperty(ref _useCompactLayout, value))
+                {
+                    UserSettingsServices.UseCompactLayout = value;
+
+                    AppThemeResourcesHelpers.SetCompactSpacing(value);
+                    AppThemeResourcesHelpers.ApplyResources();
                 }
             }
         }

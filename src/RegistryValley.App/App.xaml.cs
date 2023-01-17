@@ -40,6 +40,7 @@ namespace RegistryValley.App
                 .AddTransient<ViewModels.Properties.MainPropertyViewModel>()
                 .AddTransient<ViewModels.Properties.SecurityAdvancedViewModel>()
                 .AddTransient<ViewModels.Properties.SecurityViewModel>()
+                .AddTransient<ViewModels.UserControls.TreeViewViewModel>()
                 .AddSingleton<MainViewModel>()
                 .AddTransient<SettingsViewModel>()
                 .AddSingleton<ValuesViewerViewModel>()

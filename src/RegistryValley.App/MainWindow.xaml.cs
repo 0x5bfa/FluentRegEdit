@@ -38,8 +38,8 @@ namespace RegistryValley.App
 
         private void EnsureEarlyWindow()
         {
-            AppWindow.Title = "RegistryValley";
-            AppWindow.SetIcon(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, "Assets/AppTiles/StoreLogo.png"));
+            AppWindow.Title = "Registry Valley";
+            AppWindow.SetIcon(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, Constants.AssetPaths.Logo));
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;

@@ -55,7 +55,7 @@ namespace RegistryValley.App.Views.Properties
                 if (frame.Content is SecurityAdvancedPage properties)
                     properties.AppWindow = appWindow;
 
-                appWindow.SetIcon("");
+                appWindow.SetIcon(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, Constants.AssetPaths.Logo));
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
                 appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;

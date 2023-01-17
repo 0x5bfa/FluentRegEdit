@@ -186,6 +186,14 @@
                 SelectionChanged="ValueListView_SelectionChanged"
                 SelectionMode="Single">
 
+                <ListView.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                        <Setter Property="MinHeight" Value="1" />
+                        <Setter Property="Height" Value="{ThemeResource AppListViewItemHeight}" />
+                        <Setter Property="Margin" Value="12,0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+
                 <ListView.Header>
                     <Grid
                         x:Name="HeaderGrid"
@@ -277,31 +285,19 @@
 
                             <Image
                                 x:Name="ListViewItemStringBasedValueImage"
-                                Width="24"
-                                Height="24"
+                                Width="20"
+                                Height="20"
                                 HorizontalAlignment="Left"
-                                x:Load="{x:Bind Type, Converter={StaticResource ValueTypeToBoolConverter}}">
-                                <Image.Source>
-                                    <BitmapImage
-                                        DecodePixelHeight="24"
-                                        DecodePixelWidth="24"
-                                        UriSource="/Assets/Images/StringValue.png" />
-                                </Image.Source>
-                            </Image>
+                                x:Load="{x:Bind Type, Converter={StaticResource ValueTypeToBoolConverter}}"
+                                Source="/Assets/Images/StringValue.png" />
 
                             <Image
                                 x:Name="ListViewItemBinaryBasedValueImage"
-                                Width="24"
-                                Height="24"
+                                Width="20"
+                                Height="20"
                                 HorizontalAlignment="Left"
-                                x:Load="{x:Bind Type, Converter={StaticResource ValueTypeToBoolConverter}, ConverterParameter=Invert}">
-                                <Image.Source>
-                                    <BitmapImage
-                                        DecodePixelHeight="24"
-                                        DecodePixelWidth="24"
-                                        UriSource="/Assets/Images/BinaryValue.png" />
-                                </Image.Source>
-                            </Image>
+                                x:Load="{x:Bind Type, Converter={StaticResource ValueTypeToBoolConverter}, ConverterParameter=Invert}"
+                                Source="/Assets/Images/BinaryValue.png" />
 
                             <TextBlock
                                 Margin="32,0,0,0"
@@ -328,12 +324,6 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-
-                <ListView.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
-                        <Setter Property="Margin" Value="12,0" />
-                    </Style>
-                </ListView.ItemContainerStyle>
 
             </ListView>
 

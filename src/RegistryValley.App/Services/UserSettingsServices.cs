@@ -25,5 +25,11 @@
             get => Get("#00000000");
             set => Set(value);
         }
+
+        public bool UseCompactLayout
+        {
+            get => Get(false);
+            set => Set(value);
+        }
     }
 }

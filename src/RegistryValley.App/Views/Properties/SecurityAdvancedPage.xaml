@@ -47,7 +47,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <uc:TitleBarControl />
+        <uc:TitleBarControl Title="Advanced permissions" />
 
         <ScrollViewer Grid.Row="1">
             <Grid>

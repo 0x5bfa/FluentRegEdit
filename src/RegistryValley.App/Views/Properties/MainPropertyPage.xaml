@@ -25,9 +25,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid>
-            <uc:TitleBarControl />
-        </Grid>
+        <uc:TitleBarControl Title="Property" />
 
         <Border
             x:Name="TitlebarArea"
