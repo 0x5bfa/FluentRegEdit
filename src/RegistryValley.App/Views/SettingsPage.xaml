@@ -157,7 +157,7 @@
                 </settingsui:SettingsBlockControl>
                 <settingsui:SettingsBlockControl
                     Title="Run as Administrator"
-                    Description="Run the app with administrator privileges on startup (UAC might be needed)"
+                    Description="Run the app with administrator privileges on startup"
                     IsClickable="False">
                     <settingsui:SettingsBlockControl.Icon>
                         <FontIcon Glyph="&#xE7EF;" />
@@ -267,7 +267,7 @@
                     Text="Reset" />
                 <settingsui:SettingsBlockControl Title="Reset app" IsClickable="False">
                     <settingsui:SettingsBlockControl.Icon>
-                        <FontIcon Glyph="&#xE771;" />
+                        <FontIcon Glyph="&#xE72C;" />
                     </settingsui:SettingsBlockControl.Icon>
                     <Button
                         x:Name="ResetAppButton"

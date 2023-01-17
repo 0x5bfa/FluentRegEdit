@@ -10,13 +10,14 @@
     xmlns:root="using:RegistryValley.App"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
+    Background="{ThemeResource AppThemeBackgroundBrush}"
     mc:Ignorable="d">
 
     <Grid>
         <uc:TitleBarControl Height="40" VerticalAlignment="Top" />
 
         <Grid
-            Width="560"
+            Width="610"
             Height="480"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
@@ -62,6 +63,11 @@
                 BorderThickness="1"
                 CornerRadius="8">
                 <StackPanel Margin="12" Spacing="8">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="Disclaimer &amp; Privacy policy" />
+                    <TextBlock
+                        IsTextSelectionEnabled="True"
+                        Text="We do not guarantee any loss of data that occurs while using this app. Also, the app does not access any personal information without the user's permission. You can see all allowed registry changes in the log on the app settings page."
+                        TextWrapping="Wrap" />
                     <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="Registry Valley License &amp; Terms" />
                     <TextBlock IsTextSelectionEnabled="True" Text="Last updated at January 2023 - MIT License" />
                     <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="Software source code copyright" />
@@ -86,6 +92,7 @@
                     Content="Agree"
                     Style="{StaticResource AccentButtonStyle}" />
             </StackPanel>
+
         </Grid>
     </Grid>
 </Page>

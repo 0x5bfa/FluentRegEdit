@@ -9,6 +9,7 @@
     xmlns:models="using:RegistryValley.App.Models"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
+    Background="{ThemeResource AppThemeBackgroundBrush}"
     mc:Ignorable="d">
 
     <Grid>
@@ -25,7 +26,10 @@
                 Style="{StaticResource TitleTextBlockStyle}"
                 Text="Welcome to" />
 
-            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+            <StackPanel
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="12">
                 <Image
                     Width="Auto"
                     MaxHeight="72"
@@ -42,7 +46,7 @@
                 Width="480"
                 HorizontalAlignment="Center"
                 Style="{StaticResource BodyTextBlockStyle}"
-                Text="We're glad you're here. Need a few simple setup to launch the app and you're good to go! (Until that, the app don't access any personal data)"
+                Text="We're glad you're here. Need a few simple setup to launch the app and you're good to go! (Until that, the app don't access any personal information)"
                 TextAlignment="Center" />
 
             <Button

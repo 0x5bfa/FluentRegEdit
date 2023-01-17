@@ -274,9 +274,9 @@ namespace RegistryValley.App.Views
                 var command = ViewModel.RenameKeyCommand;
                 if (command.CanExecute(item))
                     command.Execute(item);
-
-                item.IsRenaming = false;
             }
+
+            item.IsRenaming = false;
         }
 
         private void KeyItemNameRenamingTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
@@ -286,12 +286,17 @@ namespace RegistryValley.App.Views
                 var textBox = (TextBox)sender;
                 var item = (KeyItem)CustomMainTreeView.SelectedItem;
 
-                ViewModel.CreatingNewKey = false;
-                ViewModel.LastRenamedNewName = textBox.Text;
+                if (item.Name != textBox.Text)
+                {
+                    ViewModel.CreatingNewKey = false;
+                    ViewModel.LastRenamedNewName = textBox.Text;
 
-                var command = ViewModel.RenameKeyCommand;
-                if (command.CanExecute(item))
-                    command.Execute(item);
+                    var command = ViewModel.RenameKeyCommand;
+                    if (command.CanExecute(item))
+                        command.Execute(item);
+                }
+
+                item.IsRenaming = false;
             }
         }
         #endregion

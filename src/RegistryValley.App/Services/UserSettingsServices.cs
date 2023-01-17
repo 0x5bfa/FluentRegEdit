@@ -4,7 +4,7 @@
     {
         public bool RunAsAdminOnStartup
         {
-            get => Get(true);
+            get => Get(false);
             set => Set(value);
         }
 

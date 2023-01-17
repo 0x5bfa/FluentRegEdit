@@ -11,13 +11,14 @@
     xmlns:settingsui="using:RegistryValley.App.UserControls.Settings"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:uc="using:RegistryValley.App.UserControls"
+    Background="{ThemeResource AppThemeBackgroundBrush}"
     mc:Ignorable="d">
 
     <Grid>
         <uc:TitleBarControl Height="40" VerticalAlignment="Top" />
 
         <Grid
-            Width="560"
+            Width="610"
             Height="480"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
@@ -52,7 +53,7 @@
                 <TextBlock
                     VerticalAlignment="Center"
                     Style="{StaticResource TitleTextBlockStyle}"
-                    Text="Configure settings" />
+                    Text="Configure" />
 
             </StackPanel>
 
@@ -65,7 +66,7 @@
                 <StackPanel Margin="12">
                     <settingsui:SettingsBlockControl
                         Title="Run as Administrator"
-                        Description="Run the app with administrator privileges on startup (UAC might be needed)"
+                        Description="Run the app with administrator privileges on startup"
                         IsClickable="False">
                         <settingsui:SettingsBlockControl.Icon>
                             <FontIcon Glyph="&#xE7EF;" />
@@ -77,7 +78,7 @@
                             <ToggleSwitch
                                 FlowDirection="RightToLeft"
                                 IsEnabled="False"
-                                IsOn="True" />
+                                IsOn="False" />
                         </StackPanel>
                     </settingsui:SettingsBlockControl>
                 </StackPanel>
