@@ -13,11 +13,11 @@
 
 Registry Valley is the next generation Registry editor that replace Regedit.exe. In addition to all Regiedit's features, it supports dark theme, powerful WinUI with fluent controls, and custom color themes.
 
-I will be happy if you'd like to contribute this project. We welcome complaints about the legacy app Regedit.exe and suggestions for newf features. Please file an issue if you have encountered any unexpected behaviors in GitHub Issues page.
+We will be happy if you'd like to contribute this project. Also, we welcome complaints about the legacy app Regedit.exe and suggestions for newf features. Please file an issue in GitHub Issues page if you have encountered any unexpected behaviors.
 
 ## Disclaimer & Privacy policy
 
-We do not guarantee any loss of data that occurs while using this app. Also, the app does not access any personal information without the user's permission. You can see all allowed registry changes in the log on the app settings page.
+We do not compensate for any loss of data that occurs while using this app. Also, the app does not access any personal information without the user's permission. You can see all allowed registry changes in the log on the app settings page.
 
 ## Installation
 
@@ -47,7 +47,7 @@ Ensure you have installed the following tools:
 
 ## Screenshots
 
-![image](https://user-images.githubusercontent.com/62196528/208145307-7ce0b4a0-8257-47b6-ad88-7b4b4bd45983.png)
+![image](https://user-images.githubusercontent.com/62196528/212941487-0da3d39d-5b55-4b3d-994b-9055d372aa76.png)
 
 ## Contributing
 
