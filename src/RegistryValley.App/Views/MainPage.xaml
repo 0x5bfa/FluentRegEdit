@@ -67,7 +67,6 @@
                 </Grid.RowDefinitions>
 
                 <ScrollViewer
-                    Padding="0,0,0,4"
                     HorizontalScrollBarVisibility="Auto"
                     HorizontalScrollMode="Auto">
                     <uc:TreeView

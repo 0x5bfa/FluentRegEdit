@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using RegistryValley.App.Models;
 using RegistryValley.App.ViewModels.Properties;
+using System.IO;
 using Windows.Foundation.Metadata;
 using Windows.Graphics;
 

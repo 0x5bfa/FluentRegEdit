@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using RegistryValley.App.Models;
 using RegistryValley.App.Views.Properties;
+using System.IO;
 using Windows.Graphics;
 
 namespace RegistryValley.App.Helpers
