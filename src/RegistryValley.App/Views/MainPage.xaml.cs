@@ -97,7 +97,7 @@ namespace RegistryValley.App.Views
             var item = CustomMainTreeView.GetSelectedItem();
 
             ViewModel.DeleteSelectedKey(item);
-            CustomMainTreeView.RemoveItem(item);
+            CustomMainTreeView.RemoveItemRecursively(item);
         }
 
         private void CustomMainTreeView_KeyRenaming(object sender, RoutedEventArgs e)

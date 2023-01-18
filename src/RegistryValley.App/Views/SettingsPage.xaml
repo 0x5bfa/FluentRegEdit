@@ -111,7 +111,7 @@
                     </settingsui:SettingsBlockControl.Icon>
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                         <ComboBox
-                            Width="96"
+                            Width="128"
                             ItemsSource="{x:Bind ViewModel.ColorModes}"
                             SelectedIndex="{x:Bind ViewModel.SelectedColorModeIndex, Mode=TwoWay}" />
                     </StackPanel>

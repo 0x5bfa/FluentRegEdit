@@ -1,7 +1,5 @@
 ﻿using RegistryValley.App.Services;
 using RegistryValley.App.Models;
-using Microsoft.UI.Xaml.Controls;
-using WinRT.Interop;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -42,7 +40,7 @@ namespace RegistryValley.App.ViewModels
             var picker = new Windows.Storage.Pickers.FileSavePicker();
             picker.FileTypeChoices.Add("Registration Entries", new List<string>() { ".reg" });
 
-            InitializeWithWindow.Initialize(picker, App.WindowHandle);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, App.WindowHandle);
 
             var file = await picker.PickSaveFileAsync();
 

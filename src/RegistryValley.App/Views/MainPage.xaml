@@ -66,9 +66,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <ScrollViewer
-                    HorizontalScrollBarVisibility="Auto"
-                    HorizontalScrollMode="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto">
                     <uc:TreeView
                         x:Name="CustomMainTreeView"
                         MinWidth="256"
@@ -114,7 +112,7 @@
                             Height="18"
                             VerticalAlignment="Center"
                             Background="{ThemeResource AccentFillColorDefaultBrush}"
-                            CornerRadius="2"
+                            CornerRadius="1.5"
                             Visibility="Collapsed" />
 
                         <StackPanel

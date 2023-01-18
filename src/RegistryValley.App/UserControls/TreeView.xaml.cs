@@ -6,7 +6,6 @@ using RegistryValley.App.Models;
 using RegistryValley.App.Services;
 using RegistryValley.App.ViewModels;
 using RegistryValley.App.ViewModels.UserControls;
-using RegistryValley.App.Views;
 
 namespace RegistryValley.App.UserControls
 {
@@ -99,7 +98,7 @@ namespace RegistryValley.App.UserControls
             var item = (KeyItem)CustomMainTreeView.SelectedItem;
             var itemIndex = CustomMainTreeView.SelectedIndex + 1;
 
-            if (!item.IsExpanded && !item.HasChildren)
+            if (!item.IsExpanded && item.HasChildren)
                 ExpandChildren(item);
 
             item.HasChildren = true;
@@ -330,6 +329,31 @@ namespace RegistryValley.App.UserControls
         public void RemoveItem(KeyItem item)
         {
             ViewModel.FlatKeyItems.Remove(item);
+        }
+
+        public void RemoveItemRecursively(KeyItem item)
+        {
+            int startIndex = ViewModel.FlatKeyItems.IndexOf(item);
+            int depth = item.Depth;
+
+            var list = ViewModel.FlatKeyItems.Where(x => x.Depth > depth && ViewModel.FlatKeyItems.IndexOf(x) > startIndex).ToList();
+
+            if (list.Count != 0)
+            {
+                var lastRemovedItemIndex = ViewModel.FlatKeyItems.IndexOf(list.First());
+
+                // Remove children recursively
+                foreach (var listItem in list)
+                {
+                    if (lastRemovedItemIndex == ViewModel.FlatKeyItems.IndexOf(listItem))
+                        ViewModel.FlatKeyItems.Remove(listItem);
+                    else
+                        break;
+                }
+            }
+
+            // Remove itself
+            RemoveItem(item);
         }
         #endregion
     }
