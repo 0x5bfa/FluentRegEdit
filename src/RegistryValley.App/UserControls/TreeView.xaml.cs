@@ -35,18 +35,16 @@ namespace RegistryValley.App.UserControls
 
         #region TreeView event methods
         private void CustomMainTreeView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            BaseSelectionChanged?.Invoke(sender, e);
-        }
+            => BaseSelectionChanged?.Invoke(sender, e);
 
         private void ExpandCollapseButton_Click(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)((Button)sender).DataContext;
 
             if (!item.IsExpanded)
-                ExpandChildren(item);
+                ViewModel.ExpandChildren(item);
             else
-                CollapseChildren(item);
+                ViewModel.CollapseChildren(item);
         }
         #endregion
 
@@ -84,13 +82,13 @@ namespace RegistryValley.App.UserControls
         private void KeyTreeViewItemMenuFlyoutExpand_Click(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-            ExpandChildren(item);
+            ViewModel.ExpandChildren(item);
         }
 
         private void KeyTreeViewItemMenuFlyoutCollapse_Click(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-            CollapseChildren(item);
+            ViewModel.CollapseChildren(item);
         }
 
         private void KeyTreeViewItemMenuFlyoutNew_Click(object sender, RoutedEventArgs e)
@@ -99,7 +97,7 @@ namespace RegistryValley.App.UserControls
             var itemIndex = CustomMainTreeView.SelectedIndex + 1;
 
             if (!item.IsExpanded && item.HasChildren)
-                ExpandChildren(item);
+                ViewModel.ExpandChildren(item);
 
             item.HasChildren = true;
              
@@ -121,38 +119,26 @@ namespace RegistryValley.App.UserControls
             };
 
             ViewModel.CreatingNewKey = true;
-            Insert(itemIndex, defaultNewKeyItem);
+            ViewModel.FlatKeyItems.Insert(itemIndex, defaultNewKeyItem);
             CustomMainTreeView.SelectedIndex++;
         }
 
         private void KeyTreeViewItemMenuFlyoutDelete_Click(object sender, RoutedEventArgs e)
-        {
-            KeyDeleting?.Invoke(sender, e);
-        }
+            => KeyDeleting?.Invoke(sender, e);
 
         private void KeyTreeViewItemMenuFlyoutRename_Click(object sender, RoutedEventArgs e)
-        {
-            var item = (KeyItem)CustomMainTreeView.SelectedItem;
-            item.IsRenaming = true;
-        }
+            =>((KeyItem)CustomMainTreeView.SelectedItem).IsRenaming = true;
 
         private void KeyTreeViewItemMenuFlyoutExport_Click(object sender, RoutedEventArgs e)
-        {
-            KeyExporting?.Invoke(sender, e);
-        }
+            => KeyExporting?.Invoke(sender, e);
 
         private void KeyTreeViewItemMenuFlyoutPermissions_Click(object sender, RoutedEventArgs e)
-        {
-            KeyPropertyWindowOpening?.Invoke(sender, e);
-        }
+            => KeyPropertyWindowOpening?.Invoke(sender, e);
 
         private void KeyTreeViewItemMenuFlyoutCopyKeyName_Click(object sender, RoutedEventArgs e)
         {
             var item = (KeyItem)((MenuFlyoutItem)sender).DataContext;
-
-            var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
-            dp.SetText(item.PathForPwsh);
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+            ClipBoardHelpers.SetContent(item.PathForPwsh);
         }
         #endregion
 
@@ -200,125 +186,16 @@ namespace RegistryValley.App.UserControls
         }
         #endregion
 
-        #region Collection handling
-        private void GetChildItems(KeyItem item)
-        {
-            if (item.RootHive == HKEY.NULL)
-                return;
-
-            item.Children.Clear();
-
-            var children = ViewModel.EnumerateRegistryKeys(item.RootHive, item.Path, item);
-            if (children != null)
-            {
-                foreach (var child in children)
-                    item.Children.Add(child);
-            }
-            else
-            {
-                // Error handling
-                var result = Kernel32.GetLastError();
-                if (result.Failed)
-                {
-                    ValuesViewerViewModel.StatusBarMessage = result.FormatMessage();
-                }
-            }
-        }
-
-        private void RemoveChildItems(KeyItem item)
-        {
-            item.Children.Clear();
-            item.HasChildren = true;
-        }
-
-        private void ExpandChildren(KeyItem item)
-        {
-            item.IsExpanded = true;
-            int index = ((ObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource).IndexOf(item);
-
-            var keyItemNodeTree = ViewModel.KeyItems;
-            var flattenedKeyItemNodeTree = GetFlattenNodes(keyItemNodeTree);
-
-            var itemFromFlattenedTree = flattenedKeyItemNodeTree.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
-
-            itemFromFlattenedTree.IsExpanded = true;
-
-            if (item.Depth != 1)
-                GetChildItems(itemFromFlattenedTree);
-
-            index++;
-            foreach (var child in itemFromFlattenedTree.Children)
-            {
-                Insert(index, child);
-                index++;
-            }
-        }
-
-        private void CollapseChildren(KeyItem item)
-        {
-            item.IsExpanded = false;
-            int index = ((ObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource).IndexOf(item);
-
-            var keyItemNodeTree = ViewModel.KeyItems;
-            var flattenedKeyItemNodeTree = GetFlattenNodes(keyItemNodeTree);
-
-            var itemFromFlattenedTree = flattenedKeyItemNodeTree.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
-
-            itemFromFlattenedTree.IsExpanded = false;
-
-            if (item.Depth != 1)
-                RemoveChildItems(itemFromFlattenedTree);
-
-            RemoveAll(item.Depth, index);
-        }
-
-        private void SelectItem(KeyItem item)
-        {
-            int index = ((ObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource).IndexOf(item);
-            CustomMainTreeView.SelectedIndex = index;
-        }
-
-        public IEnumerable<KeyItem> GetFlattenNodes(IEnumerable<KeyItem> masterList)
-        {
-            foreach (var node in masterList)
-            {
-                yield return node;
-
-                foreach (var children in GetFlattenNodes(node.Children))
-                {
-                    yield return children;
-                }
-            }
-        }
-
-        public void Insert(int index, KeyItem item)
-        {
-            var items = (ObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource;
-            items.Insert(index, item);
-        }
-
-        public void RemoveAll(int depth, int startIndex)
-        {
-            var items = (ObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource;
-
-            int lastRemovedItemIndex = 0;
-            var list = items.Where(x => x.Depth > depth && items.IndexOf(x) > startIndex).ToList();
-            lastRemovedItemIndex = items.IndexOf(list.FirstOrDefault());
-
-            foreach (var item in list)
-            {
-                if (lastRemovedItemIndex == items.IndexOf(item))
-                    items.Remove(item);
-                else
-                    break;
-            }
-        }
-        #endregion
-
         #region Public methods for MainPage
         public void UnselectItem()
         {
             CustomMainTreeView.SelectedIndex = -1;
+        }
+
+        public void SelectItem(KeyItem item)
+        {
+            int index = ((ObservableCollection<KeyItem>)CustomMainTreeView.ItemsSource).IndexOf(item);
+            CustomMainTreeView.SelectedIndex = index;
         }
 
         public KeyItem GetSelectedItem()

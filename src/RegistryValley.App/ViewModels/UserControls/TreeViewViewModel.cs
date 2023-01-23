@@ -7,9 +7,6 @@ namespace RegistryValley.App.ViewModels.UserControls
     {
         public TreeViewViewModel()
         {
-            KeyItems = new();
-            FlatKeyItems = new();
-
             KeyItems = Data.DefaultKeyItemFactory.DefaultNestedKeyTree;
             FlatKeyItems = Data.DefaultKeyItemFactory.DefaultFlattenedKeyTree;
         }
@@ -20,13 +17,47 @@ namespace RegistryValley.App.ViewModels.UserControls
 
         public string LastRenamedNewName { get; set; }
         public bool CreatingNewKey { get; set; }
-
-        public IRelayCommand DeleteKeyCommand { get; }
-        public IRelayCommand RenameKeyCommand { get; }
         #endregion
 
-        #region Enumerating methods
-        public IEnumerable<KeyItem> EnumerateRegistryKeys(HKEY hRootKey, string subRoot, KeyItem parent)
+        #region Methods
+        public void ExpandChildren(KeyItem item)
+        {
+            item.IsExpanded = true;
+            int index = FlatKeyItems.IndexOf(item);
+
+            var flattenedKeyItemNodeTree = GetFlattenNodes(KeyItems);
+
+            var itemFromFlattenedTreeItem = flattenedKeyItemNodeTree.Where(x => x.PathForPwsh == item.PathForPwsh).FirstOrDefault();
+            itemFromFlattenedTreeItem.IsExpanded = true;
+
+            if (item.Depth != 1)
+                GetChildItems(itemFromFlattenedTreeItem);
+
+            index++;
+            foreach (var child in itemFromFlattenedTreeItem.Children)
+            {
+                FlatKeyItems.Insert(index, child);
+                index++;
+            }
+        }
+
+        public void CollapseChildren(KeyItem item)
+        {
+            item.IsExpanded = false;
+            int index = FlatKeyItems.IndexOf(item);
+
+            var flattenedKeyItemNodeTree = GetFlattenNodes(KeyItems);
+
+            var itemFromFlattenedTree = flattenedKeyItemNodeTree.Where(x => x.PathForPwsh == item.PathForPwsh).First();
+            itemFromFlattenedTree.IsExpanded = false;
+
+            if (item.Depth != 1)
+                RemoveChildItems(itemFromFlattenedTree);
+
+            RemoveAll(item.Depth, index);
+        }
+
+        private IEnumerable<KeyItem> EnumerateRegistryKeys(HKEY hRootKey, string subRoot, KeyItem parent)
         {
             List<KeyItem> keys = new();
             Win32Error result;
@@ -119,6 +150,60 @@ namespace RegistryValley.App.ViewModels.UserControls
                 hasChildren = true;
 
             return Win32Error.ERROR_SUCCESS;
+        }
+
+        private void GetChildItems(KeyItem item)
+        {
+            if (item.Depth == 1)
+                return;
+
+            item.Children.Clear();
+
+            var children = EnumerateRegistryKeys(item.RootHive, item.Path, item);
+            if (children != null)
+            {
+                foreach (var child in children)
+                    item.Children.Add(child);
+            }
+            else
+            {
+                // Error handling
+                var result = Kernel32.GetLastError();
+            }
+        }
+
+        private void RemoveChildItems(KeyItem item)
+        {
+            item.Children.Clear();
+            item.HasChildren = true;
+        }
+
+        private void RemoveAll(int depth, int startIndex)
+        {
+            int lastRemovedItemIndex = 0;
+            var list = FlatKeyItems.Where(x => x.Depth > depth && FlatKeyItems.IndexOf(x) > startIndex).ToList();
+            lastRemovedItemIndex = FlatKeyItems.IndexOf(list.First());
+
+            foreach (var item in list)
+            {
+                if (lastRemovedItemIndex == FlatKeyItems.IndexOf(item))
+                    FlatKeyItems.Remove(item);
+                else
+                    break;
+            }
+        }
+
+        private IEnumerable<KeyItem> GetFlattenNodes(IEnumerable<KeyItem> masterList)
+        {
+            foreach (var node in masterList)
+            {
+                yield return node;
+
+                foreach (var children in GetFlattenNodes(node.Children))
+                {
+                    yield return children;
+                }
+            }
         }
         #endregion
     }
