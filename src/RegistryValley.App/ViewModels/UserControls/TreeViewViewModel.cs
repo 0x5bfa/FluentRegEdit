@@ -105,14 +105,14 @@ namespace RegistryValley.App.ViewModels.UserControls
                 {
                     Kernel32.SetLastError((uint)result);
                     result.ThrowIfFailed();
-                    return null;
+                    return default;
                 }
 
                 keys.Add(new()
                 {
                     Name = szName.ToString(),
                     RootHive = hRootKey,
-                    Path = subKeyPath,
+                    BasePath = subRoot,
                     IsDeletable = true,
                     IsRenamable = true,
                     HasChildren = hasChildren,

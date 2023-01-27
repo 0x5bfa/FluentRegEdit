@@ -108,7 +108,7 @@ namespace RegistryValley.App.UserControls
             {
                 Name = keyName,
                 RootHive = item.RootHive,
-                Path = item.Path == "" ? $"{keyName}" : $"{item.Path}\\{keyName}",
+                BasePath = item.Path,
                 IsDeletable = true,
                 IsRenamable = true,
                 IsRenaming = true,

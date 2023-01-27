@@ -5,8 +5,11 @@
         private string _name;
         public string Name { get => _name; set => SetProperty(ref _name, value); }
 
-        private string _path;
-        public string Path { get => _path; set => SetProperty(ref _path, value); }
+        private string _basePath;
+        public string BasePath { get => _basePath; set => SetProperty(ref _basePath, value); }
+
+        public string Path
+            => string.IsNullOrEmpty(BasePath) && Name.StartsWith("HKEY") ? "" : (string.IsNullOrEmpty(BasePath) ? Name : $"{BasePath}\\{Name}");
 
         public string PathForPwsh
         {

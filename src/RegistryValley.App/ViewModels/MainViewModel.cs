@@ -1,5 +1,6 @@
-﻿using RegistryValley.App.Services;
+﻿using RegistryValley.App.Extensions;
 using RegistryValley.App.Models;
+using RegistryValley.App.Services;
 
 namespace RegistryValley.App.ViewModels
 {
@@ -13,7 +14,7 @@ namespace RegistryValley.App.ViewModels
         #endregion
 
         public void DeleteSelectedKey(KeyItem key)
-        {
+        {    
             var result = ShellServices.RunPowershellCommand(runAs: true, @$"-command Remove-Item -Path '{key.PathForPwsh}' -Recurse");
 
             key.Parent.Children.Remove(key);
@@ -25,7 +26,7 @@ namespace RegistryValley.App.ViewModels
         public void RenameSelectedKey(KeyItem key, string renamingKey)
         {
             key.IsRenaming = false;
-            key.Name = renamingKey;
+            var previousPath = key.Path;
 
             var pathItems = key.PathForPwsh.Split('\\').ToList();
             pathItems.RemoveAt(pathItems.Count - 1);
@@ -33,6 +34,15 @@ namespace RegistryValley.App.ViewModels
 
             var command = @$"-command if (!(Test-Path '{key.PathForPwsh}')) {{ New-Item -Path '{parentPath}' -Name '{key.Name}' -Force }} else {{ Rename-Item '{key.PathForPwsh}' -NewName '{renamingKey}' }}";
             var result = ShellServices.RunPowershellCommand(runAs: true, command);
+
+            key.Name = renamingKey;
+
+            // Update path of child items
+            var flattenedItems = key.Children.GetFlattenNodes();
+            foreach (var item in flattenedItems)
+            {
+                item.BasePath = item.BasePath.Replace(previousPath, key.Path);
+            }
         }
 
         public async Task ExportSelectedKeyTree(KeyItem key)
@@ -48,4 +58,4 @@ namespace RegistryValley.App.ViewModels
                 ShellServices.RunCmdPromptCommand(runAs: true, $"/c REG EXPORT '{key.PathForCmd}' '{file.Path}'");
         }
     }
-}
+} 

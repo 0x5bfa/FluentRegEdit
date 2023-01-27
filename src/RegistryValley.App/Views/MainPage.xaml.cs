@@ -102,7 +102,7 @@ namespace RegistryValley.App.Views
 
         private void CustomMainTreeView_KeyRenaming(object sender, RoutedEventArgs e)
         {
-            ViewModel.RenameSelectedKey(CustomMainTreeView.GetSelectedItem(), (string)sender);
+            ViewModel.RenameSelectedKey(CustomMainTreeView.GetSelectedItem(), ((TextBox)sender).Text);
         }
 
         private async void CustomMainTreeView_KeyExporting(object sender, RoutedEventArgs e)

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using RegistryValley.App.Models;
+using System.Reflection;
 
 namespace RegistryValley.App.Extensions
 {
@@ -25,6 +26,19 @@ namespace RegistryValley.App.Extensions
                 throw new InvalidOperationException("Generic parameter 'TEnum' must be an enum.");
             }
             return (TEnum)Enum.Parse(typeof(TEnum), text);
+        }
+
+        public static IEnumerable<KeyItem> GetFlattenNodes(this IEnumerable<KeyItem> masterList)
+        {
+            foreach (var node in masterList)
+            {
+                yield return node;
+
+                foreach (var children in node.Children.GetFlattenNodes())
+                {
+                    yield return children;
+                }
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ namespace RegistryValley.App.Data
                 Name = "Computer",
                 RootHive = HKEY.NULL,
                 IsExpanded = true,
-                Path = "",
+                BasePath = "",
                 IsDeletable = false,
                 IsRenamable = false,
                 HasChildren = true,
@@ -24,7 +24,7 @@ namespace RegistryValley.App.Data
                     {
                         Name = "HKEY_CLASSES_ROOT",
                         RootHive = HKEY.HKEY_CLASSES_ROOT,
-                        Path = "",
+                        BasePath = "",
                         IsDeletable = false,
                         IsRenamable = false,
                         HasChildren = true,
@@ -35,7 +35,7 @@ namespace RegistryValley.App.Data
                     {
                         Name = "HKEY_CURRENT_USER",
                         RootHive = HKEY.HKEY_CURRENT_USER,
-                        Path = "",
+                        BasePath = "",
                         IsDeletable = false,
                         IsRenamable = false,
                         HasChildren = true,
@@ -46,7 +46,7 @@ namespace RegistryValley.App.Data
                     {
                         Name = "HKEY_LOCAL_MACHINE",
                         RootHive = HKEY.HKEY_LOCAL_MACHINE,
-                        Path = "",
+                        BasePath = "",
                         IsDeletable = false,
                         IsRenamable = false,
                         HasChildren = true,
@@ -57,7 +57,7 @@ namespace RegistryValley.App.Data
                     {
                         Name = "HKEY_USERS",
                         RootHive = HKEY.HKEY_USERS,
-                        Path = "",
+                        BasePath = "",
                         IsDeletable = false,
                         IsRenamable = false,
                         HasChildren = true,
@@ -68,7 +68,7 @@ namespace RegistryValley.App.Data
                     {
                         Name = "HKEY_CURRENT_CONFIG",
                         RootHive = HKEY.HKEY_CURRENT_CONFIG,
-                        Path = "",
+                        BasePath = "",
                         IsDeletable = false,
                         IsRenamable = false,
                         HasChildren = true,
@@ -86,7 +86,7 @@ namespace RegistryValley.App.Data
                 Name = "Computer",
                 RootHive = HKEY.NULL,
                 IsExpanded = true,
-                Path = "",
+                BasePath = "",
                 IsDeletable = false,
                 IsRenamable = false,
                 HasChildren = true,
@@ -99,7 +99,7 @@ namespace RegistryValley.App.Data
             {
                 Name = "HKEY_CLASSES_ROOT",
                 RootHive = HKEY.HKEY_CLASSES_ROOT,
-                Path = "",
+                BasePath = "",
                 IsDeletable = false,
                 IsRenamable = false,
                 HasChildren = true,
@@ -110,7 +110,7 @@ namespace RegistryValley.App.Data
             {
                 Name = "HKEY_CURRENT_USER",
                 RootHive = HKEY.HKEY_CURRENT_USER,
-                Path = "",
+                BasePath = "",
                 IsDeletable = false,
                 IsRenamable = false,
                 HasChildren = true,
@@ -121,7 +121,7 @@ namespace RegistryValley.App.Data
             {
                 Name = "HKEY_LOCAL_MACHINE",
                 RootHive = HKEY.HKEY_LOCAL_MACHINE,
-                Path = "",
+                BasePath = "",
                 IsDeletable = false,
                 IsRenamable = false,
                 HasChildren = true,
@@ -132,7 +132,7 @@ namespace RegistryValley.App.Data
             {
                 Name = "HKEY_USERS",
                 RootHive = HKEY.HKEY_USERS,
-                Path = "",
+                BasePath = "",
                 IsDeletable = false,
                 IsRenamable = false,
                 HasChildren = true,
@@ -143,7 +143,7 @@ namespace RegistryValley.App.Data
             {
                 Name = "HKEY_CURRENT_CONFIG",
                 RootHive = HKEY.HKEY_CURRENT_CONFIG,
-                Path = "",
+                BasePath = "",
                 IsDeletable = false,
                 IsRenamable = false,
                 HasChildren = true,
