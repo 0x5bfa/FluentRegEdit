@@ -9,7 +9,7 @@
   <Identity
     Name="RegistryValley"
     Publisher="CN=0x5BFA"
-    Version="0.0.1.0" />
+    Version="1.0.0.0" />
 
   <Properties>
     <DisplayName>RegistryValley</DisplayName>
