@@ -1,158 +1,198 @@
 ﻿<Page
-    x:Class="RegistryValley.App.Views.MainPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
-    xmlns:converters="using:RegistryValley.App.Converters"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:RegistryValley.App.Views"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:RegistryValley.App.Models"
-    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:uc="using:RegistryValley.App.UserControls"
-    Background="{ThemeResource AppThemeBackgroundBrush}"
-    DataContext="{x:Bind ViewModel, Mode=OneWay}"
-    mc:Ignorable="d">
+	x:Class="RegistryValley.App.Views.MainPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+	xmlns:converters="using:RegistryValley.App.Converters"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:RegistryValley.App.Views"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:models="using:RegistryValley.App.Models"
+	xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+	xmlns:uc="using:RegistryValley.App.UserControls"
+	Background="{ThemeResource AppThemeBackgroundBrush}"
+	DataContext="{x:Bind ViewModel, Mode=OneWay}"
+	mc:Ignorable="d">
 
-    <Page.Resources>
-        <ResourceDictionary>
+	<Page.Resources>
+		<ResourceDictionary>
 
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="ms-appx:///ResourceDictionaries/DefaultGridSplitterStyle.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="ms-appx:///ResourceDictionaries/DefaultGridSplitterStyle.xaml" />
+			</ResourceDictionary.MergedDictionaries>
 
-            <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
-            <converters:BoolToGlyphConverter
-                x:Key="BoolToGlyphConverter"
-                CollapsedGlyph="&#xE76C;"
-                ExpandedGlyph="&#xE70D;" />
+			<converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
+			<converters:BoolToGlyphConverter
+				x:Key="BoolToGlyphConverter"
+				CollapsedGlyph="&#xE76C;"
+				ExpandedGlyph="&#xE70D;" />
 
-            <Thickness x:Key="TreeViewItemPresenterPadding">0,0,0,0</Thickness>
+			<Thickness x:Key="TreeViewItemPresenterPadding">0,0,0,0</Thickness>
 
-            <Style
-                x:Name="HeaderGridSplitterStyle"
-                BasedOn="{StaticResource DefaultGridSplitterStyle}"
-                TargetType="toolkit:GridSplitter">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Width" Value="12" />
-                <Setter Property="Margin" Value="0,4,0,4" />
-                <Setter Property="Opacity" Value="0.8" />
-                <Setter Property="Canvas.ZIndex" Value="1" />
-            </Style>
+			<Style
+				x:Name="HeaderGridSplitterStyle"
+				BasedOn="{StaticResource DefaultGridSplitterStyle}"
+				TargetType="toolkit:GridSplitter">
+				<Setter Property="Background" Value="Transparent" />
+				<Setter Property="Width" Value="12" />
+				<Setter Property="Margin" Value="0,4,0,4" />
+				<Setter Property="Opacity" Value="0.8" />
+				<Setter Property="Canvas.ZIndex" Value="1" />
+			</Style>
 
-        </ResourceDictionary>
-    </Page.Resources>
+		</ResourceDictionary>
+	</Page.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="36" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="40" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
 
-        <uc:TitleBarControl />
+		<uc:TitleBarControl />
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" MinWidth="144" />
-                <ColumnDefinition Width="6" />
-                <ColumnDefinition Width="*" MinWidth="144" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+		<Grid
+			Grid.Row="1"
+			Padding="4"
+			Background="{ThemeResource LayerFillColorDefaultBrush}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+			<MenuBar>
+				<MenuBarItem Title="File">
+					<MenuFlyoutItem Text="New" />
+					<MenuFlyoutItem Text="Open..." />
+					<MenuFlyoutItem Text="Save" />
+					<MenuFlyoutItem Text="Exit" />
+				</MenuBarItem>
 
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto">
-                    <uc:TreeView
-                        x:Name="CustomMainTreeView"
-                        MinWidth="256"
-                        Margin="0,0,0,24"
-                        BaseSelectionChanged="CustomMainTreeView_BaseSelectionChanged"
-                        KeyDeleting="CustomMainTreeView_KeyDeleting"
-                        KeyExporting="CustomMainTreeView_KeyExporting"
-                        KeyPropertyWindowOpening="CustomMainTreeView_KeyPropertyWindowOpening"
-                        KeyRenaming="CustomMainTreeView_KeyRenaming" />
-                </ScrollViewer>
+				<MenuBarItem Title="Edit">
+					<MenuFlyoutItem Text="Undo" />
+					<MenuFlyoutItem Text="Cut" />
+					<MenuFlyoutItem Text="Copy" />
+					<MenuFlyoutItem Text="Paste" />
+				</MenuBarItem>
 
-                <Border
-                    Grid.Row="1"
-                    Height="1"
-                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+				<MenuBarItem Title="Help">
+					<MenuFlyoutItem Text="About" />
+				</MenuBarItem>
+			</MenuBar>
 
-                <Button
-                    x:Name="SettingsButton"
-                    Grid.Row="2"
-                    Height="36"
-                    Margin="4,4,4,6"
-                    Padding="0"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Click="SettingsButton_Click">
-                    <Grid Height="36" ColumnSpacing="6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+			<Grid Grid.Column="1">
+				<TextBox Margin="12,4" />
+			</Grid>
 
-                        <Border
-                            x:Name="SettingsButtonClickedBackground"
-                            Grid.ColumnSpan="2"
-                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                            Visibility="Collapsed" />
+		</Grid>
 
-                        <Border
-                            x:Name="SettingsButtonClickedIndicator"
-                            Width="3"
-                            Height="18"
-                            VerticalAlignment="Center"
-                            Background="{ThemeResource AccentFillColorDefaultBrush}"
-                            CornerRadius="1.5"
-                            Visibility="Collapsed" />
+		<Border
+			Grid.Row="2"
+			Height="1"
+			Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-                        <StackPanel
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal"
-                            Spacing="8">
-                            <AnimatedIcon x:Name="GameSettingsIcon" Height="16">
-                                <AnimatedIcon.Source>
-                                    <animatedvisuals:AnimatedSettingsVisualSource />
-                                </AnimatedIcon.Source>
-                                <AnimatedIcon.FallbackIconSource>
-                                    <FontIconSource Glyph="&#xE713;" />
-                                </AnimatedIcon.FallbackIconSource>
-                            </AnimatedIcon>
-                            <TextBlock Text="Settings" />
-                        </StackPanel>
-                    </Grid>
-                </Button>
+		<Grid Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" MinWidth="144" />
+				<ColumnDefinition Width="6" />
+				<ColumnDefinition Width="*" MinWidth="144" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
 
-            </Grid>
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
 
-            <toolkit:GridSplitter
-                Grid.Column="1"
-                Width="6"
-                Canvas.ZIndex="30"
-                Style="{StaticResource InvisibleGridSplitterStyle}" />
+				<ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto">
+					<uc:TreeView
+						x:Name="CustomMainTreeView"
+						MinWidth="256"
+						Margin="0,0,0,24"
+						BaseSelectionChanged="CustomMainTreeView_BaseSelectionChanged"
+						KeyDeleting="CustomMainTreeView_KeyDeleting"
+						KeyExporting="CustomMainTreeView_KeyExporting"
+						KeyPropertyWindowOpening="CustomMainTreeView_KeyPropertyWindowOpening"
+						KeyRenaming="CustomMainTreeView_KeyRenaming" />
+				</ScrollViewer>
 
-            <Grid
-                Grid.Column="2"
-                Margin="-6,0,0,0"
-                Background="{ThemeResource LayerFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1,1,0,0"
-                CornerRadius="8,0,0,0">
+				<Border
+					Grid.Row="1"
+					Height="1"
+					Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-                <Frame x:Name="ContentFrame" />
-            </Grid>
+				<Button
+					x:Name="SettingsButton"
+					Grid.Row="2"
+					Height="36"
+					Margin="4,4,4,6"
+					Padding="0"
+					HorizontalAlignment="Stretch"
+					HorizontalContentAlignment="Stretch"
+					Background="Transparent"
+					BorderThickness="0"
+					Click="SettingsButton_Click">
+					<Grid Height="36" ColumnSpacing="6">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="4" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
 
-        </Grid>
+						<Border
+							x:Name="SettingsButtonClickedBackground"
+							Grid.ColumnSpan="2"
+							Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+							Visibility="Collapsed" />
 
-    </Grid>
+						<Border
+							x:Name="SettingsButtonClickedIndicator"
+							Width="3"
+							Height="18"
+							VerticalAlignment="Center"
+							Background="{ThemeResource AccentFillColorDefaultBrush}"
+							CornerRadius="1.5"
+							Visibility="Collapsed" />
+
+						<StackPanel
+							Grid.Column="1"
+							VerticalAlignment="Center"
+							Orientation="Horizontal"
+							Spacing="8">
+							<AnimatedIcon x:Name="GameSettingsIcon" Height="16">
+								<AnimatedIcon.Source>
+									<animatedvisuals:AnimatedSettingsVisualSource />
+								</AnimatedIcon.Source>
+								<AnimatedIcon.FallbackIconSource>
+									<FontIconSource Glyph="&#xE713;" />
+								</AnimatedIcon.FallbackIconSource>
+							</AnimatedIcon>
+							<TextBlock Text="Settings" />
+						</StackPanel>
+					</Grid>
+				</Button>
+
+			</Grid>
+
+			<toolkit:GridSplitter
+				Grid.Column="1"
+				Width="6"
+				Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+				Canvas.ZIndex="30"
+				Style="{StaticResource InvisibleGridSplitterStyle}" />
+
+			<Grid
+				Grid.Column="2"
+				Margin="-6,0,0,0"
+				Background="{ThemeResource LayerFillColorDefaultBrush}">
+
+				<Frame x:Name="ContentFrame" />
+			</Grid>
+
+		</Grid>
+
+	</Grid>
 </Page>
