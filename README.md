@@ -67,12 +67,6 @@ There are multiple ways to participate in the community:
 
 - Many thanks to [@zeealeid](https://twitter.com/zeealeid) for creating this app's logo and concept.
 
-## Contact
-
-If you would like to ask a question, please reach out to us via Twitter:
-
-- Tomoyuki Terashita, Main Developer: [@onein528](https://twitter.com/onein528)
-
 ## License
 
 Copyright (c) 2020-2023 onein528
