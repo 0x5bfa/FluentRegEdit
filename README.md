@@ -2,7 +2,7 @@
   <img width="96" align="center" src="https://user-images.githubusercontent.com/62196528/206452068-ba9f900d-28f2-4415-b9a4-339515c1282a.png" />
 </p>
 <h1 align="center">
-  Registry Editor Valley
+  Fluent Registry Editor
 </h1>
 
 <p align="center">
