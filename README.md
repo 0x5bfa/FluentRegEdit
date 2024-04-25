@@ -69,6 +69,6 @@ There are multiple ways to participate in the community:
 
 ## License
 
-Copyright (c) 2020-2023 onein528
+Copyright (c) 2024 0x5bfa
 
 Licensed under the MIT license as stated in the [LICENSE](LICENSE).
