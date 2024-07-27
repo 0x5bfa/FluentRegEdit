@@ -55,20 +55,9 @@ There are multiple ways to participate in the community:
 
 - [Submit bugs and feature requests](https://github.com/onein528/RegistryValley/issues/new/choose).
 - Make pull requests for anything from typos to additional and new idea
-- Review source code changes
-
-## Feedback
-
 - [Request a new feature](https://github.com/onein528/RegistryValley/pulls)
-- Upvote popular feature requests
 - [File an issue](https://github.com/onein528/RegistryValley/issues/new/choose)
 
 ## Credit
 
-- Many thanks to [@zeealeid](https://twitter.com/zeealeid) for creating this app's logo and concept.
-
-## License
-
-Copyright (c) 2024 0x5bfa
-
-Licensed under the MIT license as stated in the [LICENSE](LICENSE).
+- Huge thanks to [@zeealeid](https://twitter.com/zeealeid) for creating this app's logo and concept.
