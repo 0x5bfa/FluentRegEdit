@@ -4,17 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows10.0.22000.0</TargetFramework>
     <AssemblyName>RegistryValley</AssemblyName>
-    <RootNamespace>RegistryValley.App</RootNamespace>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
-    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <GenerateTestArtifacts>False</GenerateTestArtifacts>
-    <AppxBundle>Always</AppxBundle>
-    <DisableXbfLineInfo>False</DisableXbfLineInfo>
-    <AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
-    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;arm64</Platforms>
@@ -24,52 +14,19 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Configurations>Debug;Release;Sideload</Configurations>
-    <TieredCompilation>true</TieredCompilation>
-    <TieredPgo>true</TieredPgo>
-    <NoWarn>CS8618</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>TRACE;DEBUG;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
     <DefineConstants>TRACE;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Sideload|x86'">
-    <DefineConstants>TRACE;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN;SIDELOAD</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|arm64'">
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|arm64'">
-    <DefineConstants>TRACE;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Sideload|arm64'">
-    <DefineConstants>TRACE;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN;SIDELOAD</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DefineConstants>TRACE;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Sideload|x64'">
-    <DefineConstants>TRACE;NETFX_CORE;DISABLE_XAML_GENERATED_MAIN;SIDELOAD</DefineConstants>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="Assets\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ResourceDictionaries\*.xaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
 
